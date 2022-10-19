@@ -54021,7 +54021,7 @@ GameObject:
   - component: {fileID: 1751953678}
   - component: {fileID: 1751953677}
   m_Layer: 0
-  m_Name: New Sprite
+  m_Name: Original Commit
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
