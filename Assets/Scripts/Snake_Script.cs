@@ -112,7 +112,7 @@ public class Snake_Script : MonoBehaviour
     private int highscore = 0;
 
     //player display displays score, highscore, as well as prompts and shows you length of temporary snake modes
-    PlayerDisplay_Script PlayerDisplay;
+    PlayerDisplay_Script PlayerDisplayScript;
 
     //controls for snake [Up, Down, Let, Right]
     KeyCode[] controlsArr;
@@ -162,20 +162,16 @@ public class Snake_Script : MonoBehaviour
         controlsArr = inputs;
     }
     public void SetPlayerDisplay(PlayerDisplay_Script playerDisplayScript){
-        PlayerDisplay = playerDisplayScript;
+        PlayerDisplayScript = playerDisplayScript;
     }
     public void SetColour(Color col){
         Col_Base = new Color(col.r - 0.2f, col.g - 0.2f, col.b - 0.2f);
         Col_Outline = new Color(col.r - 0.55f, col.g - 0.55f, col.b - 0.55f);
         Col_Alt = new Color(col.r - 0.3f, col.g - 0.3f, col.b - 0.3f);
 
-        
-
         //setting the colours of the snakes
         SnakeHead.GetComponent<SpriteRenderer>().color = Col_Outline;
         SnakeHead.transform.GetChild(0).GetComponent<SpriteRenderer>().color = Col_Base;
-
-
     }
 
     public void TryMoveSnake(){
@@ -373,7 +369,7 @@ public class Snake_Script : MonoBehaviour
 
     void UpdateScore()
     {
-        PlayerDisplay.UpdateScore(score);
+        PlayerDisplayScript.UpdateScore(score);
     }
 
 
@@ -470,6 +466,8 @@ public class Snake_Script : MonoBehaviour
 
     void FlashColor(){
 
+
+
         Color col = Color.Lerp(Col_Flashing1, Col_Flashing2, flashTime);
         SnakeHead.GetComponent<SpriteRenderer>().color = Col_FlashingOutline;
         SnakeHead.transform.GetChild(0).GetComponent<SpriteRenderer>().color = col;
@@ -494,6 +492,10 @@ public class Snake_Script : MonoBehaviour
 
 
     IEnumerator GhostFor(float time){
+
+        //set display to show time's duration
+        PlayerDisplayScript.StartCountDown(time);
+        
         canDie = false;
         isGhosting = true;
 
@@ -524,6 +526,7 @@ public class Snake_Script : MonoBehaviour
     }
 
     void FlashGhost(){
+
         float opacity = Mathf.Lerp(GhostAmount1, GhostAmount2, ghostTime);
 
         //float opacity = GhostAmount1;//= float.Lerp(Col_Ghost1, Col_Ghost2, ghostTime);

@@ -140,8 +140,10 @@ public class GameHandler_Script : MonoBehaviour
         Player_Colours = new Color[] {Player1_Colour, Player2_Colour, Player3_Colour, Player4_Colour};
 
         //grab player displays and set vars
-        PlayerDisplays = new GameObject[GameObject.Find("PlayerDisplays").transform.childCount];
-        PlayerDisplayScripts = new PlayerDisplay_Script[PlayerDisplays.Length];
+
+        //temporarily only grabs first display while workign on it
+        PlayerDisplays = new GameObject[1];
+        PlayerDisplayScripts = new PlayerDisplay_Script[1];
         for (int i = 0; i < PlayerDisplays.Length; i++)
         {
             PlayerDisplays[i] = GameObject.Find("PlayerDisplays").transform.GetChild(i).gameObject;

@@ -13,7 +13,7 @@ public class PlayerDisplay_Script : MonoBehaviour
 
     use flow->
         --> displays exist when game starts,
-            hides/disables displays that arent in use,
+            handler hides/disables displays that arent in use,
             handler calls each display's (SetValues) and updates them with all info
             displays start in idle mode (displays press button to start)
         --> player presses button -> snake spawns
@@ -28,6 +28,7 @@ public class PlayerDisplay_Script : MonoBehaviour
     //vars gathered when script loaded
         //vars assigned by parent
     
+    Indicator_Bar_Script IndicatorScript;
     SpriteRenderer Background;
 
     TextMesh PlayerNumText;
@@ -48,12 +49,14 @@ public class PlayerDisplay_Script : MonoBehaviour
         int score = 0;
         int highscore = 0;
 
-   
+    bool CountingDown = false;
     
     
     // Start is called before the first frame update
     void Start()
     {
+        IndicatorScript = this.transform.GetChild(5).GetComponent<Indicator_Bar_Script>();
+
         Background = this.transform.GetChild(0).GetComponent<SpriteRenderer>();
 
         PlayerNumText = this.transform.GetChild(1).GetComponent<TextMesh>();
@@ -67,12 +70,17 @@ public class PlayerDisplay_Script : MonoBehaviour
         ScoreText = ScoreDisplays.transform.GetChild(0).GetComponent<TextMesh>();
         HighscoreText = ScoreDisplays.transform.GetChild(1).GetComponent<TextMesh>();
 
+        IndicatorScript.UpdateIndicator(100, 25);
+
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if (CountingDown){
+            IndicatorScript.UpdateIndicator(i,j);
+        }
     }
 
     public void SetValues(int pNum, int dTime, Color cDead, Color cAlive)
@@ -105,6 +113,7 @@ public class PlayerDisplay_Script : MonoBehaviour
     }
 
     public void StartCountdown(int time){
+        
         //hide score , show number
 
         // countdown one step + change number
@@ -112,6 +121,12 @@ public class PlayerDisplay_Script : MonoBehaviour
 
         //hide number, show score
     }
+
+    public void UpdateIndicator(float i, float j){
+        IndicatorScript.UpdateIndicator(i,j);
+    }
+
+    
 
     public void UpdateScore(int s)
     {
