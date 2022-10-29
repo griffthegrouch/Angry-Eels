@@ -209,6 +209,8 @@ public class Snake_Script : MonoBehaviour
 
         StartCoroutine(GhostFor(2f));
 
+        PlayerDisplayScript.HidePrompt();
+
         
         
     }
@@ -494,7 +496,7 @@ public class Snake_Script : MonoBehaviour
     IEnumerator GhostFor(float time){
 
         //set display to show time's duration
-        PlayerDisplayScript.StartCountDown(time);
+        PlayerDisplayScript.StartCountdown(time);
         
         canDie = false;
         isGhosting = true;

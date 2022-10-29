@@ -149,7 +149,7 @@ public class GameHandler_Script : MonoBehaviour
             PlayerDisplays[i] = GameObject.Find("PlayerDisplays").transform.GetChild(i).gameObject;
             PlayerDisplays[i].SetActive(false);
             PlayerDisplayScripts[i] = PlayerDisplays[i].GetComponent<PlayerDisplay_Script>();
-            PlayerDisplayScripts[i].SetValues(i, Death_Penatly_Timer, Color.red, Color.green);
+            PlayerDisplayScripts[i].SetValues(i);
         }
 
         for (int i = 0; i < Number_Of_Players; i++)

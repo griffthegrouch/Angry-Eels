@@ -7,21 +7,20 @@ public class PlayerDisplay_Script : MonoBehaviour
     /*
     class used to control the display for each individual player
 
+    when game begins, displays a message prompting the player to press any key to begin
     handles updating the current score, tracking high score, 
     also displays the death timer for each player,
-    and when the snake isnt alive, prompt player to press a key to begin
 
     use flow->
         --> displays exist when game starts,
-            handler hides/disables displays that arent in use,
             handler calls each display's (SetValues) and updates them with all info
             displays start in idle mode (displays press button to start)
         --> player presses button -> snake spawns
             displays change from idle mode to score display mode
             display updates constantly to display the player's score
-        --> player changes to a temporary state
-            score changes to countdown mode
-            display counts down to reflect when the snake will change back to regular state
+        --> player changes to a temporary state (ghosted or invincible)
+            score indicator bar displays the duration of time for the current state
+            display unfills a charge bar to reflect when the snake will change back to regular state
     */
 
 
@@ -34,14 +33,9 @@ public class PlayerDisplay_Script : MonoBehaviour
     TextMesh PlayerNumText;
         int playerNum = 0;
 
-    GameObject PressKeyPrompt;
 
-        Color DeadColour;
-        Color AliveColour;
-
-    GameObject DeathTimerDisplay;
-    TextMesh DeathTimerText;
-        int DeathPenaltyTime = 0;
+    GameObject PressKeyPrompt;//the cover of the display that shows "press any key to start"
+    // - which dissapears permanently after the player presses a button
 
     GameObject ScoreDisplays;
     TextMesh ScoreText;
@@ -49,88 +43,66 @@ public class PlayerDisplay_Script : MonoBehaviour
         int score = 0;
         int highscore = 0;
 
-    bool CountingDown = false;
+    bool isCountingDown = false;
+    float totalTimer;
+    float timer;
     
     
     // Start is called before the first frame update
     void Start()
     {
-        IndicatorScript = this.transform.GetChild(5).GetComponent<Indicator_Bar_Script>();
+        PressKeyPrompt = this.transform.GetChild(0).gameObject;
 
-        Background = this.transform.GetChild(0).GetComponent<SpriteRenderer>();
+        Background = this.transform.GetChild(1).GetComponent<SpriteRenderer>();
 
-        PlayerNumText = this.transform.GetChild(1).GetComponent<TextMesh>();
+        PlayerNumText = this.transform.GetChild(2).GetComponent<TextMesh>();
 
-        PressKeyPrompt = this.transform.GetChild(2).gameObject;
-
-        DeathTimerDisplay = this.transform.GetChild(3).gameObject;
-        DeathTimerText = DeathTimerDisplay.GetComponent<TextMesh>();
-
-        ScoreDisplays = this.transform.GetChild(4).gameObject;
+        ScoreDisplays = this.transform.GetChild(3).gameObject;
         ScoreText = ScoreDisplays.transform.GetChild(0).GetComponent<TextMesh>();
         HighscoreText = ScoreDisplays.transform.GetChild(1).GetComponent<TextMesh>();
 
-        IndicatorScript.UpdateIndicator(100, 25);
+        IndicatorScript = this.transform.GetChild(4).GetComponent<Indicator_Bar_Script>();
+    }
 
-
+    public void HidePrompt(){
+        PressKeyPrompt.SetActive(false);
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (CountingDown){
-            IndicatorScript.UpdateIndicator(i,j);
+        if (isCountingDown){
+            timer -= Time.deltaTime;
+            IndicatorScript.UpdateIndicator(totalTimer, timer);
+            if (timer < 0){
+                isCountingDown = false;
+            }
         }
     }
 
-    public void SetValues(int pNum, int dTime, Color cDead, Color cAlive)
+    public void SetValues(int pNum)
     {
         //grab initial values
         playerNum = pNum + 1;//playernum starts at 0, this display starts at 1
-        DeathPenaltyTime = dTime;
-        DeadColour = cDead;
-        AliveColour = cAlive;
 
         //display them
         PlayerNumText.text = playerNum.ToString();
-
-        //setup initial display (no score, no countdown, yes player num, yes press play prompt)
-        PressKeyPrompt.SetActive(true);
-        ScoreDisplays.SetActive(false);
-        DeathTimerDisplay.SetActive(false);
-
     }
 
-    public void ShowStartPrompt(bool b){
-        if (b){
-            //show start prompt text, hide all other
+    public void StartCountdown(float time){
+        // method tells the display's indicator bar to start counting down 
+        // a set amount of time, and display that visually for the player
+        timer = totalTimer = time;
+        isCountingDown = true;
 
-        }
-        else{
-            //hide start prompt text, show all other
-
-        }
-    }
-
-    public void StartCountdown(int time){
-        
-        //hide score , show number
-
-        // countdown one step + change number
-        //repeat x time
-
-        //hide number, show score
-    }
-
-    public void UpdateIndicator(float i, float j){
-        IndicatorScript.UpdateIndicator(i,j);
-    }
-
-    
+        //display initial values
+        IndicatorScript.UpdateIndicator(totalTimer, timer);
+    }    
 
     public void UpdateScore(int s)
     {
         score = s;
+
         //displaying current score
         ScoreText.text = score.ToString();
 
