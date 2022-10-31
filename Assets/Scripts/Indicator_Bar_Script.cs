@@ -88,10 +88,10 @@ public class Indicator_Bar_Script : MonoBehaviour//         7/312020
     }
     void Start() {
         if(Display_Target){
-            target.GetComponent<SpriteRenderer>().SetActive(true);
+            target.gameObject.GetComponent<SpriteRenderer>().enabled = true;
         }
         else{
-            target.GetComponent<SpriteRenderer>().SetActive(false);
+            target.gameObject.GetComponent<SpriteRenderer>().enabled = false;
         }
     }
 
@@ -117,6 +117,9 @@ public class Indicator_Bar_Script : MonoBehaviour//         7/312020
         Debug.Log(_percentValue);
         Debug.Log(yScale);
         Debug.Log(chargeBar.localScale.x);
+
+
+        if getting bugs setting the localscale here, likely the ghostfor duration is 0
         */
 
         chargeBar.localScale = new Vector3(chargeBar.localScale.x, yScale, 0);

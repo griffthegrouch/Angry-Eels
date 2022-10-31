@@ -96,6 +96,7 @@ public class Snake_Script : MonoBehaviour
 
     //used for ghosting the snake for a temporary amount of time
     bool isGhosting = false;
+    float Ghosted_On_Spawn_Time;
     float GhostDuration = 0.4f;
     float ghostTime = 0;
     float GhostAmount1 = 0.1f;
@@ -149,7 +150,7 @@ public class Snake_Script : MonoBehaviour
         SnakeHead = head;
         SegmentPrefab = seg;
     }
-    public void SetValues(int playernum, int startingSize, Vector3 startingPos, int normalFood_Grow_Amount, int deadSnake_Grow_Amount, int goldFood_Grow_Amount, bool doesTurnIntoFood){
+    public void SetValues(int playernum, int startingSize, Vector3 startingPos, int normalFood_Grow_Amount, int deadSnake_Grow_Amount, int goldFood_Grow_Amount, bool doesTurnIntoFood, float ghosted_On_Spawn_Time){
         PlayerNum = playernum;
         Starting_Size = startingSize;
         Starting_Pos = startingPos;
@@ -157,6 +158,7 @@ public class Snake_Script : MonoBehaviour
         DeadSnake_Grow_Amount = deadSnake_Grow_Amount;
         GoldFood_Grow_Amount = goldFood_Grow_Amount;
         DoesTurnIntoFood = doesTurnIntoFood;
+        Ghosted_On_Spawn_Time = ghosted_On_Spawn_Time;
     }
     public void SetInputs(KeyCode[] inputs){
         controlsArr = inputs;
@@ -207,7 +209,7 @@ public class Snake_Script : MonoBehaviour
         gameOn = true;
         snakeIsWait = true;
 
-        StartCoroutine(GhostFor(2f));
+        StartCoroutine(GhostFor(Ghosted_On_Spawn_Time));
 
         PlayerDisplayScript.HidePrompt();
 
@@ -405,6 +407,7 @@ public class Snake_Script : MonoBehaviour
             segmentsList.Clear();
             
         }
+        PlayerDisplayScript.UpdateScore(0);
 
     }
 

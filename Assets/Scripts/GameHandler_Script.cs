@@ -5,6 +5,19 @@ using UnityEngine;
 public class GameHandler_Script : MonoBehaviour
 {
     /* 
+    project notes
+
+    when developing on windows and mac, the file systems 
+    In Unix systems the end of a line is represented with a line feed (LF). 
+    In windows a line is represented with a carriage return (CR) and a line feed (LF) thus (CRLF). 
+    when you get code from git that was uploaded from a unix system they will only have an LF.
+
+    got this code to turn off the warnings
+    git config core.autocrlf false
+
+
+
+
     ***Game Handler Script 
     controls the ability to set game settings
 
@@ -36,9 +49,7 @@ public class GameHandler_Script : MonoBehaviour
     Handler script story
     0 -> game starts/loads
     1 -> grabs values from user-set settings
-    2 -> grabs prefabs and converts variables into "usable data" 
-    3 -> creates the stage, starting food, and spawns snakes
-    4 -> starts moving snakes
+    2 -> grabs prefabs and converts variables into "usable data"  
         - when snakes need to check what is occupying a position on the map
             -> call this script requesting it, then recieve a char to signal what is in that position
         -if the snake is trying to move to a food block
@@ -85,7 +96,8 @@ public class GameHandler_Script : MonoBehaviour
     public int GoldFood_Spawn_Chance; //when spawning normal food, picks a random number between 1 - (this #)
     [Range(0,100)]
 
-    public int Death_Penatly_Timer;
+    public int Ghosted_On_Spawn_Time;
+    public int Death_Penatly_Time;
 
 
 
@@ -174,7 +186,8 @@ public class GameHandler_Script : MonoBehaviour
                 NormalFood_Grow_Amount,
                 DeadSnake_Grow_Amount,
                 GoldFood_Grow_Amount,
-                Do_Snakes_Turn_Into_Food
+                Do_Snakes_Turn_Into_Food,
+                Ghosted_On_Spawn_Time
             );
 
             newSnake.SetInputs(//KeyCode[] inputs
