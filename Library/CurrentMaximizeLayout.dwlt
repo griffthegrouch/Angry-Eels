@@ -21,10 +21,10 @@ MonoBehaviour:
     y: 30
     width: 1280
     height: 750
-  m_MinSize: {x: 679, y: 492}
+  m_MinSize: {x: 677, y: 492}
   m_MaxSize: {x: 14001, y: 14042}
   vertical: 1
-  controlID: 24914
+  controlID: 30215
 --- !u!114 &2
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -139,10 +139,10 @@ MonoBehaviour:
     y: 0
     width: 1280
     height: 437
-  m_MinSize: {x: 679, y: 221}
-  m_MaxSize: {x: 12004, y: 4021}
+  m_MinSize: {x: 677, y: 221}
+  m_MaxSize: {x: 12002, y: 4021}
   vertical: 0
-  controlID: 24915
+  controlID: 30216
 --- !u!114 &4
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -200,7 +200,7 @@ MonoBehaviour:
       scrollPos: {x: 0, y: 0}
       m_SelectedIDs: 
       m_LastClickedID: 0
-      m_ExpandedIDs: fa93feff0895feffd656ffffe456ffff4058ffff4c58fffffa77ffff3898ffffa0b8ffffded8ffff5efbffff1eb6000062bc0000
+      m_ExpandedIDs: 0895feffd656ffffe456ffffec56ffff4c58fffffa77ffff3898ffffa0b8ffffded8ffff5efbffff1eb6000062bc0000
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -493,7 +493,7 @@ MonoBehaviour:
     m_ControlHash: -371814159
     m_PrefName: Preview_InspectorPreview
   m_PreviewWindow: {fileID: 0}
-  m_LastInspectedObjectInstanceID: -42956
+  m_LastInspectedObjectInstanceID: -43302
   m_LastVerticalScrollValue: 0
 --- !u!114 &11
 MonoBehaviour:
@@ -519,7 +519,7 @@ MonoBehaviour:
   m_MinSize: {x: 331, y: 271}
   m_MaxSize: {x: 14001, y: 10021}
   vertical: 0
-  controlID: 24869
+  controlID: 30147
 --- !u!114 &12
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -652,8 +652,8 @@ MonoBehaviour:
       m_Icon: {fileID: 0}
       m_ResourceFile: 
   m_ListAreaState:
-    m_SelectedInstanceIDs: 3458ffff
-    m_LastClickedInstanceID: -42956
+    m_SelectedInstanceIDs: da56ffff
+    m_LastClickedInstanceID: -43302
     m_HadKeyboardFocusLastEvent: 0
     m_ExpandedInstanceIDs: f225000000000000
     m_RenameOverlay:
@@ -711,7 +711,7 @@ MonoBehaviour:
   m_ViewDataDictionary: {fileID: 0}
   m_LockTracker:
     m_IsLocked: 0
-  m_LastSelectedObjectID: -42956
+  m_LastSelectedObjectID: -43302
 --- !u!114 &15
 MonoBehaviour:
   m_ObjectHideFlags: 52

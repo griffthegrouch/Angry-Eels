@@ -150,6 +150,7 @@ public class GameHandler_Script : MonoBehaviour
             PlayerDisplays[i].SetActive(false);
             PlayerDisplayScripts[i] = PlayerDisplays[i].GetComponent<PlayerDisplay_Script>();
             PlayerDisplayScripts[i].SetValues(i);
+            PlayerDisplayScripts[i].SetOutlineColour(Player_Colours[i]);
         }
 
         for (int i = 0; i < Number_Of_Players; i++)

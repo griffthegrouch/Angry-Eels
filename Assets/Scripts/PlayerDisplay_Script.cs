@@ -28,7 +28,7 @@ public class PlayerDisplay_Script : MonoBehaviour
         //vars assigned by parent
     
     Indicator_Bar_Script IndicatorScript;
-    SpriteRenderer Background;
+    SpriteRenderer Outline;
 
     TextMesh PlayerNumText;
         int playerNum = 0;
@@ -53,7 +53,7 @@ public class PlayerDisplay_Script : MonoBehaviour
     {
         PressKeyPrompt = this.transform.GetChild(0).gameObject;
 
-        Background = this.transform.GetChild(1).GetComponent<SpriteRenderer>();
+        Outline = this.transform.GetChild(1).GetComponent<SpriteRenderer>();
 
         PlayerNumText = this.transform.GetChild(2).GetComponent<TextMesh>();
 
@@ -78,6 +78,11 @@ public class PlayerDisplay_Script : MonoBehaviour
                 isCountingDown = false;
             }
         }
+    }
+
+    public void SetOutlineColour(Color col){
+        //sets the Outline colour, used when starting the game to set the colour to individual player colour
+        Outline.color = col;
     }
 
     public void SetValues(int pNum)
