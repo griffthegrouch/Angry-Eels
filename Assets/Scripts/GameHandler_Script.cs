@@ -12,10 +12,7 @@ public class GameHandler_Script : MonoBehaviour
     In windows a line is represented with a carriage return (CR) and a line feed (LF) thus (CRLF). 
     when you get code from git that was uploaded from a unix system they will only have an LF.
 
-    got this code to turn off the warnings
-    git config core.autocrlf false
-
-
+    the .gitignore helps tremendously with getting the project to run on both OS
 
 
     ***Game Handler Script 
@@ -27,8 +24,11 @@ public class GameHandler_Script : MonoBehaviour
     ->then setting all the values for the snakes (controls, colours, prefabs, etc.)
 
     ***Access points
-    public char CheckPos()
+    public string CheckPos()
         -called by snakes to determine what is in x location
+
+    public SpawnFood()
+        -called by self and snakes when spawning any kind of food
 
 
     
@@ -57,7 +57,7 @@ public class GameHandler_Script : MonoBehaviour
 
     3 -> grabs prefabs and converts variables into "usable data"
         - when snakes need to check what is occupying a position on the map
-            -> call this script requesting it, then recieve a char to signal what is in that position
+            -> call this script requesting it, then recieve what is in that position
         -if the snake is trying to move to a food block
             -> destroy the food block - if appropriate, generate a new food block
 
@@ -65,26 +65,21 @@ public class GameHandler_Script : MonoBehaviour
 
     TODO
                     
-        make the countdown bar reset upon death, also make it go yellow for invincible
+        make the countdown go yellow for invincible and another for ghost
 
         make a target score to win the game
         
         make handler for game to choose all game options outside of play mode.
-        make this handler move the snakes at random orders, so that when they run into each other, its not the first one that trumps the other
+        make when they run into each other, its not the first one that trumps the other
 
-        make snake untargetable and flash for a couple seconds when spawning to prevent camping it
-        when snake dies, make it turn into food,
         make number of lives
         make random obstacle maker, and preset stages to choose from.
         make high score file to keep reading from.
+
         add powerups (speed, grow a lot, untargettable)
         make options for food (multiple random spawning, single one that grows you then moves, toggle for dead snakes becoming food )
         golden food that moves/bounces around
-    
-    DONE
-                    make one snake script to use for all snakes
-                    make colour selection option per snake
-                    make slightly alternating colours on the segments
+
     */
 
     //public 
@@ -104,12 +99,8 @@ public class GameHandler_Script : MonoBehaviour
     public bool Do_Snakes_Turn_Into_Food;
     public int GoldFood_Spawn_Chance; //when spawning normal food, picks a random number between 1 - (this #)
     [Range(0,100)]
-
     public int Ghosted_On_Spawn_Time;
     public int Death_Penatly_Time;
-
-
-
 
 
     Vector3[] Starting_Positions = new Vector3[4];
@@ -118,8 +109,8 @@ public class GameHandler_Script : MonoBehaviour
     KeyCode[,] PlayerInputs = new KeyCode[,] {
         {KeyCode.UpArrow, KeyCode.DownArrow, KeyCode.LeftArrow, KeyCode.RightArrow},
         {KeyCode.W, KeyCode.S, KeyCode.A, KeyCode.D},
-        {KeyCode.Y, KeyCode.H, KeyCode.G, KeyCode.J},
-        {KeyCode.W, KeyCode.S, KeyCode.A, KeyCode.D}
+        {KeyCode.T, KeyCode.G, KeyCode.F, KeyCode.H},
+        {KeyCode.I, KeyCode.K, KeyCode.J, KeyCode.L}
 
     };
 
@@ -142,8 +133,6 @@ public class GameHandler_Script : MonoBehaviour
 
     // Start is called before the first frame update
     void Start(){
-
-
         // grab all resources
         SnakePrefab = Resources.Load("Snake") as GameObject;
         SnakeSegmentPrefab = Resources.Load("SnakeSegment") as GameObject;
@@ -156,8 +145,6 @@ public class GameHandler_Script : MonoBehaviour
         Player_Colours = new Color[] {Player1_Colour, Player2_Colour, Player3_Colour, Player4_Colour};
 
         //grab player displays and set vars
-
-        //temporarily only grabs first display while workign on it
         PlayerDisplays = new GameObject[4];
         PlayerDisplayScripts = new PlayerDisplay_Script[4];
         for (int i = 0; i < PlayerDisplays.Length; i++)
@@ -175,14 +162,14 @@ public class GameHandler_Script : MonoBehaviour
             int spawnPosX = 25/(Number_Of_Players + 1) * (i+1);
 
             if(Number_Of_Players == 4 && spawnPosX < 12){
-                //manual adjustment to move the first two snakes to the left one space 
+                //manual adjustment to move the first two snakes' spawn positions to the left one space 
                 //IF playing 4 player, since the spots are calulated by integers and theres 25 spots, it doesnt round down these two numbers properly
                 spawnPosX -= 1;
             }
             Starting_Positions[i] = new Vector3(spawnPosX,-1,0);
 
             //create the snake
-            Snake_Script newSnake = Instantiate(SnakePrefab, Starting_Positions[i], new Quaternion(0,0,0,0), this.transform.parent).GetComponent<Snake_Script>();
+            Snake_Script newSnake = Instantiate(SnakePrefab, new Vector3(-10, -10 ,0), new Quaternion(0,0,0,0), this.transform.parent).GetComponent<Snake_Script>();
             
             // enable the snake's score display
             PlayerDisplays[i].SetActive(true);
@@ -233,7 +220,7 @@ public class GameHandler_Script : MonoBehaviour
     void StartGame(){
 
         //spawn the first bit of food and start the game
-        SpawnFood(default(Vector3), "normalFood");
+        SpawnFood(-1, default(Vector3), "normalFood");
 
         //calls Movesnake every user-set time increment to move the snakes
         InvokeRepeating("MoveSnakes", 0, Snake_Speed);   
@@ -306,7 +293,7 @@ public class GameHandler_Script : MonoBehaviour
                 {
                     case "normalFood":
                         if(DestroyFood){
-                            SpawnFood(default(Vector3), "normalFood");
+                            SpawnFood(-1, default(Vector3), "normalFood");
                         }
                         break;
 
@@ -315,7 +302,7 @@ public class GameHandler_Script : MonoBehaviour
 
                     case "goldFood":
                         if(DestroyFood){
-                            SpawnFood(default(Vector3), "normalFood");
+                            SpawnFood(-1, default(Vector3), "normalFood");
                         }
                         break;
 
@@ -332,12 +319,10 @@ public class GameHandler_Script : MonoBehaviour
 
         //if theres nothing in the spot,
         return "empty";
-
     }
 
-    public void SpawnFood(Vector3 pos, string foodType)
+    public void SpawnFood(int playerNum, Vector3 pos, string foodType)
     {
-
         if (pos == default){
             //find a new position for the food
             pos = new Vector3(Random.Range(0,25), Random.Range(0,25), 0);
@@ -345,9 +330,14 @@ public class GameHandler_Script : MonoBehaviour
             while (CheckPos(-1, pos, false) != "empty"){
                 pos = new Vector3(Random.Range(0,25), Random.Range(0,25), 0);
             }
-
+        }
+        else if (CheckPos(-1, pos, false) == "empty"){
+            Debug.Log("not empty");
+            //if trying to spawn food on an existing food, dont
+            return;
         }
         GameObject newFood = Instantiate(FoodPrefab, pos, new Quaternion(0,0,0,0), this.transform);
+
         switch (foodType)
         {
             case "normalFood":
@@ -358,12 +348,10 @@ public class GameHandler_Script : MonoBehaviour
                     goto case "goldFood";
                 }
                 break;
-
             case "snakeFood":
-                //colour food 
+                //colour food
                 newFood.GetComponent<SpriteRenderer>().color = new Color(0.7f, 0.5f, 0.23f);
                 break;
-
             case "goldFood":
                 //colour food
                 newFood.GetComponent<SpriteRenderer>().color = Color.yellow;

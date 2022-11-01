@@ -48,9 +48,7 @@ public class Snake_Script : MonoBehaviour
 
 
         ***TODO
-        make snake face change when dead
-        make snake untargetable and flash for a couple seconds when spawning to prevent camping it
-        when snake dies, make it turn into food,
+
         make number of lives
 
     */
@@ -104,7 +102,6 @@ public class Snake_Script : MonoBehaviour
     Color Col_Ghost1;
     Color Col_Ghost2;
     Color Col_GhostOutline;
-
 
 
     //bool tracks current score
@@ -373,6 +370,9 @@ public class Snake_Script : MonoBehaviour
 
     void UpdateScore()
     {
+        if (score > highscore){
+            highscore = score;
+        }
         PlayerDisplayScript.UpdateScore(score);
     }
 
@@ -397,11 +397,11 @@ public class Snake_Script : MonoBehaviour
         //stop the game
         gameOn = false;
         if (DoesTurnIntoFood){
-            Handler_Script.SpawnFood(SnakeHead.transform.position, "snakeFood");
+            Handler_Script.SpawnFood(PlayerNum, SnakeHead.transform.position, "snakeFood");
             SnakeHead.transform.position = Starting_Pos;
             foreach (GameObject seg in segmentsList)
             {
-                Handler_Script.SpawnFood(seg.transform.position, "snakeFood");
+                Handler_Script.SpawnFood(PlayerNum, seg.transform.position, "snakeFood");
                 Destroy(seg);
             }
             segmentsList.Clear();
