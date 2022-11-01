@@ -102,6 +102,16 @@ public class PlayerDisplay_Script : MonoBehaviour
 
         //display initial values
         IndicatorScript.UpdateIndicator(totalTimer, timer);
+    }
+
+    public void StopCountdown(){
+        // method tells the display's indicator bar to stop counting down 
+        // stops the charge bar and sets it to 0
+        timer = 0;
+        isCountingDown = false;
+
+        //display initial values
+        IndicatorScript.UpdateIndicator(totalTimer, 0);
     }    
 
     public void UpdateScore(int s)

@@ -35,6 +35,7 @@ public class GameHandler_Script : MonoBehaviour
     ***Snake Game 
     player story
     1 -> starts with GUI
+
     2 -> choose game settings
         -choose number of players
         -choose what players are human vs CPU
@@ -42,14 +43,19 @@ public class GameHandler_Script : MonoBehaviour
         -choose game mode (regular - single food, hungry - multiple foods)
         -choose settings (do snakes turn into food when they die, do snakes respawn, grow amount, staring size, etc)
         -choose stage (original, preset map, or random obstacles)
-    3 -> click play 
-    4 -> GUI leaves and snake game is displayed 
+
+    3 -> click start 
+
+    4 -> GUI leaves and snake game is displayed
+
     5 -> player presses any key and game starts then continues indefinitely
 
     Handler script story
-    0 -> game starts/loads
-    1 -> grabs values from user-set settings
-    2 -> grabs prefabs and converts variables into "usable data"  
+    1 -> game starts/loads
+
+    2 -> grabs values from user-set settings in out-of-game settings
+
+    3 -> grabs prefabs and converts variables into "usable data"
         - when snakes need to check what is occupying a position on the map
             -> call this script requesting it, then recieve a char to signal what is in that position
         -if the snake is trying to move to a food block
@@ -61,6 +67,8 @@ public class GameHandler_Script : MonoBehaviour
                     
         make the countdown bar reset upon death, also make it go yellow for invincible
 
+        make a target score to win the game
+        
         make handler for game to choose all game options outside of play mode.
         make this handler move the snakes at random orders, so that when they run into each other, its not the first one that trumps the other
 
@@ -104,12 +112,7 @@ public class GameHandler_Script : MonoBehaviour
 
 
 
-    Vector3[] StartingPositions = new Vector3[4] {
-        new Vector3(3,-1,0), 
-        new Vector3(9,-1,0),
-        new Vector3(15,-1,0),
-        new Vector3(21,-1,0)
-        };
+    Vector3[] Starting_Positions = new Vector3[4];
     Color[] Player_Colours;
 
     KeyCode[,] PlayerInputs = new KeyCode[,] {
@@ -155,8 +158,8 @@ public class GameHandler_Script : MonoBehaviour
         //grab player displays and set vars
 
         //temporarily only grabs first display while workign on it
-        PlayerDisplays = new GameObject[1];
-        PlayerDisplayScripts = new PlayerDisplay_Script[1];
+        PlayerDisplays = new GameObject[4];
+        PlayerDisplayScripts = new PlayerDisplay_Script[4];
         for (int i = 0; i < PlayerDisplays.Length; i++)
         {
             PlayerDisplays[i] = GameObject.Find("PlayerDisplays").transform.GetChild(i).gameObject;
@@ -168,8 +171,19 @@ public class GameHandler_Script : MonoBehaviour
 
         for (int i = 0; i < Number_Of_Players; i++)
         {
+            //calculate spawn position (calculates equal horizontal positions for each snake with space on each side)
+            int spawnPosX = 25/(Number_Of_Players + 1) * (i+1);
+
+            if(Number_Of_Players == 4 && spawnPosX < 12){
+                //manual adjustment to move the first two snakes to the left one space 
+                //IF playing 4 player, since the spots are calulated by integers and theres 25 spots, it doesnt round down these two numbers properly
+                spawnPosX -= 1;
+            }
+            Starting_Positions[i] = new Vector3(spawnPosX,-1,0);
+
             //create the snake
-            Snake_Script newSnake = Instantiate(SnakePrefab, new Vector3(0,-10,0), new Quaternion(0,0,0,0), this.transform.parent).GetComponent<Snake_Script>();
+            Snake_Script newSnake = Instantiate(SnakePrefab, Starting_Positions[i], new Quaternion(0,0,0,0), this.transform.parent).GetComponent<Snake_Script>();
+            
             // enable the snake's score display
             PlayerDisplays[i].SetActive(true);
 
@@ -183,7 +197,7 @@ public class GameHandler_Script : MonoBehaviour
             newSnake.SetValues(//int playernum, int startingSize, Vector3 startingPos, int foodgrowRate, bool doesTurnIntoFood
                 i,
                 Starting_Size,
-                StartingPositions[i],
+                Starting_Positions[i],
                 NormalFood_Grow_Amount,
                 DeadSnake_Grow_Amount,
                 GoldFood_Grow_Amount,

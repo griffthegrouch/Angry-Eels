@@ -408,6 +408,7 @@ public class Snake_Script : MonoBehaviour
             
         }
         PlayerDisplayScript.UpdateScore(0);
+        PlayerDisplayScript.StopCountdown();
 
     }
 
