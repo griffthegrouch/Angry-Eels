@@ -76,6 +76,7 @@ public class PlayerDisplay_Script : MonoBehaviour
             IndicatorScript.UpdateIndicator(totalTimer, timer);
             if (timer < 0){
                 isCountingDown = false;
+                IndicatorScript.UpdateIndicator(totalTimer, 0);
             }
         }
     }
