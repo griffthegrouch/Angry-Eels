@@ -59,6 +59,7 @@ public class GameHandler_Script : MonoBehaviour
 
     TODO
                     
+        make the countdown bar reset upon death, also make it go yellow for invincible
 
         make handler for game to choose all game options outside of play mode.
         make this handler move the snakes at random orders, so that when they run into each other, its not the first one that trumps the other
