@@ -57,6 +57,8 @@ public class Snake_Script : MonoBehaviour
 
     //set by game handler - defines which snake this is
     int PlayerNum;
+    //set by game handler - defines how fast the snake moves - usefull for determining timing windows
+    float SnakeSpeed;
     //how big the snake starts out
     int Starting_Size;
     //how much the snake grows when it eats food
@@ -147,8 +149,9 @@ public class Snake_Script : MonoBehaviour
         SnakeHead = head;
         SegmentPrefab = seg;
     }
-    public void SetValues(int playernum, int startingSize, Vector3 startingPos, int normalFood_Grow_Amount, int deadSnake_Grow_Amount, int goldFood_Grow_Amount, bool doesTurnIntoFood, float ghosted_On_Spawn_Time){
+    public void SetValues(int playernum, float snakeSpeed, int startingSize, Vector3 startingPos, int normalFood_Grow_Amount, int deadSnake_Grow_Amount, int goldFood_Grow_Amount, bool doesTurnIntoFood, float ghosted_On_Spawn_Time){
         PlayerNum = playernum;
+        SnakeSpeed = snakeSpeed;
         Starting_Size = startingSize;
         Starting_Pos = startingPos;
         NormalFood_Grow_Amount = normalFood_Grow_Amount;
@@ -172,7 +175,6 @@ public class Snake_Script : MonoBehaviour
         SnakeHead.GetComponent<SpriteRenderer>().color = Col_Outline;
         SnakeHead.transform.GetChild(0).GetComponent<SpriteRenderer>().color = Col_Base;
     }
-
     public void TryMoveSnake(){
         if (gameOn){
             MoveSnakeHead();
@@ -320,7 +322,9 @@ public class Snake_Script : MonoBehaviour
             goto case "empty";//the act as if the target spot was empty
 
             case "goldFood"://if spot was food then eat the food
-            StartCoroutine(FlashFor(5f));
+            //flash gold for the duration that the snake is growing from the extra food
+            StopAllCoroutines();
+            StartCoroutine(FlashFor(SnakeSpeed*GoldFood_Grow_Amount));
             EatFood(GoldFood_Grow_Amount);
             goto case "empty";//the act as if the target spot was empty
 
@@ -444,6 +448,9 @@ public class Snake_Script : MonoBehaviour
     }
 
     IEnumerator FlashFor(float time){
+        //set display to show golden time's duration
+        PlayerDisplayScript.StartCountdown(time);
+
         isFlashing = true;
         canDie = false;
 
@@ -451,6 +458,8 @@ public class Snake_Script : MonoBehaviour
         isFlashing = false;
         canDie = true;
 
+
+        //setting the snake back to normal colours
         SnakeHead.GetComponent<SpriteRenderer>().color = Col_Outline;
         SnakeHead.transform.GetChild(0).GetComponent<SpriteRenderer>().color = Col_Base;
         
@@ -471,9 +480,6 @@ public class Snake_Script : MonoBehaviour
 
 
     void FlashColor(){
-
-
-
         Color col = Color.Lerp(Col_Flashing1, Col_Flashing2, flashTime);
         SnakeHead.GetComponent<SpriteRenderer>().color = Col_FlashingOutline;
         SnakeHead.transform.GetChild(0).GetComponent<SpriteRenderer>().color = col;
@@ -499,7 +505,7 @@ public class Snake_Script : MonoBehaviour
 
     IEnumerator GhostFor(float time){
 
-        //set display to show time's duration
+        //set display to show ghosted time's duration
         PlayerDisplayScript.StartCountdown(time);
         
         canDie = false;
@@ -510,7 +516,7 @@ public class Snake_Script : MonoBehaviour
         canDie = true;
         isGhosting = false;
         
-
+        //setting the snake back to normal colours
         SnakeHead.GetComponent<SpriteRenderer>().color = Col_Outline;
         SnakeHead.transform.GetChild(0).GetComponent<SpriteRenderer>().color = Col_Base;
         

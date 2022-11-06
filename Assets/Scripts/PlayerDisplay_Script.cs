@@ -11,7 +11,7 @@ public class PlayerDisplay_Script : MonoBehaviour
     handles updating the current score, tracking high score, 
     also displays the death timer for each player,
 
-    use flow->
+    use flow ->
         --> displays exist when game starts,
             handler calls each display's (SetValues) and updates them with all info
             displays start in idle mode (displays press button to start)
@@ -22,7 +22,6 @@ public class PlayerDisplay_Script : MonoBehaviour
             score indicator bar displays the duration of time for the current state
             display unfills a charge bar to reflect when the snake will change back to regular state
     */
-
 
     //vars gathered when script loaded
         //vars assigned by parent
@@ -44,7 +43,7 @@ public class PlayerDisplay_Script : MonoBehaviour
         int highscore = 0;
 
     bool isCountingDown = false;
-    float totalTimer;
+    float totalTimer = 1;
     float timer;
     
     
@@ -96,6 +95,7 @@ public class PlayerDisplay_Script : MonoBehaviour
     }
 
     public void StartCountdown(float time){
+        StopCountdown();
         // method tells the display's indicator bar to start counting down 
         // a set amount of time, and display that visually for the player
         timer = totalTimer = time;

@@ -181,8 +181,9 @@ public class GameHandler_Script : MonoBehaviour
                 SnakeSegmentPrefab
             );
 
-            newSnake.SetValues(//int playernum, int startingSize, Vector3 startingPos, int foodgrowRate, bool doesTurnIntoFood
+            newSnake.SetValues(//int playernum, float snakeSpeed, int startingSize, Vector3 startingPos, int foodgrowRate, bool doesTurnIntoFood
                 i,
+                Snake_Speed,
                 Starting_Size,
                 Starting_Positions[i],
                 NormalFood_Grow_Amount,
