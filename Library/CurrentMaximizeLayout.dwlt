@@ -21,10 +21,10 @@ MonoBehaviour:
     y: 30
     width: 1280
     height: 750
-  m_MinSize: {x: 677, y: 492}
+  m_MinSize: {x: 678, y: 492}
   m_MaxSize: {x: 14001, y: 14042}
   vertical: 1
-  controlID: 55337
+  controlID: 58842
 --- !u!114 &2
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -139,10 +139,10 @@ MonoBehaviour:
     y: 0
     width: 1280
     height: 437
-  m_MinSize: {x: 677, y: 221}
-  m_MaxSize: {x: 12002, y: 4021}
+  m_MinSize: {x: 678, y: 221}
+  m_MaxSize: {x: 12003, y: 4021}
   vertical: 0
-  controlID: 55263
+  controlID: 58843
 --- !u!114 &4
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -200,7 +200,7 @@ MonoBehaviour:
       scrollPos: {x: 0, y: 0}
       m_SelectedIDs: 
       m_LastClickedID: 0
-      m_ExpandedIDs: e0ebfdffe2ebfdff00ecfdff70ecfdfffcecfdff6642feff0895feffd656ffffe456ffffec56ffff4c58fffffa77ffff3898ffffa0b8ffffded8ffff5efbffff1eb6000062bc00009a261400c4291400502a140006321400
+      m_ExpandedIDs: da11faffe0ebfdffe2ebfdff00ecfdff70ecfdfffcecfdff6642feff0895feffd656ffffe456ffffec56ffff4c58fffffa77ffff3898ffffa0b8ffffded8ffff5efbffff1eb6000062bc00009a261400c4291400502a140006321400eeaa2500eeb02500b0b32500b2b62500
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -493,7 +493,7 @@ MonoBehaviour:
     m_ControlHash: -371814159
     m_PrefName: Preview_InspectorPreview
   m_PreviewWindow: {fileID: 0}
-  m_LastInspectedObjectInstanceID: 1323512
+  m_LastInspectedObjectInstanceID: 2468854
   m_LastVerticalScrollValue: 0
 --- !u!114 &11
 MonoBehaviour:
@@ -519,7 +519,7 @@ MonoBehaviour:
   m_MinSize: {x: 331, y: 271}
   m_MaxSize: {x: 14001, y: 10021}
   vertical: 0
-  controlID: 55338
+  controlID: 58776
 --- !u!114 &12
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -586,19 +586,19 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/Scripts
+    - Assets/Resources
   m_ViewMode: 1
   m_StartGridSize: 16
   m_LastFolders:
-  - Assets/Scripts
+  - Assets/Resources
   m_LastFoldersGridSize: 16
   m_LastProjectPath: /Users/Shared/Unity/SimpleSnake
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 0}
-    m_SelectedIDs: d0490000
-    m_LastClickedID: 18896
+    m_SelectedIDs: cc490000
+    m_LastClickedID: 18892
     m_ExpandedIDs: 00000000c449000000ca9a3bffffff7f
     m_RenameOverlay:
       m_UserAcceptedRename: 0
@@ -652,9 +652,9 @@ MonoBehaviour:
       m_Icon: {fileID: 0}
       m_ResourceFile: 
   m_ListAreaState:
-    m_SelectedInstanceIDs: f8311400
-    m_LastClickedInstanceID: 1323512
-    m_HadKeyboardFocusLastEvent: 0
+    m_SelectedInstanceIDs: f6ab2500
+    m_LastClickedInstanceID: 2468854
+    m_HadKeyboardFocusLastEvent: 1
     m_ExpandedInstanceIDs: f225000000000000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
@@ -671,7 +671,7 @@ MonoBehaviour:
       m_IsRenaming: 0
       m_OriginalEventType: 11
       m_IsRenamingFilename: 1
-      m_ClientGUIView: {fileID: 0}
+      m_ClientGUIView: {fileID: 12}
     m_CreateAssetUtility:
       m_EndAction: {fileID: 0}
       m_InstanceID: 0
@@ -711,7 +711,7 @@ MonoBehaviour:
   m_ViewDataDictionary: {fileID: 0}
   m_LockTracker:
     m_IsLocked: 0
-  m_LastSelectedObjectID: 1323512
+  m_LastSelectedObjectID: 2468854
 --- !u!114 &15
 MonoBehaviour:
   m_ObjectHideFlags: 52

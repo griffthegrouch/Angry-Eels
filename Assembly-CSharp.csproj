@@ -37,7 +37,6 @@
   </PropertyGroup>
   <ItemGroup>
      <Compile Include="Assets\Scripts\GameHandler_Script.cs" />
-     <Compile Include="Assets\Scripts\Indicator_Bar_Script.cs" />
      <Compile Include="Assets\Scripts\PlayerDisplay_Script.cs" />
      <Compile Include="Assets\Scripts\Snake_Script.cs" />
      <Compile Include="Assets\Scripts\Stage_Script.cs" />
