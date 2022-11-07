@@ -136,6 +136,9 @@ public class Snake_Script : MonoBehaviour
     //the first segment of snake, already existing
     GameObject SnakeHead;
 
+    Coroutine GhosterCor;
+    Coroutine FlasherCor;
+
 
 
 
@@ -208,7 +211,7 @@ public class Snake_Script : MonoBehaviour
         gameOn = true;
         snakeIsWait = true;
 
-        StartCoroutine(GhostFor(Ghosted_On_Spawn_Time));
+        GhosterCor = StartCoroutine(GhostFor(Ghosted_On_Spawn_Time));
 
         PlayerDisplayScript.HidePrompt();
 
@@ -323,8 +326,12 @@ public class Snake_Script : MonoBehaviour
 
             case "goldFood"://if spot was food then eat the food
             //flash gold for the duration that the snake is growing from the extra food
-            StopAllCoroutines();
-            StartCoroutine(FlashFor(SnakeSpeed*GoldFood_Grow_Amount));
+            
+            if(isFlashing) {
+                StopCoroutine(FlasherCor);
+            }
+
+            FlasherCor = StartCoroutine(FlashFor(SnakeSpeed*GoldFood_Grow_Amount));
             EatFood(GoldFood_Grow_Amount);
             goto case "empty";//the act as if the target spot was empty
 
@@ -400,7 +407,16 @@ public class Snake_Script : MonoBehaviour
     public void Die(){
         //stop the game
         gameOn = false;
+
+        //reset snake values
+        StopAllCoroutines();
+        isFlashing = false;
+        isGhosting = false;
+        canDie = true;
+        ResetSnakeColours();
+
         if (DoesTurnIntoFood){
+            
             Handler_Script.SpawnFood(PlayerNum, SnakeHead.transform.position, "snakeFood");
             SnakeHead.transform.position = Starting_Pos;
             foreach (GameObject seg in segmentsList)
@@ -447,22 +463,14 @@ public class Snake_Script : MonoBehaviour
 
     }
 
-    IEnumerator FlashFor(float time){
-        //set display to show golden time's duration
-        PlayerDisplayScript.StartCountdown(time);
-
-        isFlashing = true;
-        canDie = false;
-
-        yield return new WaitForSeconds (time);
-        isFlashing = false;
-        canDie = true;
-
-
+    void ResetSnakeColours(){
         //setting the snake back to normal colours
+
+        //setting the head colours right
         SnakeHead.GetComponent<SpriteRenderer>().color = Col_Outline;
         SnakeHead.transform.GetChild(0).GetComponent<SpriteRenderer>().color = Col_Base;
         
+        //going through each segment and recolouring it appropriately
         for (int i = 0; i < segmentsList.Count; i++)
         {
             if( i%2 == 1){
@@ -476,6 +484,21 @@ public class Snake_Script : MonoBehaviour
                 segmentsList[i].transform.GetChild(0).GetComponent<SpriteRenderer>().color = Col_Alt;
             }
         }
+    }
+
+    IEnumerator FlashFor(float time){
+        //set display to show golden time's duration
+        PlayerDisplayScript.StartCountdown(time);
+
+        isFlashing = true;
+        canDie = false;
+
+        yield return new WaitForSeconds (time);
+        isFlashing = false;
+        canDie = true;
+
+        //setting the snake back to normal colours
+        ResetSnakeColours();
     }
 
 
@@ -517,24 +540,7 @@ public class Snake_Script : MonoBehaviour
         isGhosting = false;
         
         //setting the snake back to normal colours
-        SnakeHead.GetComponent<SpriteRenderer>().color = Col_Outline;
-        SnakeHead.transform.GetChild(0).GetComponent<SpriteRenderer>().color = Col_Base;
-        
-        for (int i = 0; i < segmentsList.Count; i++)
-        {
-            if( i%2 == 1){
-                //odd num segment is base colour
-                segmentsList[i].transform.GetComponent<SpriteRenderer>().color = Col_Outline;
-                segmentsList[i].transform.GetChild(0).GetComponent<SpriteRenderer>().color = Col_Base;
-            }
-            else{
-                //even num seg is alt colour
-                segmentsList[i].transform.GetComponent<SpriteRenderer>().color = Col_Outline;
-                segmentsList[i].transform.GetChild(0).GetComponent<SpriteRenderer>().color = Col_Alt;
-            }
-        }
-
-        
+        ResetSnakeColours();
     }
 
     void FlashGhost(){

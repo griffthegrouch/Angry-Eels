@@ -64,6 +64,23 @@ public class GameHandler_Script : MonoBehaviour
 
 
     TODO
+
+
+    Menu
+
+    Play
+
+    Gamemode           
+    Infinite Survival/First to  <- 100 ->
+    
+    Players
+        Number of Snakes 
+        <- Sh Sh Sc Sc ->
+        Human Players
+        <- 2 ->
+    
+    Advanced Options
+
                     
         make the countdown go yellow for invincible and another for ghost
 
