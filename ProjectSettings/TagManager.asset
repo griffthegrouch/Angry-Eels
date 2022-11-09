@@ -8,6 +8,7 @@ TagManager:
   - normalFood
   - goldFood
   - snakeFood
+  - snakeIndicator
   layers:
   - Default
   - TransparentFX
