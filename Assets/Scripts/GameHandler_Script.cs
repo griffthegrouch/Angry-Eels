@@ -64,31 +64,18 @@ public class GameHandler_Script : MonoBehaviour
 
 
     TODO
+        -make a target score win the game
+        +win screen
 
+        -indicators for ghosted and gold and dead
 
-    Menu
+        -make when they run into each other, its not the first one that trumps the other
 
-    Play
-
-    Gamemode           
-    Infinite Survival/First to  <- 100 ->
-    
-    Players
-        Number of Snakes 
-        <- Sh Sh Sc Sc ->
-        Human Players
-        <- 2 ->
-    
-    Advanced Options
-
-                    
-        make the countdown go yellow for invincible and another for ghost
-
-        make a target score to win the game
+        -death penalty timer
         
-        make handler for game to choose all game options outside of play mode.
-        make when they run into each other, its not the first one that trumps the other
+        -pause button+function
 
+    ideas
         make number of lives
         make random obstacle maker, and preset stages to choose from.
         make high score file to keep reading from.
@@ -100,10 +87,14 @@ public class GameHandler_Script : MonoBehaviour
     */
 
     //public 
-    public Color Player1_Colour;
-    public Color Player2_Colour;
-    public Color Player3_Colour;
-    public Color Player4_Colour;
+    private int Player1_Colour;
+    private int Player2_Colour;
+    private int Player3_Colour;
+    private int Player4_Colour;
+
+    private Color[] SnakeColours = new Color[] {
+    {   Color.green, Color.red, Color.blue, Color.gray, Color.purple, Color.magenta, Color.yellow + Color.red  }
+    };
 
     public int Number_Of_Players;
 
@@ -128,7 +119,6 @@ public class GameHandler_Script : MonoBehaviour
         {KeyCode.W, KeyCode.S, KeyCode.A, KeyCode.D},
         {KeyCode.T, KeyCode.G, KeyCode.F, KeyCode.H},
         {KeyCode.I, KeyCode.K, KeyCode.J, KeyCode.L}
-
     };
 
     //array keeps track of all the wall blocks in the game
@@ -147,6 +137,16 @@ public class GameHandler_Script : MonoBehaviour
     GameObject SnakePrefab;
     GameObject SnakeSegmentPrefab;
     GameObject FoodPrefab;
+
+    void UpdateGameOptions(){
+        //called at the beginning of the game to pull info from the title and options screens
+
+
+
+    }
+
+
+
 
     // Start is called before the first frame update
     void Start(){
@@ -244,16 +244,20 @@ public class GameHandler_Script : MonoBehaviour
         InvokeRepeating("MoveSnakes", 0, Snake_Speed);   
     }
 
+    private void FixedUpdate() {
+        if(MoveS){
+                foreach (Snake_Script snakeScript in snakeScripts)
+        {
+            snakeScript.TryMoveSnake();
+        }
+        }
+
+    }
+
     void EndGame(){
         CancelInvoke();
     }
 
-    void MoveSnakes(){
-        foreach (Snake_Script snakeScript in snakeScripts)
-        {
-            snakeScript.TryMoveSnake();
-        }
-    }
 
 
 

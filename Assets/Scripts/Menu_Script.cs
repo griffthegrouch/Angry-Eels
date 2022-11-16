@@ -7,11 +7,20 @@ using UnityEngine;
 public class Menu_Script : MonoBehaviour
 {
     //menu script
+    bool isOptionsScreenOpen = false;
 
     char GameMode = 'e'; // e - endless, f - first to
     int GoalPoints = 100;
     int NumPlayers = 1;
     int NumHumans = 1;
+
+    float[] PresetsArr = new float[] {
+    {   0, 1, 2, 3,     //snake colours
+        0.1f, 3, 2, 3,  //speed/durations
+        1, 10, 3, 1, 30 //food options
+    }
+    };
+
 
     Text GameMode_Text;
     Text Target_Text;
@@ -136,7 +145,12 @@ public class Menu_Script : MonoBehaviour
         UpdateMenu();
     }
 
-    public void AdvancedOptionsBtn(){
-        
+    public void AdvancedOptionsOpenBtn(){
+        //open advanced options menu
+        isOptionsScreenOpen = true;
+    }
+    public void AdvancedOptionsCloseBtn(){
+        //open advanced options menu
+        isOptionsScreenOpen = false;
     }
 }
