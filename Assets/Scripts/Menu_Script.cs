@@ -14,11 +14,30 @@ public class Menu_Script : MonoBehaviour
     int NumPlayers = 1;
     int NumHumans = 1;
 
+    private char GameMode; // e - endless, f - first to
+    private int GoalPoints;
+    private int Num_Players;
+    private int Num_Human_Players;
+    //- advanced options screen menu vars
+    // when loaded initially, they are set to the first preset gamemode values
+    private int Player1_Colour;
+    private int Player2_Colour;
+    private int Player3_Colour;
+    private int Player4_Colour;
+    private int StartingSize;
+    private int NormalFood_GrowthAmount;
+    private int DeadSnakeFood_GrowthAmount;
+    private int GoldFood_GrowthAmount;
+    private float SnakeSpeed;
+    private float GhostMode_Duration;
+    private float DeathPenalty_Duration;
+    private float GoldFood_SpawnChance;
+    private bool DoSnakesTurnToFood;
     float[] PresetsArr = new float[] {
-    {   0, 1, 2, 3,     //snake colours
-        0.1f, 3, 2, 3,  //speed/durations
-        1, 10, 3, 1, 30 //food options
-    }
+        {   0, 1, 2, 3,     //snake colours
+            0.1f, 3, 2, 3,  //speed/durations
+            1, 10, 3, 1, 30 //food options
+        }
     };
 
 

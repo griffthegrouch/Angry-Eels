@@ -87,30 +87,33 @@ public class GameHandler_Script : MonoBehaviour
     */
 
     //public 
+
+    private char GameMode; // e - endless, f - first to
+    private int GoalPoints;
+    private int Num_Players;
+    private int Num_Human_Players;
+    //- advanced options screen menu vars
+    // when loaded initially, they are set to the first preset gamemode values
     private int Player1_Colour;
     private int Player2_Colour;
     private int Player3_Colour;
     private int Player4_Colour;
+    private int StartingSize;
+    private int NormalFood_GrowthAmount;
+    private int DeadSnakeFood_GrowthAmount;
+    private int GoldFood_GrowthAmount;
+    private float SnakeSpeed;
+    private float GhostMode_Duration;
+    private float DeathPenalty_Duration;
+    private float GoldFood_SpawnChance;
+    private bool DoSnakesTurnToFood;
+
+
+
 
     private Color[] SnakeColours = new Color[] {
     {   Color.green, Color.red, Color.blue, Color.gray, Color.purple, Color.magenta, Color.yellow + Color.red  }
     };
-
-    public int Number_Of_Players;
-
-    public int NormalFood_Grow_Amount;
-    public int DeadSnake_Grow_Amount;
-    public int GoldFood_Grow_Amount;
-    
-    public int Starting_Size;
-    public float Snake_Speed; //typically 0.1f
-    public bool Do_Snakes_Turn_Into_Food;
-    public int GoldFood_Spawn_Chance; //when spawning normal food, picks a random number between 1 - (this #)
-    [Range(0,100)]
-    public int Ghosted_On_Spawn_Time;
-    public int Death_Penatly_Time;
-
-
     Vector3[] Starting_Positions = new Vector3[4];
     Color[] Player_Colours;
 
@@ -244,14 +247,11 @@ public class GameHandler_Script : MonoBehaviour
         InvokeRepeating("MoveSnakes", 0, Snake_Speed);   
     }
 
-    private void FixedUpdate() {
-        if(MoveS){
-                foreach (Snake_Script snakeScript in snakeScripts)
+    void MoveSnakes(){
+        foreach (Snake_Script snakeScript in snakeScripts)
         {
             snakeScript.TryMoveSnake();
         }
-        }
-
     }
 
     void EndGame(){
