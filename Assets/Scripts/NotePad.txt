@@ -1,29 +1,102 @@
 ﻿   
    
+       project notes
+
+    when developing on windows and mac, the file systems 
+    In Unix systems the end of a line is represented with a line feed (LF). 
+    In windows a line is represented with a carriage return (CR) and a line feed (LF) thus (CRLF). 
+    when you get code from git that was uploaded from a unix system they will only have an LF.
+
+    the .gitignore helps tremendously with getting the project to run on both OS
+   
+
+
+
+    
+    ***Snake Game 
+    player story
+    1 -> starts with GUI
+
+    2 -> choose game settings
+        -choose number of players
+        -choose what players are human vs CPU
+        -choose player's colours
+        -choose game mode (regular - single food, hungry - multiple foods)
+        -choose settings (do snakes turn into food when they die, do snakes respawn, grow amount, staring size, etc)
+        -choose stage (original, preset map, or random obstacles)
+
+    3 -> click start 
+
+    4 -> GUI leaves and snake game is displayed
+
+    5 -> player presses any key and game starts then continues indefinitely
+
+
+
+
+
+       TODO
+        -make a target score win the game
+        +win screen
+
+        -make when they run into each other, its not the first one that trumps the other
+
+        -death penalty timer
+        
+        -pause button+function
+
+    ideas
+        make number of lives
+        make random obstacle maker, and preset stages to choose from.
+        make high score file to keep reading from.
+
+        add powerups (speed, grow a lot, untargettable)
+        make options for food (multiple random spawning, single one that grows you then moves, toggle for dead snakes becoming food )
+        golden food that moves/bounces around
    
    
    
    
    
-   
-   
-   
-    private char GameMode; // e - endless, f - first to
-    private int GoalPoints;
-    private int Num_Players;
-    private int Num_Human_Players;
+
+    private char gameMode; // e - endless, f - first to
+    private int goalPoints;
+    private int num_Players;
+    private int num_Human_Players;
     //- advanced options screen menu vars
     // when loaded initially, they are set to the first preset gamemode values
-    private int Player1_Colour;
-    private int Player2_Colour;
-    private int Player3_Colour;
-    private int Player4_Colour;
-    private int StartingSize;
-    private int NormalFood_GrowthAmount;
-    private int DeadSnakeFood_GrowthAmount;
-    private int GoldFood_GrowthAmount;
-    private float SnakeSpeed;
-    private float GhostMode_Duration;
-    private float DeathPenalty_Duration;
-    private float GoldFood_SpawnChance;
-    private bool DoSnakesTurnToFood;
+    private int player1_Colour;
+    private int player2_Colour;
+    private int player3_Colour;
+    private int player4_Colour;
+    private int startingSize;
+    private int normalFood_GrowthAmount;
+    private int deadSnakeFood_GrowthAmount;
+    private int goldFood_GrowthAmount;
+    private float snakeSpeed;
+    private float ghostMode_Duration;
+    private float deathPenalty_Duration;
+    private float goldFood_SpawnChance;
+    private bool doSnakesTurnToFood;
+
+
+
+    AllAdvancedOptionsArr = new GameObject[]{
+            GameObject.Find("PresetsText"),
+            
+            GameObject.Find("P1ColourDropdown"),
+            GameObject.Find("P2ColourDropdown"),
+            GameObject.Find("P3ColourDropdown"),
+            GameObject.Find("P4ColourDropdown"),
+
+            GameObject.Find("InputField1"),
+            GameObject.Find("InputField2"),
+            GameObject.Find("InputField3"),
+            GameObject.Find("InputField4"),
+
+            GameObject.Find("Toggle"),
+            GameObject.Find("InputField5"),
+            GameObject.Find("InputField6"),
+            GameObject.Find("InputField7"),
+            GameObject.Find("InputField8"),
+        };

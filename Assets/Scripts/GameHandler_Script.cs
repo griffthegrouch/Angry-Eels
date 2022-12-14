@@ -5,15 +5,6 @@ using UnityEngine;
 public class GameHandler_Script : MonoBehaviour
 {
     /* 
-    project notes
-
-    when developing on windows and mac, the file systems 
-    In Unix systems the end of a line is represented with a line feed (LF). 
-    In windows a line is represented with a carriage return (CR) and a line feed (LF) thus (CRLF). 
-    when you get code from git that was uploaded from a unix system they will only have an LF.
-
-    the .gitignore helps tremendously with getting the project to run on both OS
-
 
     ***Game Handler Script 
     controls the ability to set game settings
@@ -31,93 +22,54 @@ public class GameHandler_Script : MonoBehaviour
         -called by self and snakes when spawning any kind of food
 
 
-    
-    ***Snake Game 
-    player story
-    1 -> starts with GUI
-
-    2 -> choose game settings
-        -choose number of players
-        -choose what players are human vs CPU
-        -choose player's colours
-        -choose game mode (regular - single food, hungry - multiple foods)
-        -choose settings (do snakes turn into food when they die, do snakes respawn, grow amount, staring size, etc)
-        -choose stage (original, preset map, or random obstacles)
-
-    3 -> click start 
-
-    4 -> GUI leaves and snake game is displayed
-
-    5 -> player presses any key and game starts then continues indefinitely
 
     Handler script story
     1 -> game starts/loads
 
-    2 -> grabs values from user-set settings in out-of-game settings
+    2 -> grabs values from user-set settings in out-of-game settings (MENU SCRIPT)
 
     3 -> grabs prefabs and converts variables into "usable data"
+
+    4 -> spawns snakes and begins the game
+
+    5 -> game starts and handler moves snakes and is accesible for snake scripts when required
         - when snakes need to check what is occupying a position on the map
             -> call this script requesting it, then recieve what is in that position
         -if the snake is trying to move to a food block
             -> destroy the food block - if appropriate, generate a new food block
 
-
-
-    TODO
-        -make a target score win the game
-        +win screen
-
-        -indicators for ghosted and gold and dead
-
-        -make when they run into each other, its not the first one that trumps the other
-
-        -death penalty timer
-        
-        -pause button+function
-
-    ideas
-        make number of lives
-        make random obstacle maker, and preset stages to choose from.
-        make high score file to keep reading from.
-
-        add powerups (speed, grow a lot, untargettable)
-        make options for food (multiple random spawning, single one that grows you then moves, toggle for dead snakes becoming food )
-        golden food that moves/bounces around
-
     */
 
-    //public 
 
-    private char GameMode; // e - endless, f - first to
-    private int GoalPoints;
-    private int Num_Players;
-    private int Num_Human_Players;
-    //- advanced options screen menu vars
-    // when loaded initially, they are set to the first preset gamemode values
-    private int Player1_Colour;
-    private int Player2_Colour;
-    private int Player3_Colour;
-    private int Player4_Colour;
-    private int StartingSize;
-    private int NormalFood_GrowthAmount;
-    private int DeadSnakeFood_GrowthAmount;
-    private int GoldFood_GrowthAmount;
-    private float SnakeSpeed;
-    private float GhostMode_Duration;
-    private float DeathPenalty_Duration;
-    private float GoldFood_SpawnChance;
-    private bool DoSnakesTurnToFood;
+        //all these vars are set by menu script
+        private char gameMode{set;} // e - endless, f - first to
+        private int goalPoints{set;}
+        private int num_Players{set;}
+        private int num_Human_Players{set;}
+        //- advanced options screen menu vars
+        // when loaded initially, they are set to the first preset gamemode values
+        private int player1_Colour {set;}
+        private int player2_Colour {set;}
+        private int player3_Colour {set;}
+        private int player4_Colour {set;}
+        private int startingSize {set;}
+        private int normalFood_GrowthAmount {set;}
+        private int deadSnakeFood_GrowthAmount {set;}
+        private int goldFood_GrowthAmount{set;}
+        private float snakeSpeed{set;}
+        private float ghostMode_Duration{set;}
+        private float deathPenalty_Duration{set;}
+        private float goldFood_SpawnChance{set;}
+        private bool doSnakesTurnToFood{set;}
 
-
-
-
-    private Color[] SnakeColours = new Color[] {
-    {   Color.green, Color.red, Color.blue, Color.gray, Color.purple, Color.magenta, Color.yellow + Color.red  }
+    private Color[] snakeColours = new Color[] {
+       Color.green, Color.red, Color.blue, Color.gray, Color.yellow + Color.blue, Color.magenta, Color.yellow + Color.red  
     };
-    Vector3[] Starting_Positions = new Vector3[4];
-    Color[] Player_Colours;
 
-    KeyCode[,] PlayerInputs = new KeyCode[,] {
+    private Vector3[] starting_Positions = new Vector3[4];
+    private Color[] player_Colours;
+
+    private KeyCode[,] playerInputs = new KeyCode[,] {
         {KeyCode.UpArrow, KeyCode.DownArrow, KeyCode.LeftArrow, KeyCode.RightArrow},
         {KeyCode.W, KeyCode.S, KeyCode.A, KeyCode.D},
         {KeyCode.T, KeyCode.G, KeyCode.F, KeyCode.H},
@@ -125,136 +77,147 @@ public class GameHandler_Script : MonoBehaviour
     };
 
     //array keeps track of all the wall blocks in the game
-    GameObject[] wallArr;
+    private GameObject[] wallArr;
 
     //list keeps track of all the food in the game
-    List<GameObject> foodList = new List<GameObject>();
+    private List<GameObject> foodList = new List<GameObject>();
 
     //list keeps track of all the snakes in the game
-    List<Snake_Script> snakeScripts = new List<Snake_Script>();
+    private List<Snake_Script> snakeScripts = new List<Snake_Script>();
 
     //Array keeps track of all 4 score displays
-    GameObject[] PlayerDisplays;
-    PlayerDisplay_Script[] PlayerDisplayScripts;
+    private GameObject[] playerDisplays;
+    private PlayerDisplay_Script[] playerDisplayScripts;
 
-    GameObject SnakePrefab;
-    GameObject SnakeSegmentPrefab;
-    GameObject FoodPrefab;
-
-    void UpdateGameOptions(){
-        //called at the beginning of the game to pull info from the title and options screens
+    private GameObject snakePrefab;
+    private GameObject snakeSegmentPrefab;
+    private GameObject foodPrefab;
 
 
+    void DebugAllVars(){
+        
+        Debug.Log("gameMode: " + gameMode);
+        Debug.Log("goalPoints: " + goalPoints);
+        Debug.Log("num_Players: " + num_Players);
+        Debug.Log("num_Human_Players: " + num_Human_Players);
+        Debug.Log("player1_Colour: " + player1_Colour);
+        Debug.Log("player2_Colour: " + player2_Colour);
+        Debug.Log("player3_Colour: " + player3_Colour);
+        Debug.Log("player4_Colour: " + player4_Colour);
+        Debug.Log("startingSize: " + startingSize);
+        Debug.Log("normalFood_GrowthAmount: " + normalFood_GrowthAmount);
+        Debug.Log("deadSnakeFood_GrowthAmount: " + deadSnakeFood_GrowthAmount);
+        Debug.Log("goldFood_GrowthAmount: " + goldFood_GrowthAmount);
+        Debug.Log("snakeSpeed: " + snakeSpeed);
+        Debug.Log("ghostMode_Duration: " + ghostMode_Duration);
+        Debug.Log("deathPenalty_Duration: " + deathPenalty_Duration);
+        Debug.Log("goldFood_SpawnChance: " + goldFood_SpawnChance);
+        Debug.Log("doSnakesTurnToFood: " + doSnakesTurnToFood);
 
     }
-
-
-
-
     // Start is called before the first frame update
     void Start(){
         // grab all resources
-        SnakePrefab = Resources.Load("Snake") as GameObject;
-        SnakeSegmentPrefab = Resources.Load("SnakeSegment") as GameObject;
-        FoodPrefab = Resources.Load("Food") as GameObject;
+        snakePrefab = Resources.Load("Snake") as GameObject;
+        snakeSegmentPrefab = Resources.Load("SnakeSegment") as GameObject;
+        foodPrefab = Resources.Load("Food") as GameObject;
         
         // grab all existing walls
         wallArr = GameObject.FindGameObjectsWithTag("wall");
 
+    }
+    public void LoadGame(){//called by the menu script
+
         // organize vars into more easily usable formats
-        Player_Colours = new Color[] {Player1_Colour, Player2_Colour, Player3_Colour, Player4_Colour};
+        player_Colours = new Color[] {snakeColours[player1_Colour], snakeColours[player2_Colour], snakeColours[player3_Colour], snakeColours[player4_Colour]};
 
         //grab player displays and set vars
-        PlayerDisplays = new GameObject[4];
-        PlayerDisplayScripts = new PlayerDisplay_Script[4];
-        for (int i = 0; i < PlayerDisplays.Length; i++)
+        playerDisplays = new GameObject[4];
+        playerDisplayScripts = new PlayerDisplay_Script[4];
+        for (int i = 0; i < playerDisplays.Length; i++)
         {
-            PlayerDisplays[i] = GameObject.Find("PlayerDisplays").transform.GetChild(i).gameObject;
-            PlayerDisplays[i].SetActive(false);
-            PlayerDisplayScripts[i] = PlayerDisplays[i].GetComponent<PlayerDisplay_Script>();
-            PlayerDisplayScripts[i].SetValues(i);
-            PlayerDisplayScripts[i].SetOutlineColour(Player_Colours[i]);
+            playerDisplays[i] = GameObject.Find("PlayerDisplays").transform.GetChild(i).gameObject;
+            playerDisplays[i].SetActive(false);
+            playerDisplayScripts[i] = playerDisplays[i].GetComponent<PlayerDisplay_Script>();
+            playerDisplayScripts[i].SetValues(i);
+            playerDisplayScripts[i].SetOutlineColour(player_Colours[i]);
         }
 
-        for (int i = 0; i < Number_Of_Players; i++)
+        for (int i = 0; i < num_Players; i++)
         {
             //calculate spawn position (calculates equal horizontal positions for each snake with space on each side)
-            int spawnPosX = 25/(Number_Of_Players + 1) * (i+1);
+            int spawnPosX = 25/(num_Players + 1) * (i+1);
 
-            if(Number_Of_Players == 4 && spawnPosX < 12){
+            if(num_Players == 4 && spawnPosX < 12){
                 //manual adjustment to move the first two snakes' spawn positions to the left one space 
                 //IF playing 4 player, since the spots are calulated by integers and theres 25 spots, it doesnt round down these two numbers properly
                 spawnPosX -= 1;
             }
-            Starting_Positions[i] = new Vector3(spawnPosX,-1,0);
+            starting_Positions[i] = new Vector3(spawnPosX,-1,0);
 
             //create the snake
-            Snake_Script newSnake = Instantiate(SnakePrefab, new Vector3(-10, -10 ,0), new Quaternion(0,0,0,0), this.transform.parent).GetComponent<Snake_Script>();
+            Snake_Script newSnake = Instantiate(snakePrefab, new Vector3(-10, -10 ,0), new Quaternion(0,0,0,0), this.transform.parent).GetComponent<Snake_Script>();
             
             // enable the snake's score display
-            PlayerDisplays[i].SetActive(true);
+            playerDisplays[i].SetActive(true);
 
             //set the snake's values and objects
             newSnake.SetObjects(//GameHandler_Script handlerScript,  GameObject head, GameObject seg
                 this,
                 newSnake.transform.GetChild(0).gameObject, 
-                SnakeSegmentPrefab
+                snakeSegmentPrefab
             );
 
             newSnake.SetValues(//int playernum, float snakeSpeed, int startingSize, Vector3 startingPos, int foodgrowRate, bool doesTurnIntoFood
                 i,
-                Snake_Speed,
-                Starting_Size,
-                Starting_Positions[i],
-                NormalFood_Grow_Amount,
-                DeadSnake_Grow_Amount,
-                GoldFood_Grow_Amount,
-                Do_Snakes_Turn_Into_Food,
-                Ghosted_On_Spawn_Time
+                snakeSpeed,
+                startingSize,
+                starting_Positions[i],
+                normalFood_GrowthAmount,
+                deadSnakeFood_GrowthAmount,
+                goldFood_GrowthAmount,
+                doSnakesTurnToFood,
+                ghostMode_Duration
             );
 
             newSnake.SetInputs(//KeyCode[] inputs
-                new KeyCode[] {PlayerInputs[i,0], PlayerInputs[i,1], PlayerInputs[i,2], PlayerInputs[i,3]}
+                new KeyCode[] {playerInputs[i,0], playerInputs[i,1], playerInputs[i,2], playerInputs[i,3]}
             );
 
             newSnake.SetPlayerDisplay(//GameObject scoreDisplay, GameObject highScoreDisplay
-                PlayerDisplayScripts[i]
+                playerDisplayScripts[i]
             );
 
             newSnake.SetColour(//Color col
-                Player_Colours[i]);
-
+                player_Colours[i]
+            );
 
             //add the snake to the list
             snakeScripts.Add(newSnake);
-
-
+            
         }
-        
-
-
-        StartGame();
-
 
     }
+    public void StartGame(){//called by the menu script when the game is loaded
 
-    void StartGame(){
+        DebugAllVars();
 
         //spawn the first bit of food and start the game
         SpawnFood(-1, default(Vector3), "normalFood");
 
         //calls Movesnake every user-set time increment to move the snakes
-        InvokeRepeating("MoveSnakes", 0, Snake_Speed);   
+        InvokeRepeating("MoveSnakes", 0, snakeSpeed);   
+
     }
 
-    void MoveSnakes(){
+    private void MoveSnakes(){
         foreach (Snake_Script snakeScript in snakeScripts)
         {
             snakeScript.TryMoveSnake();
         }
     }
 
-    void EndGame(){
+    public void EndGame(){
         CancelInvoke();
     }
 
@@ -282,7 +245,7 @@ public class GameHandler_Script : MonoBehaviour
             }
 
             //check if bumping into other snakes
-            for (int i = 0; i < Number_Of_Players; i++)
+            for (int i = 0; i < num_Players; i++)
             {   
                 if (i != playerNum){
                     if(snakeScripts[i].CheckForSnakeAtPos(pos)){
@@ -354,18 +317,18 @@ public class GameHandler_Script : MonoBehaviour
             }
         }
         else if (CheckPos(-1, pos, false) == "empty"){
-            Debug.Log("not empty");
+            //Debug.Log("not empty");
             //if trying to spawn food on an existing food, dont
             return;
         }
-        GameObject newFood = Instantiate(FoodPrefab, pos, new Quaternion(0,0,0,0), this.transform);
+        GameObject newFood = Instantiate(foodPrefab, pos, new Quaternion(0,0,0,0), this.transform);
 
         switch (foodType)
         {
             case "normalFood":
                 //chance to turn into golden food
-                if((int)Random.Range(1,GoldFood_Spawn_Chance) == 1){
-                    Debug.Log("winner");
+                if((int)Random.Range(1,goldFood_SpawnChance) == 1){
+                    //Debug.Log("winner");
                     foodType = "goldFood";
                     goto case "goldFood";
                 }

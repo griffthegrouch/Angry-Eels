@@ -91,9 +91,9 @@ public class PlayerDisplay_Script : MonoBehaviour
         playerNum = pNum + 1;//playernum starts at 0, this display starts at 1
 
         //display them
-        Debug.Log(playerNum);
-        Debug.Log(PlayerNumText);
-        Debug.Log(PlayerNumText.text);
+        //Debug.Log(playerNum);
+        //Debug.Log(PlayerNumText);
+        //Debug.Log(PlayerNumText.text);
         PlayerNumText.text = playerNum.ToString();
     }
 
