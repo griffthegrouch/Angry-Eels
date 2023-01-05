@@ -1,455 +1,357 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
-using UnityEngine.UI;
 using UnityEngine;
-
+using UnityEngine.UI;
 
 public class Menu_Script : MonoBehaviour
 {
-    //menu script
+    // The currently selected game mode
+    private GameMode gameMode = GameMode.Endless;
 
-    ///////////// gamemode universal vars
-    private char gameMode{set;} = 'e'; // e - endless, f - first to
-    private int goalPoints{set;} = 100;
-    private int num_Players{set;} = 1;
-    private int num_Human_Players{set;} = 1;
+    // The goal points for the "First to" game mode
+    private int goalPoints = 100;
 
-    //- advanced options screen menu vars
-    // when loaded initially, they are set to the first preset gamemode values
-    private int player1_Colour{set;}
-    private int player2_Colour{set;}
-    private int player3_Colour{set;}
-    private int player4_Colour{set;}
-    private int startingSize{set;}
-    private int normalFood_GrowthAmount{set;}
-    private int deadSnakeFood_GrowthAmount{set;}
-    private int goldFood_GrowthAmount{set;}
-    private float snakeSpeed{set;}
-    private float ghostMode_Duration{set;}
-    private float deathPenalty_Duration{set;}
-    private float goldFood_SpawnChance{set;}
-    private bool doSnakesTurnToFood{set;}
+    // The number of players in the game
+    private int numPlayers = 1;
 
-    private string[] presetsNamesArr = new string[] {
-        "Custom",
-        "Classic",
-        "Wild"
-    };
-    private float[,] presetsValuesArr = new float[,] {
-        {//custom
-            0, 1, 2, 3,     //snake colours
-            0.1f, 3, 2, 3,  //speed/durations
-            1, 10, 3, 1, 30 //food options
-        },
-        {//classic mode
-           0, 1, 2, 3,     //snake colours
-            0.1f, 3, 2, 3,  //speed/durations
-            1, 10, 3, 1, 30 //food options
-        },
-        {//wild mode
-           0, 1, 2, 3,     //snake colours
-            0.1f, 3, 2, 3,  //speed/durations
-            1, 10, 3, 1, 30 //food options
-        }
+    // The number of human players in the game
+    private int numHumanPlayers = 1;
+
+    // The values for the advanced options
+    private AdvancedOptions advancedOptions;
+
+    // The names and values for the preset advanced options
+    private Dictionary<string, AdvancedOptions> presetOptions = new Dictionary<string, AdvancedOptions>
+    {
+        { "Custom", new AdvancedOptions() },
+        { "Classic", new AdvancedOptions() },
+        { "Wild", new AdvancedOptions() }
     };
 
-
+    // A reference to the game handler script
     private GameHandler_Script gameHandlerScript;
-    private GameObject[] AllAdvancedOptionsArr;
 
+    // The game objects for the advanced options screen
+    private GameObject[] advancedOptionsObjects;
 
-    //menu screen vars
-    private Text gameMode_Text;
-    private Text target_Text;
-    private GameObject firstToSelector;
-    private GameObject[] snakeIndicatorArr; //indicators for snakes
-    private GameObject[] cpuIndicatorSpriteArr; //part that colours the snake grey to indicate its a computer player
+    // The snake indicator game objects
+    private GameObject[] snakeIndicators;
 
-    //advanced options screen vars
+    // The sprite renderers for the CPU indicator sprites
+    private SpriteRenderer[] cpuIndicatorSprites;
+
+    // The advanced options screen game object
     private GameObject advancedOptionsScreen;
-    private int selectedPreset = 0; //starts at first selected preset
 
+    // The currently selected preset index
+    private int selectedPreset = 0;
 
     // Start is called before the first frame update
     void Start()
     {
-        //gathering gameobjects
+        // Get a reference to the game handler script
         gameHandlerScript = GameObject.Find("GameHandler").GetComponent<GameHandler_Script>();
-
-        gameMode_Text = GameObject.Find("GameModeText").transform.GetComponent<Text>();
-        target_Text = GameObject.Find("PointsText").transform.GetComponent<Text>();
-        firstToSelector = GameObject.Find("FirstToPoints");
-
-        snakeIndicatorArr = new GameObject[4];
-        cpuIndicatorSpriteArr = new GameObject[4];
-        for (int i = 0; i < 4; i++)
-        {
-            snakeIndicatorArr[i] = GameObject.Find("SnakeIndicators").transform.GetChild(i).gameObject;
-            cpuIndicatorSpriteArr[i] = snakeIndicatorArr[i].transform.GetChild(2).gameObject;
-        }
-
-        AllAdvancedOptionsArr = new GameObject[]{
-            GameObject.Find("PresetsText"),
-
-            GameObject.Find("P1ColourDropdown"),
-            GameObject.Find("P2ColourDropdown"),
-            GameObject.Find("P3ColourDropdown"),
-            GameObject.Find("P4ColourDropdown"),
-
-            GameObject.Find("InputField1"),
-            GameObject.Find("InputField2"),
-            GameObject.Find("InputField3"),
-            GameObject.Find("InputField4"),
-
-            GameObject.Find("Toggle"),
-            GameObject.Find("InputField5"),
-            GameObject.Find("InputField6"),
-            GameObject.Find("InputField7"),
-            GameObject.Find("InputField8"),
-        };
 
         advancedOptionsScreen = GameObject.Find("AdvancedOptionsScreen");
 
-        UpdateMenuScreen();
-        UpdateAdvancedOptionsScreen(-1, 0);
-
         advancedOptionsScreen.SetActive(false);
 
-
-    }
-
-    void StartGame()
-    {
-        //when user clicks play, 
-
-        int[] _iarr = {
-            goalPoints,
-            num_Players,
-            num_Human_Players,
-            player1_Colour,
-            player2_Colour,
-            player3_Colour,
-            player4_Colour,
-            startingSize,
-            normalFood_GrowthAmount,
-            deadSnakeFood_GrowthAmount,
-            goldFood_GrowthAmount
+        // Get the game objects for the advanced options screen
+        advancedOptionsObjects = new GameObject[]
+        {
+        GameObject.Find("PresetsText"),
+        GameObject.Find("P1ColourDropdown"),
+        GameObject.Find("P2ColourDropdown"),
+        GameObject.Find("P3ColourDropdown"),
+        GameObject.Find("P4ColourDropdown"),
+        GameObject.Find("InputField1"),
+        GameObject.Find("InputField2"),
+        GameObject.Find("InputField3"),
+        GameObject.Find("InputField4"),
+        GameObject.Find("InputField5"),
+        GameObject.Find("InputField6"),
+        GameObject.Find("InputField7"),
+        GameObject.Find("InputField8"),
+        GameObject.Find("InputField9"),
+        GameObject.Find("InputField10"),
+        GameObject.Find("InputField11"),
+        GameObject.Find("InputField12"),
+        GameObject.Find("Toggle1"),
+        GameObject.Find("Toggle2"),
+        GameObject.Find("Toggle3")
         };
 
-        float[] _farr = {
-            snakeSpeed,
-            ghostMode_Duration,
-            deathPenalty_Duration,
-            goldFood_SpawnChance
-        };
-
-        //send vars to game handler to use, 
-        gameHandlerScript.SetAllVars(//char c, bool b, int[] iArr, float[] fArr
-            gameMode,
-            doSnakesTurnToFood,
-            _iarr,
-            _farr
-        );
-
-        //setup game
-        gameHandlerScript.LoadGame();
-
-        //start game
-        gameHandlerScript.StartGame();
-
-        //then close menu
-        HideMenu();
-    }
-
-    void ShowMenu()
-    {
-        //not currently used
-    }
-    void HideMenu()
-    {
-        this.gameObject.SetActive(false);
-        advancedOptionsScreen.SetActive(false);
-        //called when game starts to hide menu
-    }
-
-    void UpdateMenuScreen()
-    {
-        //called when a button is pressed or value changes on the main menu screen to reflect changes
-
-        //remove the target points selector if the gamemode is endless
-        if (gameMode == 'e')
-        {
-            firstToSelector.SetActive(false);
-        }
-        else if (gameMode == 'f')
-        {
-            firstToSelector.SetActive(true);
-        }
-
-        //display the snake indicators correctly
+        // Get the snake indicator game objects
+        snakeIndicators = new GameObject[4];
         for (int i = 0; i < 4; i++)
         {
-            if (i < num_Players)
-            {
-                snakeIndicatorArr[i].SetActive(true);
-            }
-            else
-            {
-                snakeIndicatorArr[i].SetActive(false);
-            }
-            if (i < (num_Human_Players))
-            {
-                cpuIndicatorSpriteArr[i].SetActive(false);
-            }
-            else
-            {
-                cpuIndicatorSpriteArr[i].SetActive(true);
-            }
+            snakeIndicators[i] = GameObject.Find("SnakeIndicators").transform.GetChild(i).gameObject;
+        }
+
+        // Get the sprite renderers for the CPU indicator sprites
+        cpuIndicatorSprites = new SpriteRenderer[4];
+        for (int i = 0; i < 4; i++)
+        {
+            cpuIndicatorSprites[i] = GameObject.Find("CPUIndicators").transform.GetChild(i).gameObject.GetComponent<SpriteRenderer>();
+
         }
     }
 
-    void UpdateAdvancedOptionsScreen(int _optionIndex, float _value)
+    // Check for input to switch game modes
+    public void SwitchGameMode()
     {
-        //called when a button is pressed or value changes on the advanced options screen to reflect changes
-        //_optionIndex is the var to be changed _value is the new value to be used
-        // if _optionIndex is 0 (using a preset), update all of them
-
-        switch (_optionIndex)
+        // Toggle the game mode between "Endless" and "First to"
+        if (gameMode == GameMode.Endless)
         {
-            case 0://update all using a preset
-                AllAdvancedOptionsArr[0].GetComponent<Text>().text = presetsNamesArr[selectedPreset];
-                goto case 1;
-
-            case 1://p1 Colour
-                player1_Colour = AllAdvancedOptionsArr[1].GetComponent<Dropdown>().value = ((int)presetsValuesArr[selectedPreset, 0]);
-                if(_optionIndex != 0){break;}else {goto case 2;}
-            case 2://p2 Colour
-                player2_Colour = AllAdvancedOptionsArr[2].GetComponent<Dropdown>().value = ((int)presetsValuesArr[selectedPreset, 1]);
-                if(_optionIndex != 0){break;}else {goto case 3;}
-            case 3://p3 Colour
-                player3_Colour = AllAdvancedOptionsArr[3].GetComponent<Dropdown>().value = ((int)presetsValuesArr[selectedPreset, 2]);
-                if(_optionIndex != 0){break;}else {goto case 4;}
-            case 4://p4 Colour
-                player4_Colour = AllAdvancedOptionsArr[4].GetComponent<Dropdown>().value = ((int)presetsValuesArr[selectedPreset, 3]);
-                if(_optionIndex != 0){break;}else {goto case 5;}
-
-            case 5://snake speed
-                snakeSpeed = presetsValuesArr[selectedPreset, 4];
-                AllAdvancedOptionsArr[5].GetComponent<Text>().text = snakeSpeed.ToString();
-                if(_optionIndex != 0){break;}else {goto case 6;}
-
-            case 6://snake starting size
-                startingSize = ((int)presetsValuesArr[selectedPreset, 5]);
-                AllAdvancedOptionsArr[6].GetComponent<Text>().text = startingSize.ToString();
-                if(_optionIndex != 0){break;}else {goto case 7;}
-
-            case 7://ghosted duration
-                ghostMode_Duration = presetsValuesArr[selectedPreset, 6];
-                AllAdvancedOptionsArr[7].GetComponent<Text>().text = ghostMode_Duration.ToString();
-                if(_optionIndex != 0){break;}else {goto case 8;}
-
-            case 8://death penalty duration
-                deathPenalty_Duration = presetsValuesArr[selectedPreset, 7];
-                AllAdvancedOptionsArr[8].GetComponent<Text>().text = deathPenalty_Duration.ToString();
-                if(_optionIndex != 0){break;}else {goto case 9;}
-
-            case 9://do snakes turn to food
-                doSnakesTurnToFood = AllAdvancedOptionsArr[9].GetComponent<Toggle>().isOn = (1 == presetsValuesArr[selectedPreset, 8]);
-                if(_optionIndex != 0){break;}else {goto case 10;}
-
-            case 10://gold food spawn chance
-                goldFood_SpawnChance = presetsValuesArr[selectedPreset, 9];
-                AllAdvancedOptionsArr[10].GetComponent<Text>().text = goldFood_SpawnChance.ToString();
-                if(_optionIndex != 0){break;}else {goto case 11;}
-
-            case 11://normal food growth
-                normalFood_GrowthAmount = ((int)presetsValuesArr[selectedPreset, 10]);
-                AllAdvancedOptionsArr[11].GetComponent<Text>().text = normalFood_GrowthAmount.ToString();
-                if(_optionIndex != 0){break;}else {goto case 12;}
-
-            case 12://dead snake food growth
-                deadSnakeFood_GrowthAmount = ((int)presetsValuesArr[selectedPreset, 11]);
-                AllAdvancedOptionsArr[12].GetComponent<Text>().text = deadSnakeFood_GrowthAmount.ToString();
-                if(_optionIndex != 0){break;}else {goto case 13;}
-
-            case 13://gold food growth
-                goldFood_GrowthAmount = ((int)presetsValuesArr[selectedPreset, 12]);
-                AllAdvancedOptionsArr[13].GetComponent<Text>().text = goldFood_GrowthAmount.ToString();
-                break;
-
-            default:
-                break;
-        }
-    }
-
-
-
-
-    ////////////////////////////////////////////// main menu screen buttons
-    public void StartBtn()
-    {
-        StartGame();
-    }
-
-    public void GameModeLeftBtn()
-    {
-        if (gameMode == 'e')
-        {
-            gameMode = 'f';
-            gameMode_Text.text = "First To:";
-
+            gameMode = GameMode.FirstTo;
         }
         else
         {
-            gameMode = 'e';
-            gameMode_Text.text = "Endless";
+            gameMode = GameMode.Endless;
         }
-        UpdateMenuScreen();
+        // Update the game mode text and the visibility of the "First to" points selector
+        UpdateGameModeText();
+        UpdateFirstToSelectorVisibility();
     }
-    public void GameModeRightBtn()
+    // Check for input to increase or decrease the goal points
+    public void IncreaseGoalPoints()
     {
-        //simple because theres only one option to toggle through
-        GameModeLeftBtn();
+        goalPoints += 10;
+        UpdatePlayerIndicators();
+    }
+    public void DecreaseGoalPoints()
+    {
+        if (goalPoints > 20){
+        goalPoints -= 10;}
+        UpdatePlayerIndicators();
     }
 
-    public void PointsLeftBtn()
+    // Check for input to increase or decrease the number of players
+    public void AddPlayer()
     {
-        if (goalPoints >= 100)
-        {
-            goalPoints -= 50;
-        }
-        target_Text.text = goalPoints.ToString();
-        UpdateMenuScreen();
+        // Increase the number of players, but not above the maximum of 4
+        numPlayers = Mathf.Min(numPlayers + 1, 4);
+        UpdatePlayerIndicators();
+    }
+    public void RemovePlayer()
+    {
+        // Decrease the number of players, but not below the minimum of 1
+        numPlayers = Mathf.Max(numPlayers - 1, 1);
+        UpdatePlayerIndicators();
+    }
+    public void AddHumanPlayer()
+    {
+        // Increase the number of human players, but not above the maximum of 4
+        numHumanPlayers = Mathf.Min(numHumanPlayers + 1, 4);
+        UpdatePlayerIndicators();
+    }
+    public void RemoveHumanPlayer()
+    {
+        // Decrease the number of human players, but not below the minimum of 1
+        numHumanPlayers = Mathf.Max(numHumanPlayers - 1, 0);
+        UpdatePlayerIndicators();
     }
 
-    public void PointsRightBtn()
+    // Check for input to open or close the advanced options screen
+    public void OpenAdvancedOptions()
     {
-        goalPoints += 50;
-        target_Text.text = goalPoints.ToString();
-        UpdateMenuScreen();
-    }
-
-    public void Num_PlayersLeftBtn()
-    {
-        if (num_Players >= 2)
-        {
-            num_Players -= 1;
-        }
-        UpdateMenuScreen();
-    }
-    public void Num_PlayersRightBtn()
-    {
-        if (num_Players <= 3)
-        {
-            num_Players += 1;
-        }
-        UpdateMenuScreen();
-    }
-    public void HumanPlayersLeftBtn()
-    {
-        if (num_Human_Players >= 2)
-        {
-            num_Human_Players -= 1;
-        }
-        UpdateMenuScreen();
-    }
-    public void HumanPlayersRightBtn()
-    {
-        if (num_Human_Players <= 3)
-        {
-            num_Human_Players += 1;
-        }
-        UpdateMenuScreen();
-    }
-
-    public void AdvancedOptionsOpenBtn()
-    {
-        //open advanced options menu
+        // Open the advanced options screen
         advancedOptionsScreen.SetActive(true);
+        UpdateAdvancedOptionsScreen();
     }
-
-
-
-
-    //////////////////////////////////////////////// advanced options screen buttons
-    public void AdvancedOptionsCloseBtn()
+    public void CloseAdvancedOptions()
     {
-        //open advanced options menu
+        // Close the advanced options screen
         advancedOptionsScreen.SetActive(false);
     }
 
-    public void PresetsLeftBtn()
+    // Check for input to switch between presets on the advanced options screen
+    public void PreviousPreset()
     {
-        selectedPreset -= 1;
+        // Decrease the selected preset index, wrapping around to the last preset if necessary
+        selectedPreset--;
         if (selectedPreset < 0)
         {
-            selectedPreset = presetsNamesArr.Length - 1;
+            selectedPreset = presetOptions.Count - 1;
         }
-        UpdateAdvancedOptionsScreen(0, 0);
+        UpdateAdvancedOptionsScreen();
     }
-    public void PresetsRightBtn()
+    public void NextPreset()
     {
-        selectedPreset += 1;
-        if (selectedPreset > presetsNamesArr.Length - 1)
+        // Increase the selected preset index, wrapping around to the first preset if necessary
+        selectedPreset++;
+        if (selectedPreset >= presetOptions.Count)
         {
             selectedPreset = 0;
         }
-        UpdateAdvancedOptionsScreen(0, 0);
+        UpdateAdvancedOptionsScreen();
     }
 
-    public void Player1ColourValueChanged(Dropdown change)
+    // Check for input to start the game
+    public void StartGame()
     {
-        UpdateAdvancedOptionsScreen(1, change.value);
+        // Start the game using the current game mode, goal points, number of players, and advanced options
+        gameHandlerScript.SetGameMode(gameMode, goalPoints);
+        gameHandlerScript.SetNumPlayers(numPlayers, numHumanPlayers);
+        gameHandlerScript.SetAdvancedOptions(advancedOptions);
+        gameHandlerScript.InitializeGame();
     }
-    public void Player2ColourValueChanged(Dropdown change)
+    // Update the game mode text
+    private void UpdateGameModeText()
     {
-        UpdateAdvancedOptionsScreen(2, change.value);
-    }
-    public void Player3ColourValueChanged(Dropdown change)
-    {
-        UpdateAdvancedOptionsScreen(3, change.value);
-    }
-    public void Player4ColourValueChanged(Dropdown change)
-    {
-        UpdateAdvancedOptionsScreen(4, change.value);
-    }
-    public void SnakeSpeedValueChanged(Dropdown change)
-    {
-        UpdateAdvancedOptionsScreen(5, (float)change);
-    }
-    public void StartingSizeValueChanged(Dropdown change)
-    {
-        UpdateAdvancedOptionsScreen(6, change.value);
-    }
-    public void GhostedDurationValueChanged(Dropdown change)
-    {
-        UpdateAdvancedOptionsScreen(7, change.value);
-    }
-    public void DeathPenaltyValueChanged(Dropdown change)
-    {
-        UpdateAdvancedOptionsScreen(8, change.value);
-    }
-    public void DoSnakesTurnIntoFoodValueChanged(Toggle toggle)
-    {
-        float f = 0;
-        if (toggle.isOn) { f = 1; }
-        UpdateAdvancedOptionsScreen(9, f);
-    }
-    public void GoldFoodSpawnChanceValueChanged(Dropdown change)
-    {
-        UpdateAdvancedOptionsScreen(10, change.value);
-    }
-    public void NormalFoodGrowthAmountValueChanged(Dropdown change)
-    {
-        UpdateAdvancedOptionsScreen(11, change.value);
-    }
-    public void DeadSnakeFoodGrowthAmountValueChanged(Dropdown change)
-    {
-        UpdateAdvancedOptionsScreen(12, change.value);
-    }
-    public void GoldFoodGrowthAmountValueChanged(Dropdown change)
-    {
-        UpdateAdvancedOptionsScreen(13, change.value);
+        // Get the game mode text game object
+        Text gameModeText = GameObject.Find("GameModeText").GetComponent<Text>();
+
+        // Set the text to the current game mode
+        switch (gameMode)
+        {
+            case GameMode.Endless:
+                gameModeText.text = "Endless";
+                break;
+            case GameMode.FirstTo:
+                gameModeText.text = "First to";
+                break;
+        }
     }
 
+    // Update the visibility of the "First to" points selector
+    private void UpdateFirstToSelectorVisibility()
+    {
+        // Get the "First to" points selector game object
+        GameObject firstToSelector = GameObject.Find("FirstToPoints");
+
+        // Show or hide the selector based on the current game mode
+        if (gameMode == GameMode.FirstTo)
+        {
+            firstToSelector.SetActive(true);
+        }
+        else
+        {
+            firstToSelector.SetActive(false);
+        }
+    }
+
+    // Update the player indicator game objects
+    private void UpdatePlayerIndicators()
+    {
+        // Show or hide the player indicator game objects based on the current number of players
+        for (int i = 0; i < 4; i++)
+        {
+            if (i < numPlayers)
+            {
+                snakeIndicators[i].SetActive(true);
+            }
+            else
+            {
+                snakeIndicators[i].SetActive(false);
+            }
+        }
+    }
+
+    // Toggle the type (human or computer) of the player at the given index
+    private void TogglePlayerType(int playerIndex)
+    {
+        // Make sure the player index is valid
+        if (playerIndex >= 0 && playerIndex < 4)
+        {
+            // Toggle the type of the player
+            if (advancedOptions.playerTypes[playerIndex] == PlayerType.Human)
+            {
+                advancedOptions.playerTypes[playerIndex] = PlayerType.Computer;
+            }
+            else
+            {
+                advancedOptions.playerTypes[playerIndex] = PlayerType.Human;
+            }
+
+            // Update the player indicator game object to reflect the new player type
+            UpdatePlayerIndicator(playerIndex);
+        }
+    }
+
+    // Update the player indicator game object at the given index
+    private void UpdatePlayerIndicator(int playerIndex)
+    {
+        // Make sure the player index is valid
+        if (playerIndex >= 0 && playerIndex < 4)
+        {
+            // Get the CPU indicator sprite renderer for the player
+            SpriteRenderer cpuIndicatorSprite = cpuIndicatorSprites[playerIndex];
+
+            // Show or hide the CPU indicator sprite based on the player type
+            if (advancedOptions.playerTypes[playerIndex] == PlayerType.Human)
+            {
+                cpuIndicatorSprite.enabled = false;
+            }
+            else
+            {
+                cpuIndicatorSprite.enabled = true;
+            }
+        }
+    }
+
+    // Update the advanced options screen with the values from the currently selected preset
+    private void UpdateAdvancedOptionsScreen()
+    {
+        // Get the name of the currently selected preset
+        int i = 0;
+        string presetName = "Default";
+        foreach (string item in presetOptions.Keys)
+        {
+            if (selectedPreset == i) presetName = item;
+            i++;
+        }
+
+        // Get the advanced options for the preset
+        AdvancedOptions options = presetOptions[presetName];
+
+        // Update the advanced options screen with the values from the preset's advanced options
+        UpdateAdvancedOptionsScreen(options);
+    }
+
+    // Update the advanced options screen with the values from the given advanced options
+    public void UpdateAdvancedOptionsScreen(AdvancedOptions options)
+    {
+        // Set the values of the dropdown menus for player colours
+        GameObject.Find("P1ColourDropdown").GetComponent<Dropdown>().value = options.playerColours[0];
+        GameObject.Find("P2ColourDropdown").GetComponent<Dropdown>().value = options.playerColours[1];
+        GameObject.Find("P3ColourDropdown").GetComponent<Dropdown>().value = options.playerColours[2];
+        GameObject.Find("P4ColourDropdown").GetComponent<Dropdown>().value = options.playerColours[3];
+
+
+        // Set the values of the input fields for speed and duration values
+        GameObject.Find("InputField1").GetComponent<InputField>().text = options.snakeSpeed.ToString();
+        GameObject.Find("InputField2").GetComponent<InputField>().text = options.ghostModeDuration.ToString();
+        GameObject.Find("InputField3").GetComponent<InputField>().text = options.deathPenaltyDuration.ToString();
+        GameObject.Find("InputField4").GetComponent<InputField>().text = options.startingSize.ToString();
+        GameObject.Find("InputField5").GetComponent<InputField>().text = options.normalFoodGrowthAmount.ToString();
+        GameObject.Find("InputField6").GetComponent<InputField>().text = options.deadSnakeFoodGrowthAmount.ToString();
+        GameObject.Find("InputField7").GetComponent<InputField>().text = options.goldFoodGrowthAmount.ToString();
+        GameObject.Find("InputField8").GetComponent<InputField>().text = options.goldFoodSpawnChance.ToString();
+
+        // Set the value of the toggle for the "do snakes turn to food" option
+        GameObject.Find("Toggle1").GetComponent<Toggle>().isOn = options.doSnakesTurnToFood;
+    }
+
+    public void SetAdvancedOptionsScreenToMenu()
+    {
+        // Set the values of the dropdown menus for player colours
+        advancedOptions.playerColours[0] =  GameObject.Find("P1ColourDropdown").GetComponent<Dropdown>().value;
+        advancedOptions.playerColours[1] =  GameObject.Find("P2ColourDropdown").GetComponent<Dropdown>().value;
+        advancedOptions.playerColours[2] =  GameObject.Find("P3ColourDropdown").GetComponent<Dropdown>().value;
+        advancedOptions.playerColours[3] =  GameObject.Find("P4ColourDropdown").GetComponent<Dropdown>().value;
+
+        // Set the values of the input fields for speed and duration values
+        advancedOptions.snakeSpeed = float.Parse(GameObject.Find("InputField1").GetComponent<InputField>().text);
+        advancedOptions.ghostModeDuration = float.Parse(GameObject.Find("InputField2").GetComponent<InputField>().text);
+        advancedOptions.deathPenaltyDuration = float.Parse(GameObject.Find("InputField3").GetComponent<InputField>().text);
+        advancedOptions.startingSize = int.Parse(GameObject.Find("InputField4").GetComponent<InputField>().text);
+        advancedOptions.normalFoodGrowthAmount = int.Parse(GameObject.Find("InputField5").GetComponent<InputField>().text);
+        advancedOptions.deadSnakeFoodGrowthAmount = int.Parse(GameObject.Find("InputField6").GetComponent<InputField>().text);
+        advancedOptions.goldFoodGrowthAmount = int.Parse(GameObject.Find("InputField7").GetComponent<InputField>().text);
+        advancedOptions.goldFoodSpawnChance = float.Parse(GameObject.Find("InputField8").GetComponent<InputField>().text);
+
+        // Set the value of the toggle for the "do snakes turn to food" option
+        advancedOptions.doSnakesTurnToFood = GameObject.Find("Toggle1").GetComponent<Toggle>().isOn;
+    }
 }

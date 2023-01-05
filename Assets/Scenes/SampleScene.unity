@@ -4104,7 +4104,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1459618770}
-        m_MethodName: PresetsLeftBtn
+        m_MethodName: PreviousPreset
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -9173,7 +9173,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1459618770}
-        m_MethodName: PresetsRightBtn
+        m_MethodName: NextPreset
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -9306,7 +9306,7 @@ GameObject:
   - component: {fileID: 256598644}
   - component: {fileID: 256598645}
   m_Layer: 0
-  m_Name: Toggle
+  m_Name: Toggle1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -26078,7 +26078,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1459618770}
-        m_MethodName: StartBtn
+        m_MethodName: StartGame
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -29054,7 +29054,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1459618770}
-        m_MethodName: PointsRightBtn
+        m_MethodName: IncreaseGoalPoints
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -32933,12 +32933,12 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1459618770}
-        m_MethodName: SnakeSpeedValueChanged
-        m_Mode: 2
+      - m_Target: {fileID: 1459618768}
+        m_MethodName: 
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.UI.Dropdown, UnityEngine.UI
+          m_ObjectArgumentAssemblyTypeName: 
           m_IntArgument: 0
           m_FloatArgument: 0
           m_StringArgument: 
@@ -35897,7 +35897,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1459618770}
-        m_MethodName: Num_PlayersLeftBtn
+        m_MethodName: RemovePlayer
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -36738,7 +36738,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1459618770}
-        m_MethodName: AdvancedOptionsOpenBtn
+        m_MethodName: OpenAdvancedOptions
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -42832,7 +42832,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1459618770}
-        m_MethodName: AdvancedOptionsCloseBtn
+        m_MethodName: CloseAdvancedOptions
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -44725,7 +44725,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1459618770}
-        m_MethodName: PointsLeftBtn
+        m_MethodName: DecreaseGoalPoints
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -50392,7 +50392,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1459618770}
-        m_MethodName: HumanPlayersRightBtn
+        m_MethodName: AddHumanPlayer
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -53429,7 +53429,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1459618770}
-        m_MethodName: GameModeRightBtn
+        m_MethodName: SwitchGameMode
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -60196,7 +60196,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1459618770}
-        m_MethodName: HumanPlayersLeftBtn
+        m_MethodName: RemoveHumanPlayer
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -62238,7 +62238,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1459618770}
-        m_MethodName: GameModeLeftBtn
+        m_MethodName: SwitchGameMode
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -69422,7 +69422,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1459618770}
-        m_MethodName: Num_PlayersRightBtn
+        m_MethodName: AddPlayer
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

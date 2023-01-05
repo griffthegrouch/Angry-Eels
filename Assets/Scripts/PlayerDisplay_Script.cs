@@ -26,19 +26,19 @@ public class PlayerDisplay_Script : MonoBehaviour
     //vars gathered when script loaded
         //vars assigned by parent
     
-    Indicator_Bar_Script IndicatorScript;
-    SpriteRenderer Outline;
+    Indicator_Bar_Script indicatorScript;
+    SpriteRenderer outline;
 
-    TextMesh PlayerNumText;
+    TextMesh playerNumText;
         int playerNum = 0;
 
 
-    GameObject PressKeyPrompt;//the cover of the display that shows "press any key to start"
+    GameObject pressKeyPrompt;//the cover of the display that shows "press any key to start"
     // - which dissapears permanently after the player presses a button
 
-    GameObject ScoreDisplays;
-    TextMesh ScoreText;
-    TextMesh HighscoreText;
+    GameObject scoreDisplays;
+    TextMesh scoreText;
+    TextMesh highscoreText;
         int score = 0;
         int highscore = 0;
 
@@ -50,21 +50,21 @@ public class PlayerDisplay_Script : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        PressKeyPrompt = this.transform.GetChild(0).gameObject;
+        pressKeyPrompt = this.transform.GetChild(0).gameObject;
 
-        Outline = this.transform.GetChild(1).GetComponent<SpriteRenderer>();
+        outline = this.transform.GetChild(1).GetComponent<SpriteRenderer>();
 
-        PlayerNumText = this.transform.GetChild(2).GetComponent<TextMesh>();
+        playerNumText = this.transform.GetChild(2).GetComponent<TextMesh>();
 
-        ScoreDisplays = this.transform.GetChild(3).gameObject;
-        ScoreText = ScoreDisplays.transform.GetChild(0).GetComponent<TextMesh>();
-        HighscoreText = ScoreDisplays.transform.GetChild(1).GetComponent<TextMesh>();
+        scoreDisplays = this.transform.GetChild(3).gameObject;
+        scoreText = scoreDisplays.transform.GetChild(0).GetComponent<TextMesh>();
+        highscoreText = scoreDisplays.transform.GetChild(1).GetComponent<TextMesh>();
 
-        IndicatorScript = this.transform.GetChild(4).GetComponent<Indicator_Bar_Script>();
+        indicatorScript = this.transform.GetChild(4).GetComponent<Indicator_Bar_Script>();
     }
 
     public void HidePrompt(){
-        PressKeyPrompt.SetActive(false);
+        pressKeyPrompt.SetActive(false);
     }
 
     // Update is called once per frame
@@ -72,17 +72,17 @@ public class PlayerDisplay_Script : MonoBehaviour
     {
         if (isCountingDown){
             timer -= Time.deltaTime;
-            IndicatorScript.UpdateIndicator(totalTimer, timer);
+            indicatorScript.UpdateIndicator(totalTimer, timer);
             if (timer < 0){
                 isCountingDown = false;
-                IndicatorScript.UpdateIndicator(totalTimer, 0);
+                indicatorScript.UpdateIndicator(totalTimer, 0);
             }
         }
     }
 
-    public void SetOutlineColour(Color col){
-        //sets the Outline colour, used when starting the game to set the colour to individual player colour
-        Outline.color = col;
+    public void SetoutlineColour(Color col){
+        //sets the outline colour, used when starting the game to set the colour to individual player colour
+        outline.color = col;
     }
 
     public void SetValues(int pNum)
@@ -92,9 +92,9 @@ public class PlayerDisplay_Script : MonoBehaviour
 
         //display them
         //Debug.Log(playerNum);
-        //Debug.Log(PlayerNumText);
-        //Debug.Log(PlayerNumText.text);
-        PlayerNumText.text = playerNum.ToString();
+        //Debug.Log(playerNumText);
+        //Debug.Log(playerNumText.text);
+        playerNumText.text = playerNum.ToString();
     }
 
     public void StartCountdown(float time){
@@ -105,7 +105,7 @@ public class PlayerDisplay_Script : MonoBehaviour
         isCountingDown = true;
 
         //display initial values
-        IndicatorScript.UpdateIndicator(totalTimer, timer);
+        indicatorScript.UpdateIndicator(totalTimer, timer);
     }
 
     public void StopCountdown(){
@@ -115,7 +115,7 @@ public class PlayerDisplay_Script : MonoBehaviour
         isCountingDown = false;
 
         //display initial values
-        IndicatorScript.UpdateIndicator(totalTimer, 0);
+        indicatorScript.UpdateIndicator(totalTimer, 0);
     }    
 
     public void UpdateScore(int s)
@@ -123,13 +123,13 @@ public class PlayerDisplay_Script : MonoBehaviour
         score = s;
 
         //displaying current score
-        ScoreText.text = score.ToString();
+        scoreText.text = score.ToString();
 
         //checking if current score is higher than highscore
         if (highscore < score)
         {
             highscore = score;
-            HighscoreText.text = highscore.ToString();
+            highscoreText.text = highscore.ToString();
         }
     }
 }

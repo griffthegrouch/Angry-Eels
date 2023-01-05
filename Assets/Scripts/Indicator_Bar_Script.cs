@@ -31,6 +31,7 @@ public class Indicator_Bar_Script : MonoBehaviour//         7/312020
     public bool Display_Target;
 
     public float _maxSize;
+    PlayerType _playerType;
     float _size;
     float _value;
     float _percentValue;
@@ -93,6 +94,10 @@ public class Indicator_Bar_Script : MonoBehaviour//         7/312020
         else{
             target.gameObject.GetComponent<SpriteRenderer>().enabled = false;
         }
+    }
+
+    public void SetPlayerType(PlayerType playerType){
+        _playerType = playerType;
     }
 
     public void UpdateIndicator(float size, float value){   
