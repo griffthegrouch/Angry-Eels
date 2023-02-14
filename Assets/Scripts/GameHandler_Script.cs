@@ -4,94 +4,80 @@ using UnityEngine;
 
 //public tools for scripts to use
 // Enum for the game mode
-    public enum GameMode
-    {
-        Endless,
-        FirstTo
+public enum GameMode
+{
+    Endless,
+    FirstTo
+}
+
+// Enum for the player type
+public enum PlayerType
+{
+    Human,
+    Computer
+}
+
+public enum EntityType
+{
+    Empty,
+    Self,
+    Snake,
+    Wall,
+    NormalFood,
+    DeadSnakeFood,
+    GoldFood
+}
+
+// A class for all the options values
+public class Options
+{
+    public GameMode gameMode;
+    //num of points required to win (if gamemode is a race to points)
+    public int goalPoints;
+    //num snakes in the game
+    public int numPlayers;
+    //num human players
+    public int numHumanPlayers;
+    // Array for the player colors
+    public PlayerType[] playerTypes;
+    public Color[] playerColours;
+
+    public float snakeSpeed;
+    public float ghostModeDuration;
+    public float deathPenaltyDuration;
+    public int startingSize;
+    public int normalFoodGrowthAmount;
+    public int deadSnakeFoodGrowthAmount;
+    public int goldFoodGrowthAmount;
+    public float goldFoodSpawnChance;
+    public bool doSnakesTurnToFood;
+    public Options(){
+        
     }
+    public Options( float _snakeSpeed, float _ghostModeDuration, float _deathPenaltyDuration,
+    int _startingSize, int _normalFoodGrowthAmount, int _deadSnakeFoodGrowthAmount, 
+    int _goldFoodGrowthAmount, float _goldFoodSpawnChance, bool _doSnakesTurnToFood){
+        snakeSpeed = _snakeSpeed; 
+        ghostModeDuration = _ghostModeDuration;
+        deathPenaltyDuration = _deathPenaltyDuration;
+        startingSize = _startingSize;
+        normalFoodGrowthAmount = _normalFoodGrowthAmount;
+        deadSnakeFoodGrowthAmount = _deadSnakeFoodGrowthAmount;
+        goldFoodGrowthAmount = _goldFoodGrowthAmount;
+        goldFoodSpawnChance = _goldFoodSpawnChance;
+        doSnakesTurnToFood = _doSnakesTurnToFood;
 
-    // Enum for the player type
-    public enum PlayerType
-    {
-        Human,
-        Computer
     }
-
-    public enum FoodType
-    {
-        NormalFood,
-        DeadSnakeFood,
-        GoldFood
-    }
-
-    public enum EntityType
-    {
-        Empty,
-        Self,
-        Snake,
-        Wall,
-        NFood,
-        DFood,
-        GFood
-    }
-
-    // A class for the advanced options
-    public class AdvancedOptions
-    {
-        public int[] playerColours = new int[4];
-        public PlayerType[] playerTypes = new PlayerType[4];
-        public float snakeSpeed = 0.1f;
-        public float ghostModeDuration = 3;
-        public float deathPenaltyDuration = 2;
-        public int startingSize = 10;
-        public int normalFoodGrowthAmount = 3;
-        public int deadSnakeFoodGrowthAmount = 1;
-        public int goldFoodGrowthAmount = 30;
-        public float goldFoodSpawnChance = 1;
-        public bool doSnakesTurnToFood = false;
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+}
 
 
 
 public class GameHandler_Script : MonoBehaviour
 {
-    // Vars for the game mode, goal points, and number of players
-    private GameMode gameMode;
-    private int goalPoints;
-    private int numPlayers;
-    private int numHumanPlayers;
+/////////////////////////// vars for the game handler
 
-    // Advanced options for the game
-    public AdvancedOptions advancedOptions;
-
-    // Colors for the snakes
-    private Color[] snakeColours = new Color[] {
-       Color.green, Color.red, Color.blue, Color.gray, Color.yellow + Color.blue, Color.magenta, Color.yellow + Color.red
-    };
-
-    // Array for the starting positions of the snakes
-    private Vector3[] startingPositions = new Vector3[4];
-
-    // Array for the player colors
-    private Color[] playerColours;
+    // All options for the game - set in the menu screen, then passed over on game start
+    private Options options;
 
     // 2D array for the player inputs
     private KeyCode[,] playerInputs = new KeyCode[,] {
@@ -107,12 +93,19 @@ public class GameHandler_Script : MonoBehaviour
     // List for all the food in the game
     private List<GameObject> foodList = new List<GameObject>();
 
-    // List for all the snakes in the game
-    private List<Snake_Script> snakeScripts = new List<Snake_Script>();
+/////////////////////////// vars for the snakes
 
-    // Array for all the score displays
-    private GameObject[] playerDisplays;
+    // Array for the starting positions of the snakes, generated on game setup from # of players
+    private Vector3[] startingPositions;
+
+    // List for all the snakes in the game + their settings
+    private Snake_Script[] snakeScripts;
+
+    // Arrays for all the score displays + their scripts
+    private GameObject[] playerDisplays; // always contains all 4 displays
     private PlayerDisplay_Script[] playerDisplayScripts;
+
+/////////////////////////// prefabs
 
     // Prefab for the snake
     private GameObject snakePrefab;
@@ -121,107 +114,118 @@ public class GameHandler_Script : MonoBehaviour
     // Prefab for the food
     private GameObject foodPrefab;
 
-    void Start(){
+    void Start()
+    {
         // grab all resources
         snakePrefab = Resources.Load("Snake") as GameObject;
         snakeSegmentPrefab = Resources.Load("SnakeSegment") as GameObject;
         foodPrefab = Resources.Load("Food") as GameObject;
+
+        //grab all player displays
+        playerDisplays = GameObject.FindGameObjectsWithTag("playerDisplay");
+
+        // grab all existing walls
+        wallArr = GameObject.FindGameObjectsWithTag("wall");
+
     }
 
-    // Set the game mode and goal points from the menu script
-    public void SetGameMode(GameMode mode, int points)
+    // Initialize the game called from the menu on game start
+    public void InitializeGame(Options _options)
     {
-        // Set the game mode
-        gameMode = mode;
+        // Set options
+        options = _options;
 
-        // Set the goal points
-        goalPoints = points;
-    }
-
-    // Set the number of players and number of human players from the menu script
-    public void SetNumPlayers(int players, int humanPlayers)
-    {
-        // Set the number of players
-        numPlayers = players;
-
-        // Set the number of human players
-        numHumanPlayers = humanPlayers;
-    }
-
-    // Set the advanced options from the menu script
-    public void SetAdvancedOptions(AdvancedOptions options)
-    {
-        // Set the advanced options
-        advancedOptions = options;
-    }
-
-    // Initialize the game
-    public void InitializeGame()
-    {
-        // Initialize the player colors array
-        playerColours = new Color[numPlayers];
-
-        // Initialize the player displays array and scripts array
-        playerDisplays = new GameObject[numPlayers];
-        playerDisplayScripts = new PlayerDisplay_Script[numPlayers];
-
-        // Initialize the staring positions
-        
+        // Initialize the player arrays to the size of the amt of players
+        snakeScripts = new Snake_Script[options.numPlayers];
+        playerDisplayScripts = new PlayerDisplay_Script[options.numPlayers];
+        startingPositions = new Vector3[options.numPlayers];
 
         // Initialize the player displays and scripts
-        for (int i = 0; i < numPlayers; i++)
+        for (int i = 0; i < 4; i++)
         {
-            //calculate spawn positions (calculates equal horizontal positions for each snake with space on each side)
-            int spawnPosX = 25/(numPlayers + 1) * (i+1);
+            if (i < options.numPlayers)
+            {
+                //calculate spawn positions (calculates equal horizontal positions for each snake with space on each side)
+                int spawnPosX = 25 / (options.numPlayers + 1) * (i + 1);
 
-            if(numPlayers == 4 && spawnPosX < 12){
-                //manual adjustment to move the first two snakes' spawn positions to the left one space 
-                //IF playing 4 player, since the spots are calulated by integers and theres 25 spots, it doesnt round down these two numbers properly
-                spawnPosX -= 1;
+                if (options.numPlayers == 4 && spawnPosX < 12)
+                {
+                    //manual adjustment to move the first two snakes' spawn positions to the left one space 
+                    //IF playing 4 player, since the spots are calulated by integers and theres 25 spots, it doesnt round down these two numbers properly
+                    spawnPosX -= 1;
+                }
+                startingPositions[i] = new Vector3(spawnPosX, -1, 0) + this.transform.position;
+
+                // Get the player display and script
+                playerDisplayScripts[i] = playerDisplays[i].GetComponent<PlayerDisplay_Script>();
+
+                // Initialize/spawn player
+                InitializePlayer(i);
             }
-            startingPositions[i] = new Vector3(spawnPosX,-1,0);
-
-            // Get the player display and script
-            playerDisplays[i] = GameObject.Find("PlayerDisplay" + (i + 1));
-            playerDisplayScripts[i] = playerDisplays[i].GetComponent<PlayerDisplay_Script>();
-
-            // Set the player color
-            playerColours[i] = snakeColours[advancedOptions.playerColours[i]];
-
-            // Set the player type
-            PlayerType playerType = advancedOptions.playerTypes[i];
-
-            // Initialize/spawn player
-            InitializePlayer(i, playerType);
+            else
+            {
+                //disable unused player displays
+                playerDisplays[i].gameObject.SetActive(false);
+            }
         }
-
+        
         // Initialize the food
-        SpawnFood(-1, default, FoodType.NormalFood);
+        SpawnFood(-1, default, EntityType.NormalFood);
+
+        //calls Movesnake every user-set time increment to move the snakes
+        InvokeRepeating("MoveSnakes", 0, options.snakeSpeed);   
     }
 
-    // Initialize a human player
-    private void InitializePlayer(int playerIndex, PlayerType playertype)
+    // Initialize a player/snake
+    private void InitializePlayer(int playerIndex)
     {
-        Vector3 pos  = startingPositions[playerIndex];
+        //position it will spawn
+        Vector3 pos = startingPositions[playerIndex];
 
-        Snake_Script newSnakeScript = Instantiate(snakePrefab, pos, new Quaternion(0, 0, 0, 0), this.transform).GetComponent<Snake_Script>();;
-        newSnakeScript.SetReferences(
-            this, playerDisplayScripts[playerIndex], snakeSegmentPrefab, playerIndex, advancedOptions.snakeSpeed, advancedOptions.startingSize,
-            pos, advancedOptions.ghostModeDuration, advancedOptions.deathPenaltyDuration);
+        //instantiating the snake+script
+        Snake_Script newSnakeScript = Instantiate(snakePrefab, pos, new Quaternion(0, 0, 0, 0), this.transform).GetComponent<Snake_Script>();
+
+        //determining all the settings for the snake
+        PlayerSettings settings = new PlayerSettings(
+            playerIndex, this, playerDisplayScripts[playerIndex], snakeSegmentPrefab,
+            new KeyCode[] {playerInputs[playerIndex,0], playerInputs[playerIndex,1], playerInputs[playerIndex,2], playerInputs[playerIndex,3]},
+            options.playerTypes[playerIndex], options.playerColours[playerIndex], startingPositions[playerIndex],
+            options.startingSize, options.snakeSpeed, options.ghostModeDuration, options.deathPenaltyDuration,
+            options.normalFoodGrowthAmount, options.deadSnakeFoodGrowthAmount, options.goldFoodGrowthAmount,
+            options.doSnakesTurnToFood
+        );
+        
+        //passing all the relevant information to the new snake
+        newSnakeScript.SetupSnake(settings);
+
+        //adding new snake script to local snakecripts arr
+        snakeScripts[playerIndex] = newSnakeScript;
+    }
+
+    private void MoveSnakes(){
+        foreach (Snake_Script snakeScript in snakeScripts)
+        {
+            snakeScript.TryMoveSnake();
+        }
+    }
+
+    public void EndGame(){
+        CancelInvoke();
     }
 
     public EntityType CheckPos(int playerNum, Vector3 pos, bool destroyFood)
     {
-        if (playerNum != -1)
+        if (playerNum != -1)//a snake calling method
         {
             // check if bumping into self
             if (snakeScripts[playerNum].CheckForSnakeAtPos(pos))
             {
+                
                 return EntityType.Self;
             }
 
             // check if bumping into other snakes
-            for (int i = 0; i < numPlayers; i++)
+            for (int i = 0; i < options.numPlayers; i++)
             {
                 if (i != playerNum && snakeScripts[i].CheckForSnakeAtPos(pos))
                 {
@@ -229,7 +233,7 @@ public class GameHandler_Script : MonoBehaviour
                 }
             }
         }
-        else
+        else// not a snake calling method
         {
             // check if bumping into any snakes
             foreach (Snake_Script snake in snakeScripts)
@@ -240,7 +244,6 @@ public class GameHandler_Script : MonoBehaviour
                 }
             }
         }
-
         // check if bumping into wall
         foreach (GameObject wall in wallArr)
         {
@@ -249,23 +252,26 @@ public class GameHandler_Script : MonoBehaviour
                 return EntityType.Wall;
             }
         }
-
         // check if bumping into food
         foreach (GameObject food in foodList)
         {
             if (pos == food.transform.position)
             {
                 EntityType entityType;
-                if(food.tag == FoodType.NormalFood.ToString()){
-                    entityType = EntityType.NFood;
+                if (food.tag == EntityType.NormalFood.ToString())
+                {
+                    entityType = EntityType.NormalFood;
                 }
-                else if(food.tag == FoodType.DeadSnakeFood.ToString()){
-                    entityType = EntityType.DFood;
+                else if (food.tag == EntityType.DeadSnakeFood.ToString())
+                {
+                    entityType = EntityType.DeadSnakeFood;
                 }
-                else if(food.tag == FoodType.GoldFood.ToString()){
-                    entityType = EntityType.GFood;
+                else if (food.tag == EntityType.GoldFood.ToString())
+                {
+                    entityType = EntityType.GoldFood;
                 }
-                else{
+                else
+                {
                     //food type was not identified
                     Debug.Log("food couldnt be identified");
                     return EntityType.Empty;
@@ -274,13 +280,13 @@ public class GameHandler_Script : MonoBehaviour
                 {
                     switch (entityType)
                     {
-                        case EntityType.NFood:
-                            SpawnFood(-1, default, FoodType.NormalFood);
+                        case EntityType.NormalFood:
+                            SpawnFood(-1, default, EntityType.NormalFood);
                             break;
-                        case EntityType.DFood:
+                        case EntityType.DeadSnakeFood:
                             break;
-                        case EntityType.GFood:
-                            SpawnFood(-1, default, FoodType.NormalFood);
+                        case EntityType.GoldFood:
+                            SpawnFood(-1, default, EntityType.NormalFood);
                             break;
                     }
                     foodList.Remove(food);
@@ -293,41 +299,41 @@ public class GameHandler_Script : MonoBehaviour
         return EntityType.Empty;
     }
 
-    public void SpawnFood(int playerNum, Vector3 pos, FoodType foodType)
+    public void SpawnFood(int playerNum, Vector3 pos, EntityType foodType)
     {
-        if (pos == default)
+        // spawning at a random position
+        if (pos == default) 
         {
             // find a new position for the food
-            pos = new Vector3(Random.Range(0, 25), Random.Range(0, 25), 0);
+            pos = new Vector3(Random.Range(0, 25), Random.Range(0, 25), 0)+ this.transform.position;
 
             while (CheckPos(-1, pos, false) != EntityType.Empty)
             {
-                pos = new Vector3(Random.Range(0, 25), Random.Range(0, 25), 0);
+                pos = new Vector3(Random.Range(0, 25), Random.Range(0, 25), 0)+ this.transform.position;
             }
         }
-        else if (CheckPos(-1, pos, false) != EntityType.Empty)
+        //if attempting to spawn at a specific position
+        else if (CheckPos(playerNum, pos, false) != EntityType.Self)
         {
             // if trying to spawn food on an existing food, don't
             return;
         }
-
         GameObject newFood = Instantiate(foodPrefab, pos, new Quaternion(0, 0, 0, 0), this.transform);
-
         switch (foodType)
         {
-            case FoodType.NormalFood:
+            case EntityType.NormalFood:
                 // chance to turn into golden food
-                if ((int)Random.Range(1, advancedOptions.goldFoodSpawnChance) == 1)
+                if ((int)Random.Range(1, options.goldFoodSpawnChance) == 1)
                 {
-                    foodType = FoodType.GoldFood;
-                    goto case FoodType.DeadSnakeFood;
+                    foodType = EntityType.GoldFood;
+                    goto case EntityType.GoldFood;
                 }
                 break;
-            case FoodType.DeadSnakeFood:
+            case EntityType.DeadSnakeFood:
                 // colour food
                 newFood.GetComponent<SpriteRenderer>().color = new Color(0.7f, 0.5f, 0.23f);
                 break;
-            case FoodType.GoldFood:
+            case EntityType.GoldFood:
                 // colour food
                 newFood.GetComponent<SpriteRenderer>().color = Color.yellow;
                 break;

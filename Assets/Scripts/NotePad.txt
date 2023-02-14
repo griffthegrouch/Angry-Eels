@@ -45,6 +45,8 @@
         
         -pause button+function
 
+        -make snake colours from a dictionary, not an int index and a colour array
+
     ideas
         make number of lives
         make random obstacle maker, and preset stages to choose from.
@@ -57,51 +59,6 @@
    
    
    
-   
-
-    private char gameMode; // e - endless, f - first to
-    private int goalPoints;
-    private int num_Players;
-    private int num_Human_Players;
-    //- advanced options screen menu vars
-    // when loaded initially, they are set to the first preset gamemode values
-    private int player1_Colour;
-    private int player2_Colour;
-    private int player3_Colour;
-    private int player4_Colour;
-    private int startingSize;
-    private int normalFood_GrowthAmount;
-    private int deadSnakeFood_GrowthAmount;
-    private int goldFood_GrowthAmount;
-    private float snakeSpeed;
-    private float ghostMode_Duration;
-    private float deathPenalty_Duration;
-    private float goldFood_SpawnChance;
-    private bool doSnakesTurnToFood;
-
-
-
-    AllAdvancedOptionsArr = new GameObject[]{
-            GameObject.Find("PresetsText"),
-            
-            GameObject.Find("P1ColourDropdown"),
-            GameObject.Find("P2ColourDropdown"),
-            GameObject.Find("P3ColourDropdown"),
-            GameObject.Find("P4ColourDropdown"),
-
-            GameObject.Find("InputField1"),
-            GameObject.Find("InputField2"),
-            GameObject.Find("InputField3"),
-            GameObject.Find("InputField4"),
-
-            GameObject.Find("Toggle"),
-            GameObject.Find("InputField5"),
-            GameObject.Find("InputField6"),
-            GameObject.Find("InputField7"),
-            GameObject.Find("InputField8"),
-        };
-
-
 
 
 

@@ -39,8 +39,8 @@ public class PlayerDisplay_Script : MonoBehaviour
     GameObject scoreDisplays;
     TextMesh scoreText;
     TextMesh highscoreText;
-        int score = 0;
-        int highscore = 0;
+    int score = 0;
+    int highscore = 0;
 
     bool isCountingDown = false;
     float totalTimer = 1;
@@ -91,9 +91,6 @@ public class PlayerDisplay_Script : MonoBehaviour
         playerNum = pNum + 1;//playernum starts at 0, this display starts at 1
 
         //display them
-        //Debug.Log(playerNum);
-        //Debug.Log(playerNumText);
-        //Debug.Log(playerNumText.text);
         playerNumText.text = playerNum.ToString();
     }
 

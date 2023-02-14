@@ -5,10 +5,11 @@ TagManager:
   serializedVersion: 2
   tags:
   - wall
-  - normalFood
-  - goldFood
-  - snakeFood
   - snakeIndicator
+  - GoldFood
+  - NormalFood
+  - playerDisplay
+  - DeadSnakeFood
   layers:
   - Default
   - TransparentFX
