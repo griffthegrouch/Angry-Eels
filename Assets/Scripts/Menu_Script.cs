@@ -22,22 +22,25 @@ public class Menu_Script : MonoBehaviour
 
     
     // The values for all options
-    private Options options;
+    private Options options = new Options();
 
     // The names and values for the preset options
     private Dictionary<string, Options> presetOptions = new Dictionary<string, Options>
     {
-        { "Custom", new Options(
-        ) },
+        { "Custom", new Options() },
         { "Classic", new Options(
             //f snakeSpeed, f ghostModeDuration, f deathPenaltyDuration,
             //i startingSize, i normalFoodGrowthAmount, i deadSnakeFoodGrowthAmount, 
             //i goldFoodGrowthAmount, f goldFoodSpawnChance, b doSnakesTurnToFood
-            0.1f, 3, 2, 
-            10, 3, 1, 
-            30, 1, false
+            0.1f, 3, 0, 
+            3, 3, 1, 
+            30, 30, true
         ) },
-        { "Wild", new Options() }
+        { "Wild", new Options(
+            0.05f, 2, 5, 
+            10, 10, 1, 
+            100, 10, false
+        ) }
     };
 
     public Dictionary<string, Color> SnakeColoursDictionary = new Dictionary<string, Color>
@@ -78,7 +81,7 @@ public class Menu_Script : MonoBehaviour
 
 
     // The currently selected preset index
-    private int selectedPreset = 0;
+    private int selectedPreset;
 
     //the currently selected snake colours (defaults to 1,2,3,4)
     private int[] playerColoursInts = new int[]{0,1,2,3};
@@ -87,7 +90,7 @@ public class Menu_Script : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        options = presetOptions["Classic"];
+
         // Get a reference to the game handler script
         gameHandlerScript = GameObject.Find("GameHandler").GetComponent<GameHandler_Script>();
 
@@ -155,6 +158,10 @@ public class Menu_Script : MonoBehaviour
             cpuIndicatorSprites[i] = snakeIndicators[i].transform.GetChild(2).gameObject;
         }
 
+        //setup the preset selector and display the default values
+        selectedPreset = 1;
+        UseAdvancedOptionsFromPreset();
+
         //then update player indicators to reflect the default values
         UpdatePlayerIndicators();
 
@@ -164,6 +171,39 @@ public class Menu_Script : MonoBehaviour
         //then hide the advanced options screen by default
         CloseAdvancedOptions();
     }
+
+        // Check for input to start the game
+    public void StartGame()
+    {
+        // Start the game using the current game mode, goal points, number of players, and advanced options
+        PlayerType[] playerTypes = new PlayerType[numPlayers];
+        Color[] playerColours = new Color[numPlayers];
+        for (int i = 0; i < numPlayers; i++)
+        {
+            if(numHumanPlayers > i){
+                playerTypes[i] = PlayerType.Human;
+            }
+            else playerTypes[i] = PlayerType.Computer;
+
+            playerColours[i] = SnakeColoursDictionary.ElementAt(playerColoursInts[i]).Value;
+        }
+
+        //setting all the rest of the values for the current options
+        options.gameMode = this.gameMode;
+        options.goalPoints = this.goalPoints;
+        options.numPlayers = this.numPlayers;
+        options.numHumanPlayers = this.numHumanPlayers; 
+        options.playerTypes = playerTypes;
+        options.playerColours = playerColours;
+        gameHandlerScript.InitializeGame(options);
+
+        menuScreen.SetActive(false);
+    }
+
+
+
+
+
 
     // Check for input to switch game modes
     public void SwitchGameMode()
@@ -239,58 +279,67 @@ public class Menu_Script : MonoBehaviour
     public void PreviousPreset()
     {
         // Decrease the selected preset index, wrapping around to the last preset if necessary
+        if(selectedPreset==0){//if changing from custom options preset, save options first
+            GetAdvancedOptionsFromScreen();
+        }
+
         selectedPreset--;
+
         if (selectedPreset < 0)
         {
             selectedPreset = presetOptions.Count - 1;
         }
-        MenuScreenObjects["PresetsText"].GetComponent<Text>().text = presetOptions.ElementAt(selectedPreset).Key;
+        DisplayPreset(selectedPreset);
+        UpdateAdvancedOptionsLock();
     }
     public void NextPreset()
     {
         // Increase the selected preset index, wrapping around to the first preset if necessary
+        if(selectedPreset==0){
+            GetAdvancedOptionsFromScreen();
+        }
+
         selectedPreset++;
+
         if (selectedPreset >= presetOptions.Count)
         {
-            selectedPreset = 0;
+            selectedPreset = 0;            
         }
-        MenuScreenObjects["PresetsText"].GetComponent<Text>().text = presetOptions.ElementAt(selectedPreset).Key;
 
+        DisplayPreset(selectedPreset);
+        UpdateAdvancedOptionsLock();
     }
     public void UsePreset()
     {
-        //when use is clicked - 
+        //when use preset is clicked - 
         //use the currently selected preset
+        if(selectedPreset==0){
+            GetAdvancedOptionsFromScreen();
+        }
         UseAdvancedOptionsFromPreset();
     }
 
-    // Check for input to start the game
-    public void StartGame()
-    {
-        // Start the game using the current game mode, goal points, number of players, and advanced options
-        PlayerType[] playerTypes = new PlayerType[numPlayers];
-        Color[] playerColours = new Color[numPlayers];
-        for (int i = 0; i < numPlayers; i++)
-        {
-            if(numHumanPlayers > i){
-                playerTypes[i] = PlayerType.Human;
-            }
-            else playerTypes[i] = PlayerType.Computer;
+    public void UpdateAdvancedOptionsLock(){
+        //if preset shown is not custom, set menu components to not interactable
 
-            playerColours[i] = SnakeColoursDictionary.ElementAt(playerColoursInts[i]).Value;
+        bool b = false;
+        if(selectedPreset == 0){
+            //if not displaying a preset, lock controls
+            b = true;
         }
-
-        //setting all the rest of the values for the current options
-        options.gameMode = this.gameMode;
-        options.goalPoints = this.goalPoints;
-        options.numPlayers = this.numPlayers;
-        options.numHumanPlayers = this.numHumanPlayers; 
-        options.playerTypes = playerTypes;
-        options.playerColours = playerColours;
-        gameHandlerScript.InitializeGame(options);
-
-        menuScreen.SetActive(false);
+        //used to lock menu controls when displaying a preset
+        MenuScreenObjects["SnakeSpeed"].GetComponent<InputField>().interactable = b;
+        MenuScreenObjects["StartingSize"].GetComponent<InputField>().interactable = b;
+        MenuScreenObjects["GhostModeDuration"].GetComponent<InputField>().interactable = b;
+        MenuScreenObjects["DeathPenaltyDuration"].GetComponent<InputField>().interactable = b;
+        MenuScreenObjects["NormalFoodGrowthAmount"].GetComponent<InputField>().interactable = b;
+        MenuScreenObjects["DeadSnakeFoodGrowthAmount"].GetComponent<InputField>().interactable = b;
+        MenuScreenObjects["GoldFoodGrowthAmount"].GetComponent<InputField>().interactable = b;
+        MenuScreenObjects["GoldFoodSpawnChance"].GetComponent<InputField>().interactable = b;
+        MenuScreenObjects["DoSnakesTurnIntoFood"].GetComponent<Toggle>().interactable = b;
     }
+
+
 
     // Update the game mode text
     private void UpdateGameMode()
@@ -331,31 +380,8 @@ public class Menu_Script : MonoBehaviour
     private void UseAdvancedOptionsFromPreset()
     {   //updates the script's options variables from the selected preset
 
-        //if its a set preset - lock controls, if its custom - unlock controls so user may edit
-
         // Get the advanced options for the preset
         Options _options = presetOptions.ElementAt(selectedPreset).Value;
-        
-        /*
-        bool isInteractable;
-        if (selectedPreset == 0){
-            //if preset is custom, allow player to interact with the controls
-            isInteractable = true;
-        }
-        else{
-            //if preset is not custom, dont allow player to interact with the controls
-            isInteractable = false;
-        }
-        MenuScreenObjects["SnakeSpeed"].GetComponent<InputField>().isOn = isInteractable;
-        MenuScreenObjects["StartingSize"].GetComponent<InputField>().isOn = isInteractable;
-        MenuScreenObjects["GhostModeDuration"].GetComponent<InputField>().isOn = isInteractable;
-        MenuScreenObjects["DeathPenaltyDuration"].GetComponent<InputField>().isOn = isInteractable;
-        MenuScreenObjects["NormalFoodGrowthAmount"].GetComponent<InputField>().isOn = isInteractable;
-        MenuScreenObjects["DeadSnakeFoodGrowthAmount"].GetComponent<InputField>().isOn = isInteractable;
-        MenuScreenObjects["GoldFoodGrowthAmount"].GetComponent<InputField>().isOn = isInteractable;
-        MenuScreenObjects["GoldFoodSpawnChance"].GetComponent<InputField>().isOn = isInteractable;
-        MenuScreenObjects["DoSnakesTurnIntoFood"].GetComponent<Toggle>().isOn = isInteractable;
-        */
 
         // Set the values of the input fields for speed and duration values
         options.snakeSpeed = _options.snakeSpeed;
@@ -370,25 +396,36 @@ public class Menu_Script : MonoBehaviour
         // Set the value of the toggle for the "do snakes turn to food" option
         options.doSnakesTurnToFood = _options.doSnakesTurnToFood;
 
+        //save the selected preset options to override the custom preset
+        presetOptions["Custom"]= _options;
+
+        //set the selected preset back to custom - 
+        selectedPreset = 0;
+        UpdateAdvancedOptionsLock();
+
         //reflect changes on screen
-        PushAdvancedOptionsToScreen();
+        DisplayPreset(selectedPreset);
     }
 
-    private void PushAdvancedOptionsToScreen()
-    {   //updates the menu screen from the script's options variables
+    private void DisplayPreset(int i)
+    {   //updates the menu screen from the script's selected preset option
+        Options _options = presetOptions.ElementAt(i).Value;
+
+        //display the title of the preset
+        MenuScreenObjects["PresetsText"].GetComponent<Text>().text = presetOptions.ElementAt(i).Key;
 
         // Set the values of the input fields for speed and duration values
-        MenuScreenObjects["SnakeSpeed"].GetComponent<InputField>().text = options.snakeSpeed.ToString();
-        MenuScreenObjects["StartingSize"].GetComponent<InputField>().text = options.startingSize.ToString();
-        MenuScreenObjects["GhostModeDuration"].GetComponent<InputField>().text = options.ghostModeDuration.ToString();
-        MenuScreenObjects["DeathPenaltyDuration"].GetComponent<InputField>().text = options.deathPenaltyDuration.ToString();
-        MenuScreenObjects["NormalFoodGrowthAmount"].GetComponent<InputField>().text = options.normalFoodGrowthAmount.ToString();
-        MenuScreenObjects["DeadSnakeFoodGrowthAmount"].GetComponent<InputField>().text = options.deadSnakeFoodGrowthAmount.ToString();
-        MenuScreenObjects["GoldFoodGrowthAmount"].GetComponent<InputField>().text = options.goldFoodGrowthAmount.ToString();
-        MenuScreenObjects["GoldFoodSpawnChance"].GetComponent<InputField>().text = options.goldFoodSpawnChance.ToString();
+        MenuScreenObjects["SnakeSpeed"].GetComponent<InputField>().text = _options.snakeSpeed.ToString();
+        MenuScreenObjects["StartingSize"].GetComponent<InputField>().text = _options.startingSize.ToString();
+        MenuScreenObjects["GhostModeDuration"].GetComponent<InputField>().text = _options.ghostModeDuration.ToString();
+        MenuScreenObjects["DeathPenaltyDuration"].GetComponent<InputField>().text = _options.deathPenaltyDuration.ToString();
+        MenuScreenObjects["NormalFoodGrowthAmount"].GetComponent<InputField>().text = _options.normalFoodGrowthAmount.ToString();
+        MenuScreenObjects["DeadSnakeFoodGrowthAmount"].GetComponent<InputField>().text = _options.deadSnakeFoodGrowthAmount.ToString();
+        MenuScreenObjects["GoldFoodGrowthAmount"].GetComponent<InputField>().text = _options.goldFoodGrowthAmount.ToString();
+        MenuScreenObjects["GoldFoodSpawnChance"].GetComponent<InputField>().text = _options.goldFoodSpawnChance.ToString();
 
         // Set the value of the toggle for the "do snakes turn to food" option
-        MenuScreenObjects["DoSnakesTurnIntoFood"].GetComponent<Toggle>().isOn = options.doSnakesTurnToFood;
+        MenuScreenObjects["DoSnakesTurnIntoFood"].GetComponent<Toggle>().isOn = _options.doSnakesTurnToFood;
 
     }
 
@@ -413,6 +450,9 @@ public class Menu_Script : MonoBehaviour
 
         // Set the value of the toggle for the "do snakes turn to food" option
         options.doSnakesTurnToFood = MenuScreenObjects["DoSnakesTurnIntoFood"].GetComponent<Toggle>().isOn;
+
+        //save options to custom preset
+        presetOptions["Custom"]= options;
     }
 
 }

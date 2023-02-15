@@ -302,7 +302,7 @@ public class GameHandler_Script : MonoBehaviour
     public void SpawnFood(int playerNum, Vector3 pos, EntityType foodType)
     {
         // spawning at a random position
-        if (pos == default) 
+        if (pos == default)
         {
             // find a new position for the food
             pos = new Vector3(Random.Range(0, 25), Random.Range(0, 25), 0)+ this.transform.position;
@@ -340,7 +340,7 @@ public class GameHandler_Script : MonoBehaviour
             default:
                 break;
         }
-
+        
         newFood.tag = foodType.ToString();
         foodList.Add(newFood);
 

@@ -98,7 +98,8 @@ public class Snake_Script : MonoBehaviour
     private bool isGhosting = false;
     // Time at which the snake turned ghost
     private float ghostedOnSpawnTime;
-    // Duration of ghosting
+    // Duration of ghosting    // Duration of ghosting cycles - bounces snake's opacity between two values during ghosting
+
     private float ghostDuration = 0.4f;
     // Time remaining for the ghosting effect
     private float ghostTime = 0;
@@ -250,20 +251,14 @@ public class Snake_Script : MonoBehaviour
         canDie = true;
         ResetSnakeColours();
 
-        
-
         if (playerSettings.doSnakesTurnToFood)
         {
-            
             playerSettings.gameHandler_Script.SpawnFood(playerSettings.playerNum, snakeHead.transform.position, EntityType.DeadSnakeFood);
-            snakeHead.transform.position = playerSettings.startingPos;
             foreach (GameObject seg in segments)
             {
                 playerSettings.gameHandler_Script.SpawnFood(playerSettings.playerNum, seg.transform.position, EntityType.DeadSnakeFood);
                 Destroy(seg);
             }
-            segments.Clear();
-
         }
         else{
             foreach (GameObject seg in segments)
@@ -271,6 +266,8 @@ public class Snake_Script : MonoBehaviour
                 Destroy(seg);
             }
         }
+        snakeHead.transform.position = playerSettings.startingPos;
+        segments.Clear();
         playerSettings.playerDisplay_Script.UpdateScore(0);
         playerSettings.playerDisplay_Script.StopCountdown();
 
@@ -418,7 +415,6 @@ public class Snake_Script : MonoBehaviour
     // Method to make the snake grow by a certain amount
     public void Grow(int amount)
     {
-        Debug.Log("growing by: " + amount);
         // Increase the score by the amount of growth
         score += amount;
 
@@ -435,8 +431,8 @@ public class Snake_Script : MonoBehaviour
             newSegment.GetComponent<SpriteRenderer>().color = colourOutline;
 
             // Set the color of the segment fill to regular or alt colour
-            Color col = colourBase;
-            if(i%2 == 1) col = colourAlt;
+            Color col = colourAlt;
+            if(i%2 == 1) col = colourBase;
             newSegment.transform.GetComponent<SpriteRenderer>().color = colourOutline;
             newSegment.transform.GetChild(0).GetComponent<SpriteRenderer>().color = col;
 
