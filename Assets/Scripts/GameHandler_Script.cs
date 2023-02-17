@@ -183,7 +183,7 @@ public class GameHandler_Script : MonoBehaviour
         Vector3 pos = startingPositions[playerIndex];
 
         //instantiating the snake+script
-        Snake_Script newSnakeScript = Instantiate(snakePrefab, pos, new Quaternion(0, 0, 0, 0), this.transform).GetComponent<Snake_Script>();
+        Snake_Script newSnakeScript = Instantiate(snakePrefab, this.transform.position, new Quaternion(0, 0, 0, 0), this.transform).GetComponent<Snake_Script>();
 
         //determining all the settings for the snake
         PlayerSettings settings = new PlayerSettings(
@@ -220,10 +220,8 @@ public class GameHandler_Script : MonoBehaviour
             // check if bumping into self
             if (snakeScripts[playerNum].CheckForSnakeAtPos(pos))
             {
-                
                 return EntityType.Self;
             }
-
             // check if bumping into other snakes
             for (int i = 0; i < options.numPlayers; i++)
             {
@@ -233,7 +231,7 @@ public class GameHandler_Script : MonoBehaviour
                 }
             }
         }
-        else// not a snake calling method
+        else// game handler calling this method
         {
             // check if bumping into any snakes
             foreach (Snake_Script snake in snakeScripts)
@@ -273,7 +271,6 @@ public class GameHandler_Script : MonoBehaviour
                 else
                 {
                     //food type was not identified
-                    Debug.Log("food couldnt be identified");
                     return EntityType.Empty;
                 }
                 if (destroyFood)
@@ -315,6 +312,7 @@ public class GameHandler_Script : MonoBehaviour
         //if attempting to spawn at a specific position
         else if (CheckPos(playerNum, pos, false) != EntityType.Self)
         {
+            Debug.Log("cant spawn here, pos: " + pos);
             // if trying to spawn food on an existing food, don't
             return;
         }

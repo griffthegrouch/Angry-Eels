@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 1928718323762490626}
   - component: {fileID: 1928718323762490627}
   m_Layer: 0
-  m_Name: food
+  m_Name: Food
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -26,7 +26,7 @@ Transform:
   m_GameObject: {fileID: 1928718323762490624}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.7, y: 0.7, z: 1}
+  m_LocalScale: {x: 0.9, y: 0.9, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -70,7 +70,8 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: ae52a13390b87450685477c275b9769c, type: 3}
+  m_Sprite: {fileID: -6047410306203915585, guid: 1abdbfa208487446d9a6ba45a16552fa,
+    type: 3}
   m_Color: {r: 0.14117648, g: 0.38431373, b: 0.99607843, a: 1}
   m_FlipX: 0
   m_FlipY: 0

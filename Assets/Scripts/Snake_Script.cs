@@ -133,6 +133,7 @@ public class Snake_Script : MonoBehaviour
 
 
     public void SetupSnake(PlayerSettings _playerSettings){
+
         playerSettings = _playerSettings;
         snakeHead = this.transform.GetChild(0).gameObject;
 
@@ -147,11 +148,8 @@ public class Snake_Script : MonoBehaviour
         //setting the colours of the snakes
         snakeHead.GetComponent<SpriteRenderer>().color = colourBase;
 
-        // Initialize the current direction of the snake to up
-        currentDirection = 'u';
-        
-        // Initialize the next direction of the snake to up
-        bufferDirection = 'u';
+        //prepare the snake to starting state
+        ResetSnake();
     }
 
     // Method to start the game for the snake
@@ -176,9 +174,10 @@ public class Snake_Script : MonoBehaviour
         // Reset the position of the snake head to the starting position
         snakeHead.transform.position = playerSettings.startingPos;
 
+        // Initialize the current and next direction of the snake to up
         currentDirection = bufferDirection = 'u';
 
-        score = 1;
+        score = 0;
         UpdateScore();
 
     }
