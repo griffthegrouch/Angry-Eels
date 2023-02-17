@@ -343,4 +343,13 @@ public class GameHandler_Script : MonoBehaviour
         foodList.Add(newFood);
 
     }
+
+    public void UpdateScore(int playerNum, int score){
+        //called by player indicators to communicate their current scores
+        if (options.gameMode == GameMode.FirstTo && score >= options.goalPoints){
+            EndGame();
+            Debug.Log("Player " + playerNum + " wins!! Congrats!");
+        }
+
+    }
 }

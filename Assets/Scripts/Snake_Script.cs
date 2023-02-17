@@ -138,7 +138,7 @@ public class Snake_Script : MonoBehaviour
         //colourOutline = new Color(col.r - 0.55f, col.g - 0.55f, col.b - 0.55f);
 
         playerSettings.playerDisplay_Script.SetoutlineColour(col);
-        playerSettings.playerDisplay_Script.SetValues(playerSettings.playerNum);
+        playerSettings.playerDisplay_Script.SetValues(playerSettings.playerNum, playerSettings.gameHandler_Script);
 
         //setting the colours of the snakes
         snakeHead.GetComponent<SpriteRenderer>().color = colourBase;
@@ -154,6 +154,8 @@ public class Snake_Script : MonoBehaviour
 
         // Reset the snake to its starting values
         ResetSnake();
+
+        score = 1;
 
         Grow(playerSettings.startingSize - 1);// -1 because it starts as a head!
 
@@ -187,7 +189,6 @@ public class Snake_Script : MonoBehaviour
 
         if (isGhosting)
         {
-            Debug.Log("ghosting");
             FlashGhost();
         }
 

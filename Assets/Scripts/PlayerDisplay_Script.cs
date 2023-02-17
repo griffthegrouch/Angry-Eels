@@ -25,7 +25,7 @@ public class PlayerDisplay_Script : MonoBehaviour
 
     //vars gathered when script loaded
         //vars assigned by parent
-    
+    GameHandler_Script gameHandlerScript;
     Indicator_Bar_Script indicatorScript;
     SpriteRenderer outline;
 
@@ -86,8 +86,10 @@ public class PlayerDisplay_Script : MonoBehaviour
         outline.color = col;
     }
 
-    public void SetValues(int pNum)
+    public void SetValues(int pNum, GameHandler_Script script)
     {
+        gameHandlerScript = script;
+
         //grab initial values
         playerNum = pNum + 1;//playernum starts at 0, this display starts at 1
 
@@ -133,5 +135,7 @@ public class PlayerDisplay_Script : MonoBehaviour
             highscore = score;
             highscoreText.text = highscore.ToString();
         }
+
+        gameHandlerScript.UpdateScore(playerNum, score);
     }
 }
