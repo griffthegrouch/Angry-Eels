@@ -13,7 +13,6 @@ public class PlayerSettings
 
     // Prefab for the snake segment
     public GameObject segmentPrefab;
-    // The first segment of the snake, which is already existing
     public KeyCode[] playerInputs;
     public PlayerType playerType;
     public Color playerColour;
@@ -64,6 +63,10 @@ public class Snake_Script : MonoBehaviour
     private PlayerSettings playerSettings;
     private GameObject snakeHead;
 
+    public Sprite segmentSpriteStraight;
+    public Sprite segmentSpriteCurved;
+    public Sprite segmentSpriteTail;
+
     // Flag indicating whether the snake is alive or not
     private bool isAlive = false;
     // List of all the segments of the snake
@@ -72,6 +75,8 @@ public class Snake_Script : MonoBehaviour
     private int score = 0;
     // Highest score achieved by the snake
     private int highscore = 0;
+    // keeps track of how many segments need to be grown
+    private int storedSegments = 0;
     // Flag indicating whether the snake can die or not
     private bool canDie = true;
     // Flag indicating whether the snake is flashing due to eating gold food
@@ -86,7 +91,7 @@ public class Snake_Script : MonoBehaviour
     // Color for the alternating segments
     Color colourAlt;
     // Color for the outline of snakes head and segments
-    Color colourOutline;
+    //Color colourOutline;
 
     // Color for the flashing effect
     private Color colFlashing1 = new Color(1, 1, 0);
@@ -132,19 +137,19 @@ public class Snake_Script : MonoBehaviour
         snakeHead = this.transform.GetChild(0).gameObject;
 
         Color col = playerSettings.playerColour;
-        colourBase = new Color(col.r - 0.2f, col.g - 0.2f, col.b - 0.2f);
-        colourAlt = new Color(col.r - 0.3f, col.g - 0.3f, col.b - 0.3f);
-        colourOutline = new Color(col.r - 0.55f, col.g - 0.55f, col.b - 0.55f);
+        colourBase = col;//new Color(col.r - 0.2f, col.g - 0.2f, col.b - 0.2f);
+        colourAlt = Color.Lerp(col, Color.white, .42f);
+        //colourOutline = new Color(col.r - 0.55f, col.g - 0.55f, col.b - 0.55f);
 
         playerSettings.playerDisplay_Script.SetoutlineColour(col);
         playerSettings.playerDisplay_Script.SetValues(playerSettings.playerNum);
 
         //setting the colours of the snakes
-        snakeHead.GetComponent<SpriteRenderer>().color = colourOutline;
-        snakeHead.transform.GetChild(0).GetComponent<SpriteRenderer>().color = colourBase;
+        snakeHead.GetComponent<SpriteRenderer>().color = colourBase;
 
         // Initialize the current direction of the snake to up
         currentDirection = 'u';
+        
         // Initialize the next direction of the snake to up
         bufferDirection = 'u';
     }
@@ -253,6 +258,7 @@ public class Snake_Script : MonoBehaviour
 
         if (playerSettings.doSnakesTurnToFood)
         {
+            
             playerSettings.gameHandler_Script.SpawnFood(playerSettings.playerNum, snakeHead.transform.position, EntityType.DeadSnakeFood);
             foreach (GameObject seg in segments)
             {
@@ -339,8 +345,8 @@ public class Snake_Script : MonoBehaviour
                 {
                     StopCoroutine(flasherCoroutine);
                 }
-                flasherCoroutine = StartCoroutine(FlashFor(playerSettings.snakeSpeed * playerSettings.goldFoodGrowthAmount));
                 EatFood(playerSettings.goldFoodGrowthAmount);
+                flasherCoroutine = StartCoroutine(FlashFor(playerSettings.snakeSpeed * playerSettings.goldFoodGrowthAmount));
                 goto case EntityType.Empty;//the act as if the target spot was empty
 
             case EntityType.Empty:   //if the target spot is empty
@@ -373,6 +379,26 @@ public class Snake_Script : MonoBehaviour
     }
     void MoveSnake(Vector3 newPos, Vector3 newHeadRotation)
     {
+        //0 - grow if able
+        //if snake has stored segments, grow one segment, and reflect the change 
+        if(storedSegments > 0){
+
+            storedSegments -= 1;
+            // Instantiate a new segment prefab 
+            GameObject newSegment = Instantiate(playerSettings.segmentPrefab, snakeHead.transform.position, Quaternion.identity, transform);
+
+            // Set the color of the segment outline to the player colour
+            newSegment.GetComponent<SpriteRenderer>().color = colourBase;
+
+            // Set the color of the segment fill to regular or alt colour
+            Color col = colourAlt;
+            if(segments.Count % 2 == 1) col = colourBase;
+            newSegment.transform.GetComponent<SpriteRenderer>().color = col;
+
+            // Add the new segment to the list of segments
+            segments.Add(newSegment);
+        }
+
         //1- move the head
         Vector3 oldPos = snakeHead.transform.position;
         //snake is able to move, then move the snake's head to the target and rotate it accordingly
@@ -383,6 +409,7 @@ public class Snake_Script : MonoBehaviour
 
         //move the snake's segments toward where the head used to be
         Vector3 tempPos;
+
         //cycles through the snake segments from top to bottom and moves them to where the next segment was
         for (int i = 0; i < segments.Count; i++)
         {
@@ -394,8 +421,114 @@ public class Snake_Script : MonoBehaviour
             tempPos = segments[i].transform.position;
             segments[i].transform.position = oldPos;
             oldPos = tempPos;
+            
         }
 
+        //after colouring snake correctly, update its segment's sprites + facing directions
+        UpdateSegmentDirections();
+
+    }
+    void UpdateSegmentDirections()
+    {
+        //changes the segment's sprites to the correct one (tail or body) and rotation
+
+        //uses the relative position of the previous and next segments to determine 
+        //what sprite + angle to use for each segment (straight, curved, or tail)
+
+        //direction of the seg ahead of current one (starts on head)
+        Vector2 previousSegmentDir =  Vector2.zero;
+        Vector2 nextSegmentDir = Vector2.zero;
+        Vector3 newRotation = Vector3.zero;
+        Sprite newSprite;
+        GameObject currentSeg;
+        
+
+        //cycle through each segment
+        for (int i = 0; i < segments.Count; i++)
+        {
+            currentSeg = segments[i];
+
+            //determining the relative positions of the segments before and after current segment
+            // the first segment (uses snake head as previous seg)
+            if(i == 0){
+                previousSegmentDir = snakeHead.transform.position - segments[i].transform.position; 
+                nextSegmentDir = segments[i+1].transform.position - segments[i].transform.position; 
+            }
+            //the last segment (only needs previous seg value)
+            else if(i == segments.Count -1){
+                previousSegmentDir = segments[i-1].transform.position - segments[i].transform.position; 
+            }
+            else{//all the segments between
+                previousSegmentDir = segments[i-1].transform.position - segments[i].transform.position; 
+                nextSegmentDir = segments[i+1].transform.position - segments[i].transform.position; 
+            }
+            
+            //if its not the last segment 
+            if(i != segments.Count - 1){
+                //determing if its a horizontal straight segment
+                if(previousSegmentDir.y == 0 && nextSegmentDir.y == 0){
+                    newSprite = segmentSpriteStraight;
+                    newRotation = new Vector3(0, 0, 90);
+                }
+                //determing if its a vertical straight segment
+                else if(previousSegmentDir.x == 0 && nextSegmentDir.x == 0){
+                    newSprite = segmentSpriteStraight;
+                    newRotation = new Vector3(0, 0, 0);
+                }
+                else {
+                    newSprite = segmentSpriteCurved;
+                    //if its not a straight segment, determine which direction the curve needs to go
+                    
+                    switch (previousSegmentDir + nextSegmentDir)
+                    {
+                        case var value when value == new Vector2(-1,1):     //above + left
+                            newRotation = new Vector3(0, 0, 180);
+                            break;
+                        case var value when value == new Vector2(1, 1):     //above + right
+                            newRotation = new Vector3(0, 0, 90);
+                            break;
+                        case var value when value == new Vector2(-1,-1):    //below+  left
+                            newRotation = new Vector3(0, 0, 270);
+                            break;
+                        case var value when value == new Vector2(1,-1):     //below + right
+                            newRotation = new Vector3(0, 0, 0);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+
+            }
+            //if its the last segment (tail)
+            else{
+                newSprite = segmentSpriteTail;
+
+                //using the previous segment's relative position to determine which way to angle tail
+                switch (previousSegmentDir)
+                {
+                    case var value when value == Vector2.up: //above
+                        newRotation = new Vector3(0, 0, 0);
+                        break;
+                    case var value when value == Vector2.down: //below
+                        newRotation = new Vector3(0, 0, 180);
+                        break;
+                    case var value when value == Vector2.left: //to the left
+                        newRotation = new Vector3(0, 0, 90);
+                        break;
+                    case var value when value == Vector2.right: // to the right
+                        newRotation = new Vector3(0, 0, 270);
+                        break;
+                    default:
+                        break;
+                }
+            }
+
+            //setting the new sprite and rotation
+            currentSeg.GetComponent<SpriteRenderer>().sprite = newSprite;
+            
+            currentSeg.transform.rotation = Quaternion.Euler(newRotation);   
+            
+        }
     }
 
     public void EatFood(int amount)
@@ -415,30 +548,15 @@ public class Snake_Script : MonoBehaviour
     // Method to make the snake grow by a certain amount
     public void Grow(int amount)
     {
+        //increase the number of stored segments (will be grown when trying to move)
+        storedSegments += amount;
         // Increase the score by the amount of growth
         score += amount;
 
         // Update the score display
         UpdateScore();
         
-        // Add the specified number of segments to the snake
-        for (int i = 0; i < amount; i++)
-        {
-            // Instantiate a new segment prefab 
-            GameObject newSegment = Instantiate(playerSettings.segmentPrefab, snakeHead.transform.position, Quaternion.identity, transform);
-
-            // Set the color of the segment outline to the player colour
-            newSegment.GetComponent<SpriteRenderer>().color = colourOutline;
-
-            // Set the color of the segment fill to regular or alt colour
-            Color col = colourAlt;
-            if(i%2 == 1) col = colourBase;
-            newSegment.transform.GetComponent<SpriteRenderer>().color = colourOutline;
-            newSegment.transform.GetChild(0).GetComponent<SpriteRenderer>().color = col;
-
-            // Add the new segment to the list of segments
-            segments.Add(newSegment);
-        }
+        
     }
 
     public bool CheckForSnakeAtPos(Vector3 pos)
@@ -456,11 +574,6 @@ public class Snake_Script : MonoBehaviour
         }
         return false;
     }
-
-
-
-
-
 
     // Method to make the snake flash gold for a certain duration
     private IEnumerator FlashFor(float duration)
@@ -488,7 +601,7 @@ public class Snake_Script : MonoBehaviour
         Color colour = Color.Lerp(colFlashing1, colFlashing2, flashTime);
 
         // Set the colors of the snake's head and segments
-        SetSnakeColours(colFlashingOutline, colour, colour);
+        SetSnakeColours(colFlashing1, colFlashing2);// colour);
 
         // Increment the flash time
         flashTime += Time.deltaTime / flashDuration;
@@ -542,19 +655,17 @@ public class Snake_Script : MonoBehaviour
         }
     }
 
-    void SetSnakeColours(Color _colourBase, Color _colourAlt, Color _colourOutline)
+    void SetSnakeColours(Color _colourBase, Color _colourAlt)// Color _colourOutline)
     {
         // Set the color of the snake's outline and base
-        snakeHead.GetComponent<SpriteRenderer>().color = _colourOutline;
-        snakeHead.transform.GetChild(0).GetComponent<SpriteRenderer>().color = _colourBase;
+        snakeHead.GetComponent<SpriteRenderer>().color = _colourBase;
 
         // Set the color of the segments' outline and base
         for (int i = 0; i < segments.Count; i++)
         {
-            Color col = _colourBase;
-            if(i%2 == 1) col = _colourAlt;
-            segments[i].transform.GetComponent<SpriteRenderer>().color = _colourOutline;
-            segments[i].transform.GetChild(0).GetComponent<SpriteRenderer>().color = col;
+            Color col = _colourAlt;
+            if(i%2 == 1) col = _colourBase;
+            segments[i].transform.GetComponent<SpriteRenderer>().color = col;
         }
     }
     void SetSnakeOpacity(float opacity)
@@ -565,15 +676,15 @@ public class Snake_Script : MonoBehaviour
         Color altColorWithOpacity = colourAlt;
         altColorWithOpacity.a = opacity;
 
-        Color outlineColorWithOpacity = colourOutline;
-        outlineColorWithOpacity.a = opacity;
+        //Color outlineColorWithOpacity = colourOutline;
+        //outlineColorWithOpacity.a = opacity;
 
-        SetSnakeColours(baseColorWithOpacity, altColorWithOpacity, outlineColorWithOpacity);
+        SetSnakeColours(baseColorWithOpacity, altColorWithOpacity);//, outlineColorWithOpacity);
     }
 
     void ResetSnakeColours()
     {
         // Reset the snake's colors to the original outline and base colors
-        SetSnakeColours(colourBase, colourAlt, colourOutline);
+        SetSnakeColours(colourBase, colourAlt);//, colourOutline);
     }
 }

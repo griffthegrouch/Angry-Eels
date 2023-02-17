@@ -45,12 +45,14 @@ public class Menu_Script : MonoBehaviour
 
     public Dictionary<string, Color> SnakeColoursDictionary = new Dictionary<string, Color>
     {
-        { "Green", Color.green},
+        { "Green", Color.Lerp(Color.green, Color.black, .2f)},
         { "Red", Color.red},
         { "Blue", Color.blue},
-        { "Orange", Color.yellow + Color.red},
+        { "Orange", Color.Lerp(Color.yellow, Color.black, .2f) + Color.red},
         { "Gray", Color.gray},
         { "Purple", Color.red + Color.blue},
+        //{ "Brown", Color.red + Color.green},
+        { "Teal", Color.Lerp(Color.green, Color.black, .2f) + Color.blue},
         { "Pink", Color.magenta}
     };
 
