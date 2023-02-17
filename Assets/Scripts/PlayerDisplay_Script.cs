@@ -61,6 +61,7 @@ public class PlayerDisplay_Script : MonoBehaviour
         highscoreText = scoreDisplays.transform.GetChild(1).GetComponent<TextMesh>();
 
         indicatorScript = this.transform.GetChild(4).GetComponent<Indicator_Bar_Script>();
+        StopCountdown();
     }
 
     public void HidePrompt(){
@@ -94,12 +95,14 @@ public class PlayerDisplay_Script : MonoBehaviour
         playerNumText.text = playerNum.ToString();
     }
 
-    public void StartCountdown(float time){
+    public void StartCountdown(float time, Color col){
         StopCountdown();
         // method tells the display's indicator bar to start counting down 
         // a set amount of time, and display that visually for the player
         timer = totalTimer = time;
         isCountingDown = true;
+
+        indicatorScript.SetChargeColour(col);
 
         //display initial values
         indicatorScript.UpdateIndicator(totalTimer, timer);
@@ -111,8 +114,10 @@ public class PlayerDisplay_Script : MonoBehaviour
         timer = 0;
         isCountingDown = false;
 
+        indicatorScript.SetChargeColour(Color.green);
+
         //display initial values
-        indicatorScript.UpdateIndicator(totalTimer, 0);
+        indicatorScript.UpdateIndicator(1, 0);
     }    
 
     public void UpdateScore(int s)

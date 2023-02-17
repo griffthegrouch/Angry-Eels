@@ -105,13 +105,13 @@ public class Snake_Script : MonoBehaviour
     private float ghostedOnSpawnTime;
     // Duration of ghosting    // Duration of ghosting cycles - bounces snake's opacity between two values during ghosting
 
-    private float ghostDuration = 0.4f;
+    private float ghostDuration = .6f;
     // Time remaining for the ghosting effect
     private float ghostTime = 0;
     // Opacity for the ghosting effect
-    private float ghostOpacity1 = 0.1f;
+    private float ghostOpacity1 = 0.2f;
     // Opacity for the ghosting effect
-    private float ghostOpacity2 = 0.3f;
+    private float ghostOpacity2 = 0.6f;
     // Color for the ghosting effect
     private Color colGhost1;
     // Color for the ghosting effect
@@ -162,7 +162,7 @@ public class Snake_Script : MonoBehaviour
 
         Grow(playerSettings.startingSize - 1);// -1 because it starts as a head!
 
-        GhostFor(playerSettings.ghostModeDuration);
+        StartCoroutine(GhostFor(playerSettings.ghostModeDuration));
 
         // Set the isAlive flag to true
         isAlive = true;
@@ -191,6 +191,7 @@ public class Snake_Script : MonoBehaviour
 
         if (isGhosting)
         {
+            Debug.Log("ghosting");
             FlashGhost();
         }
 
@@ -578,7 +579,7 @@ public class Snake_Script : MonoBehaviour
     private IEnumerator FlashFor(float duration)
     {
         // Set the countdown display to show the duration of the golden time
-        playerSettings.playerDisplay_Script.StartCountdown(duration);
+        playerSettings.playerDisplay_Script.StartCountdown(duration, Color.yellow);
 
         // Set the flashing and invincibility flags to true
         isFlashing = true;
@@ -617,7 +618,7 @@ public class Snake_Script : MonoBehaviour
     private IEnumerator GhostFor(float duration)
     {
         // Set the countdown display to show the duration of the ghosting
-        playerSettings.playerDisplay_Script.StartCountdown(duration);
+        playerSettings.playerDisplay_Script.StartCountdown(duration, Color.white);
 
         // Set the invincibility and ghosting flags to true
         canDie = false;
@@ -650,7 +651,7 @@ public class Snake_Script : MonoBehaviour
             ghostTime = 0;
             Color tempColor = colGhost1;
             colGhost1 = colGhost2;
-            colGhost1 = tempColor;
+            colGhost2 = tempColor;
         }
     }
 

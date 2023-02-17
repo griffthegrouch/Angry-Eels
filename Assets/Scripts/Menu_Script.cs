@@ -32,12 +32,12 @@ public class Menu_Script : MonoBehaviour
             //f snakeSpeed, f ghostModeDuration, f deathPenaltyDuration,
             //i startingSize, i normalFoodGrowthAmount, i deadSnakeFoodGrowthAmount, 
             //i goldFoodGrowthAmount, f goldFoodSpawnChance, b doSnakesTurnToFood
-            0.1f, 3, 0, 
+            0.1f, 5, 0, 
             3, 3, 1, 
             30, 30, true
         ) },
         { "Wild", new Options(
-            0.05f, 2, 5, 
+            0.05f, 3, 5, 
             10, 10, 1, 
             100, 10, false
         ) }

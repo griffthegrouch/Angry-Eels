@@ -100,6 +100,10 @@ public class Indicator_Bar_Script : MonoBehaviour//         7/312020
         _playerType = playerType;
     }
 
+    public void SetChargeColour(Color col){
+        chargeBar.GetComponent<SpriteRenderer>().color = col;
+    }
+
     public void UpdateIndicator(float size, float value){   
     //manually call to update the indicator bar- everytime the counter value changes, call with max bar value, and the current bar value or "count"
     //eg. 1/4 full bar could be UpdateIndicator(100, 25);
@@ -116,16 +120,16 @@ public class Indicator_Bar_Script : MonoBehaviour//         7/312020
 
         float yScale =  _percentValue * _maxSize;
 
-        /* 
-        Debug.Log(size);
+        
+        /*Debug.Log(size);
         Debug.Log(value);
         Debug.Log(_percentValue);
+        Debug.Log(_maxSize);
         Debug.Log(yScale);
-        Debug.Log(chargeBar.localScale.x);
-
-
-        if getting bugs setting the localscale here, likely the ghostfor duration is 0
+        //Debug.Log(chargeBar.localScale.x);
         */
+        //if getting bugs setting the localscale here, likely the ghostfor duration is 0
+        
 
         chargeBar.localScale = new Vector3(chargeBar.localScale.x, yScale, 0);
 
