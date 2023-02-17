@@ -27,19 +27,24 @@ public class Menu_Script : MonoBehaviour
     // The names and values for the preset options
     private Dictionary<string, Options> presetOptions = new Dictionary<string, Options>
     {
-        { "Custom", new Options() },
-        { "Classic", new Options(
             //f snakeSpeed, f ghostModeDuration, f deathPenaltyDuration,
             //i startingSize, i normalFoodGrowthAmount, i deadSnakeFoodGrowthAmount, 
             //i goldFoodGrowthAmount, f goldFoodSpawnChance, b doSnakesTurnToFood
-            0.1f, 5, 0, 
-            3, 3, 1, 
-            30, 30, true
+        { "Custom", new Options() },
+        { "Classic", new Options(
+            0.12f, 2, 0, 
+            3, 1, 0, 
+            10, 20, false
+        ) },
+        { "Fun", new Options(
+            0.1f, 5, 1.5f, 
+            5, 3, 1, 
+            30, 25, true
         ) },
         { "Wild", new Options(
-            0.05f, 3, 5, 
-            10, 10, 1, 
-            100, 10, false
+            0.05f, 3, 0, 
+            15, 10, 1, 
+            50, 10, true
         ) }
     };
 

@@ -20,7 +20,9 @@ public class PlayerSettings
     // Starting size of the snake
     public int startingSize;
     public float snakeSpeed;
+    // Duration player is invincible directly after spawning
     public float ghostModeDuration;
+    // Duration player is unable to play after dying
     public float deathPenaltyDuration;
     public int normalFoodGrowthAmount;
     public int deadSnakeFoodGrowthAmount;
@@ -84,7 +86,7 @@ public class Snake_Script : MonoBehaviour
     // Duration of flashing after eating gold food
     private float flashDuration = 0.3f;
     // Time remaining for the flashing effect
-    private float flashTime = 0;
+    private float flashTimer = 0;
 
     // Color for the snake head and segments
     Color colourBase;
@@ -97,17 +99,12 @@ public class Snake_Script : MonoBehaviour
     private Color colFlashing1 = new Color(1, 1, 0);
     // Color for the flashing effect
     private Color colFlashing2 = new Color(0.9f, 0.9f, 0);
-    // Color for the flashing outline effect
-    private Color colFlashingOutline = new Color(0.8f, 0.8f, 0);
     // Flag indicating whether the snake is ghosting or not
     private bool isGhosting = false;
-    // Time at which the snake turned ghost
-    private float ghostedOnSpawnTime;
     // Duration of ghosting    // Duration of ghosting cycles - bounces snake's opacity between two values during ghosting
-
     private float ghostDuration = .6f;
     // Time remaining for the ghosting effect
-    private float ghostTime = 0;
+    private float ghostTimer = 0;
     // Opacity for the ghosting effect
     private float ghostOpacity1 = 0.2f;
     // Opacity for the ghosting effect
@@ -116,10 +113,8 @@ public class Snake_Script : MonoBehaviour
     private Color colGhost1;
     // Color for the ghosting effect
     private Color colGhost2;
-    // Color for the ghosting outline effect
-    private Color colGhostOutline;
-    // Duration player is unable to play after dying
-    private float deathPenaltyDuration;
+    // Counter for when player death penalty is active
+    private float deathTimer = 0;
     // current direction of the snake 
     char currentDirection;
     // next direction of the snake (as user inputted)
@@ -173,6 +168,7 @@ public class Snake_Script : MonoBehaviour
     {
         // Reset the position of the snake head to the starting position
         snakeHead.transform.position = playerSettings.startingPos;
+        snakeHead.transform.rotation = Quaternion.Euler(new Vector3(0, 0, 0));
 
         // Initialize the current and next direction of the snake to up
         currentDirection = bufferDirection = 'u';
@@ -193,6 +189,15 @@ public class Snake_Script : MonoBehaviour
         {
             Debug.Log("ghosting");
             FlashGhost();
+        }
+
+        if(deathTimer != 0){
+            deathTimer -= Time.deltaTime;
+            if (deathTimer <= 0){ 
+                deathTimer = 0;
+                ResetSnakeColours();
+            }
+            return;
         }
 
         if (isAlive == false)
@@ -272,10 +277,18 @@ public class Snake_Script : MonoBehaviour
                 Destroy(seg);
             }
         }
-        snakeHead.transform.position = playerSettings.startingPos;
         segments.Clear();
         playerSettings.playerDisplay_Script.UpdateScore(0);
         playerSettings.playerDisplay_Script.StopCountdown();
+
+        if(playerSettings.deathPenaltyDuration != 0){
+            playerSettings.playerDisplay_Script.StartCountdown(playerSettings.deathPenaltyDuration, Color.black);
+            deathTimer = playerSettings.deathPenaltyDuration;
+        }
+
+        // Reset the snake to its starting values
+        ResetSnake();
+        SetSnakeColours(Color.grey, Color.grey);
 
     }
 
@@ -598,18 +611,18 @@ public class Snake_Script : MonoBehaviour
     private void FlashColour()
     {
         // Calculate the current color of the snake by lerping between colFlashing1 and colFlashing2
-        Color colour = Color.Lerp(colFlashing1, colFlashing2, flashTime);
+        Color colour = Color.Lerp(colFlashing1, colFlashing2, flashTimer);
 
         // Set the colors of the snake's head and segments
         SetSnakeColours(colFlashing1, colFlashing2);// colour);
 
         // Increment the flash time
-        flashTime += Time.deltaTime / flashDuration;
+        flashTimer += Time.deltaTime / flashDuration;
 
         // If the flash time has reached 1, reset it and swap the flashing colors
-        if (flashTime >= 1)
+        if (flashTimer >= 1)
         {
-            flashTime = 0;
+            flashTimer = 0;
             Color tempColour = colFlashing1;
             colFlashing1 = colFlashing2;
             colFlashing2 = tempColour;
@@ -637,18 +650,18 @@ public class Snake_Script : MonoBehaviour
     private void FlashGhost()
     {
         // Calculate the current opacity of the snake by lerping between ghostOpacity1 and ghostOpacity2
-        float opacity = Mathf.Lerp(ghostOpacity1, ghostOpacity2, ghostTime);
+        float opacity = Mathf.Lerp(ghostOpacity1, ghostOpacity2, ghostTimer);
 
         // Set the colors of the snake's head and segments
         SetSnakeOpacity(opacity);
 
         // Increment the ghost time
-        ghostTime += Time.deltaTime / ghostDuration;
+        ghostTimer += Time.deltaTime / ghostDuration;
 
         // If the ghost time has reached 1, reset it and swap the ghosting colors
-        if (ghostTime >= 1)
+        if (ghostTimer >= 1)
         {
-            ghostTime = 0;
+            ghostTimer = 0;
             Color tempColor = colGhost1;
             colGhost1 = colGhost2;
             colGhost2 = tempColor;
