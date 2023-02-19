@@ -102,7 +102,7 @@ public class Menu_Script : MonoBehaviour
         gameHandlerScript = GameObject.Find("GameHandler").GetComponent<GameHandler_Script>();
 
         //grab the main menu screen
-        menuScreen = GameObject.Find("Menu");
+        menuScreen = GameObject.Find("MainMenuScreen");
 
         //grab the second menu screen
         advancedOptionsScreen = GameObject.Find("AdvancedOptionsScreen");
@@ -176,7 +176,7 @@ public class Menu_Script : MonoBehaviour
         UpdateGameMode();
 
         //then hide the advanced options screen by default
-        CloseAdvancedOptions();
+        HideAdvancedOptions();
     }
 
         // Check for input to start the game
@@ -204,7 +204,7 @@ public class Menu_Script : MonoBehaviour
         options.playerColours = playerColours;
         gameHandlerScript.InitializeGame(options);
 
-        menuScreen.SetActive(false);
+        HideMenuScreen();
     }
 
 
@@ -270,16 +270,29 @@ public class Menu_Script : MonoBehaviour
     }
 
     // Check for input to open or close the advanced options screen
-    public void OpenAdvancedOptions()
+    public void ShowAdvancedOptions()
     {
         // Open the advanced options screen
+        Debug.Log("showing advanced options");
         advancedOptionsScreen.SetActive(true);
     }
-    public void CloseAdvancedOptions()
+    public void HideAdvancedOptions()
     {
         GetAdvancedOptionsFromScreen();
         // Close the advanced options screen
         advancedOptionsScreen.SetActive(false);
+    }
+
+    public void ShowMenuScreen()
+    {
+        // Open the menu screen
+        menuScreen.SetActive(true);
+    }
+    public void HideMenuScreen()
+    {
+        GetAdvancedOptionsFromScreen();
+        // Close the menu screen
+        menuScreen.SetActive(false);
     }
 
     // Check for input to switch between presets on the advanced options screen
@@ -352,18 +365,17 @@ public class Menu_Script : MonoBehaviour
     private void UpdateGameMode()
     {
         // Get the game mode text game object
-        Text gameModeText = GameObject.Find("GameModeText").GetComponent<Text>();
         switch (gameMode)
         {
             case GameMode.Endless:
                 // Set the text to the current game mode
-                gameModeText.text = "Endless";
+                MenuScreenObjects["GameModeText"].GetComponent<Text>().text = "Endless";
                 // Show or hide the selector based on the current game mode
                 firstToSelector.SetActive(false);
                 break;
             case GameMode.FirstTo:
                 // Set the text to the current game mode
-                gameModeText.text = "First to";
+                MenuScreenObjects["GameModeText"].GetComponent<Text>().text = "First To";
                 // Show or hide the selector based on the current game mode
                 firstToSelector.SetActive(true);
                 break;

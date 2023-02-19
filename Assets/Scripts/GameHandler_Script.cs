@@ -76,6 +76,9 @@ public class GameHandler_Script : MonoBehaviour
 {
 /////////////////////////// vars for the game handler
 
+    // script for the main menu
+    private Menu_Script menuScript;
+
     // All options for the game - set in the menu screen, then passed over on game start
     private Options options;
 
@@ -102,7 +105,8 @@ public class GameHandler_Script : MonoBehaviour
     private Snake_Script[] snakeScripts;
 
     // Arrays for all the score displays + their scripts
-    private GameObject[] playerDisplays; // always contains all 4 displays
+    private GameObject[] playerDisplays; 
+    // always contains all 4 displays
     private PlayerDisplay_Script[] playerDisplayScripts;
 
 /////////////////////////// prefabs
@@ -127,7 +131,38 @@ public class GameHandler_Script : MonoBehaviour
         // grab all existing walls
         wallArr = GameObject.FindGameObjectsWithTag("wall");
 
+        menuScript = GameObject.Find("Menu").GetComponent<Menu_Script>();
     }
+
+    public void Pause(bool b){
+        if(b)//game paused
+        {   
+            CancelInvoke();
+
+            Time.timeScale = 0;
+
+        }
+        else//game unpaused
+        {
+            CancelInvoke();
+            InvokeRepeating("MoveSnakes", 0, options.snakeSpeed);    
+
+            Time.timeScale = 1;
+
+        }
+        
+    }
+
+    public void RestartGame(){
+        EndGame();
+        InitializeGame(options);
+    }
+
+    public void ReturnHome(){
+        EndGame();
+        menuScript.ShowMenuScreen();
+    }
+
 
     // Initialize the game called from the menu on game start
     public void InitializeGame(Options _options)
@@ -210,6 +245,21 @@ public class GameHandler_Script : MonoBehaviour
     }
 
     public void EndGame(){
+        foreach (var script in playerDisplayScripts)
+        {
+            script.ShowPrompt();
+            script.StopCountdown();
+            script.UpdateScore(0);
+        }
+        foreach (var snake in snakeScripts)
+        {
+            Destroy(snake.gameObject);
+        }
+        foreach (var food in foodList)
+        {
+            Destroy(food.gameObject);
+        }
+        foodList.Clear();
         CancelInvoke();
     }
 
@@ -352,4 +402,5 @@ public class GameHandler_Script : MonoBehaviour
         }
 
     }
+
 }

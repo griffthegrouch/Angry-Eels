@@ -207,6 +207,7 @@ public class Snake_Script : MonoBehaviour
             {
                 //start game
                 StartGame();
+                return;
             }
         }
 
@@ -282,14 +283,16 @@ public class Snake_Script : MonoBehaviour
         playerSettings.playerDisplay_Script.UpdateScore(0);
         playerSettings.playerDisplay_Script.StopCountdown();
 
-        if(playerSettings.deathPenaltyDuration != 0){
-            playerSettings.playerDisplay_Script.StartCountdown(playerSettings.deathPenaltyDuration, Color.black);
-            deathTimer = playerSettings.deathPenaltyDuration;
-        }
-
         // Reset the snake to its starting values
         ResetSnake();
-        SetSnakeColours(Color.grey, Color.grey);
+
+
+        //if death penalty is on, set up death timer and change snake colour
+        if(playerSettings.deathPenaltyDuration != 0){
+            SetSnakeColours(Color.grey, Color.grey);
+            playerSettings.playerDisplay_Script.StartCountdown(playerSettings.deathPenaltyDuration, Color.black);
+            deathTimer = playerSettings.deathPenaltyDuration;
+        }        
 
     }
 

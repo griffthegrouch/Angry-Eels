@@ -64,6 +64,9 @@ public class PlayerDisplay_Script : MonoBehaviour
         StopCountdown();
     }
 
+    public void ShowPrompt(){
+        pressKeyPrompt.SetActive(true);
+    }
     public void HidePrompt(){
         pressKeyPrompt.SetActive(false);
     }
