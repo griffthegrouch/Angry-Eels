@@ -29,31 +29,37 @@
     if the snake hits itself or a wall it dies and the game is over.
 
     Modern features:
-    - Customizable variables that control every aspect of the gameplay 
-        (speed, food types + spawn rates, food growth, enable/disable features, eel colours, # of players, starting size, death timer, + many more)
-    - gamemode preset feature that saves multiple "rule sets" for the player to choose from to jump in, 
-        and also able to customize further if desired
+    - game rules:
+        - Customizable variables that control every aspect of the gameplay 
+            (speed, food types + spawn rates, food growth, enable/disable features, eel colours, # of players, starting size, death timer, + many more)
+        - gamemode preset feature that saves multiple "rule sets" for the player to choose from to jump in, 
+            and also able to customize further if desired
 
-    - player in-game gui display for each player that displays information regarding thier score, 
-        indicators + timers for players to see the remaining duration and current status of their eel
-    - visually appealing menu that allows user-friendly navigation of game information,
-        and simple controls for customization of the game settings
-    - menus and multiple screens (start/menu screen, advanced settings menu, pause menu, game screen)
+    - gameplay:
+        - advanced input system that allows the player to buffer vertical and horizontal inputs,
+            allowing for much tighter controls
+        - advanced gameplay loop that allows to check if eels collide theyll 
+            both die instead of the first one trumping the latter
+        - "ghosting" the eels on spawn for a set amount of time,
+            to solve the problem of the player being trapped at spawn with an opstacle killing them on spawn
+       
 
-    - multiplayer! (up to 4 eels)
-    - multiple game modes (race to # of points OR endless, where players play forever and try to set high scores)
-    - advanced input system that allows the player to buffer vertical and horizontal inputs,
-        allowing for much tighter controls
-    - advanced gameplay loop that allows to check if eels collide theyll 
-        both die instead of the first one trumping the latter
-    - pause game function
-    - restart + return to menu functions
-    - different varieties of food and spawning modes
-    - fun statuses for the eels
-    - optional death penalty for the players that disallow the players to move for a set amount of time after dying
-    - "ghosting" the eels on spawn for a set amount of time
-        to solve the problem of the player being trapped at spawn with an opstacle killing them on spawn
-    - visually appealing graphic animation for the eels and special effects for special statuses of the eels
+    - visuals and sounds:
+        - in-game display for each player that displays information regarding thier score and
+            indicators + timers for players to see the remaining duration and current status of their eel
+        - visually appealing menu that allows user-friendly navigation of game information,
+            and simple controls for customization of the game settings
+        - menus and multiple screens (start/menu screen, advanced settings menu, pause menu, game screen)
+
+    - features:
+        - multiplayer! (up to 4 eels)
+        - multiple game modes (race to # of points OR endless, where players play forever and try to set high scores)
+        - pause game function
+        - restart + return to menu functions
+        - different varieties of food and spawning modes
+        - fun statuses for the eels
+        - optional death penalty for the players that disallow the players to move for a set amount of time after dying
+        - visually appealing graphic animation for the eels and special effects for special statuses of the eels
 
 
 
@@ -97,12 +103,13 @@
     TODO
 ***********************************************************************************************
      
+    - add a quit button
     - add a win screen
     - add a title screen
     - add a high score viewer screen
     - add a couple better sounds (death sound from worms, victory sound / music)
+    - add controller controls for the menus
 
-   
 
     - redo the menu screen 
         want to see what game mode is selected(with ability to change it)before opening advanced options
@@ -118,7 +125,7 @@
 
     - high score saving
         - allow user to save high score locally
-        - let user enter a 4 char name retro-styel
+        - let user enter a 4 char name retro-stye
         - save the score, player name, and what gamemode was selected
 
 

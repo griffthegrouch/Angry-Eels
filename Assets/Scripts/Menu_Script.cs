@@ -18,7 +18,7 @@ public class Menu_Script : MonoBehaviour
     private int numPlayers = 1;
 
     // The number of human players in the game - defaulted to 1
-    private int numHumanPlayers = 1;
+    private int numHumanPlayers = 4;
 
     
     // The values for all options
