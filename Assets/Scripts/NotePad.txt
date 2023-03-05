@@ -97,8 +97,6 @@
     TODO
 ***********************************************************************************************
 
-     - make when they run into each other, its not the first one that trumps the other
-
      - add input buffer for horizontal and vertical
      
     - add a win screen

@@ -316,18 +316,19 @@ public class Snake_Script : MonoBehaviour
 
     }
 
-    public void TryMoveSnake()
+    public Vector2 TryMoveSnake()
     {//called by game handler
         //1 - checks if able to move at all
         //2 - determine the target spot
         //3 - checks if anything is occupying target spot
         //    + switch statement to respond to what is in target spot
 
+        // returns the target position
 
         //1
         if (!isAlive)
         {
-            return;
+            return snakeHead.transform.position;
         }
 
         //2
@@ -433,6 +434,8 @@ public class Snake_Script : MonoBehaviour
             default:
                 break;
         }
+
+        return targetPos;
 
     }
     void MoveSnake(Vector3 newPos, Vector3 newHeadRotation)

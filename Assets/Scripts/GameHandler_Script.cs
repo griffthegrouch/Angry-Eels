@@ -1,6 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
+
 
 //public tools for scripts to use
 // Enum for the game mode
@@ -180,30 +182,30 @@ public class GameHandler_Script : MonoBehaviour
     public void Pause(bool b){
         if(b)//game paused
         {   
-            Debug.Log("pause");
             //play sfx
             SFXAudio.PlayOneShot(pauseSFX);
+            //switch music playing
             gameHandlerAudio.Pause();
             pauseScreenAudio.Play(0);
 
+            //stop time/snake movement
             CancelInvoke();
             Time.timeScale = 0;
 
         }
-        else//game unpaused
-        {
-            Debug.Log("unpause");
+        else{
+            //game unpaused
             //play sfx
             SFXAudio.PlayOneShot(unPauseSFX);
+            //switch music playing
             pauseScreenAudio.Pause();
             gameHandlerAudio.Play(0);
 
+            //resume time + snake movement
             CancelInvoke();
             InvokeRepeating("MoveSnakes", 0, options.snakeSpeed);    
-
             Time.timeScale = 1;
             
-
         }
         
     }
@@ -293,16 +295,43 @@ public class GameHandler_Script : MonoBehaviour
         //passing all the relevant information to the new snake
         newSnakeScript.SetupSnake(settings);
 
-        //adding new snake script to local snakecripts arr
+        //adding new snake script to local snakescripts arr
         snakeScripts[playerIndex] = newSnakeScript;
 
     }
 
     private void MoveSnakes(){
+        // loop through all snakes and attempt to move them one space
+
+        // the logic for this is overkill but fun and infinitely scalable
+        // store each snake's new position to determine if they collided head-on
+        List <Vector2> newPositions = new List <Vector2>();
+        List <int> crashedSnakes = new List <int>();
+
         foreach (Snake_Script snakeScript in snakeScripts)
         {
-            snakeScript.TryMoveSnake();
+            newPositions.Add(snakeScript.TryMoveSnake());
         }
+
+        if(options.numPlayers > 1){
+            //some cool Linq to determine if any of the snake's new positions are duplicates 
+            var duplicatePositions = newPositions
+                .Select((value, index) => new { value, index }) // add the index to each value
+                .GroupBy(x => x.value) // group by value
+                .Where(g => g.Count() > 1); // select only groups with more than one element
+
+            foreach (var group in duplicatePositions)
+            {
+                var groupList = group.ToList();
+                // store the indices of the original and duplicate
+                for (int i = 0; i < groupList.Count; i++)
+                {
+                    crashedSnakes.Add(groupList[i].index);
+                    snakeScripts[groupList[i].index].Die();
+                }
+            }
+        }
+
     }
 
     public void EndGame(){
