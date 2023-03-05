@@ -127,7 +127,8 @@ public class Snake_Script : MonoBehaviour
     // current direction of the snake 
     char currentDirection;
     // next direction of the snake (as user inputted)
-    char bufferDirection;
+    char verticalBufferDirection;
+    char horizontalBufferDirection;
     // Flag indicating whether the game is currently being played or not
 
     // Coroutine for the flashing effect
@@ -193,7 +194,8 @@ public class Snake_Script : MonoBehaviour
         snakeHead.transform.rotation = Quaternion.Euler(new Vector3(0, 0, 0));
 
         // Initialize the current and next direction of the snake to up
-        currentDirection = bufferDirection = 'u';
+        verticalBufferDirection = horizontalBufferDirection = 'x';
+        currentDirection = 'u';
 
         score = 0;
         UpdateScore();
@@ -232,43 +234,37 @@ public class Snake_Script : MonoBehaviour
         }
 
         if (Input.GetKeyDown(playerSettings.playerInputs[0]))
-        {
-            //Debug.Log("pressing up");
-            //prevents attempts to change direction to current axis
-            if (currentDirection != 'u' && currentDirection != 'd')
+        {   //pressing up
+            //prevents attempts to buffer direction to current axis - unless theres already a buffer on the other axis
+            if ( (currentDirection != 'u' && currentDirection != 'd') || (horizontalBufferDirection != 'x') )
             {
-                bufferDirection = 'u';
+                verticalBufferDirection = 'u';
             }
         }
         if (Input.GetKeyDown(playerSettings.playerInputs[1]))
-        {
-            //Debug.Log("pressing down");
-            //prevents attempts to change direction to current axis
-            if (currentDirection != 'u' && currentDirection != 'd')
+        {   //pressing down
+            //prevents attempts to buffer direction to current axis - unless theres already a buffer on the other axis
+            if ( (currentDirection != 'u' && currentDirection != 'd') || (horizontalBufferDirection != 'x') )
             {
-                bufferDirection = 'd';
+                verticalBufferDirection = 'd';
             }
         }
         if (Input.GetKeyDown(playerSettings.playerInputs[2]))
-        {
-            //Debug.Log("pressing left");
-            //prevents attempts to change direction to current axis
-            if (currentDirection != 'l' && currentDirection != 'r')
+        {   //pressing left
+            //prevents attempts to buffer direction to current axis - unless theres already a buffer on the other axis
+            if ( (currentDirection != 'l' && currentDirection != 'r') || (verticalBufferDirection != 'x') )
             {
-                bufferDirection = 'l';
+                horizontalBufferDirection = 'l';
             }
         }
         if (Input.GetKeyDown(playerSettings.playerInputs[3]))
-        {
-            //Debug.Log("pressing right");
-            //prevents attempts to change direction to current axis
-            if (currentDirection != 'l' && currentDirection != 'r')
+        {   //pressing right
+            //prevents attempts to buffer direction to current axis - unless theres already a buffer on the other axis
+            if ( (currentDirection != 'l' && currentDirection != 'r') || (verticalBufferDirection != 'x') )
             {
-                bufferDirection = 'r';
+                horizontalBufferDirection = 'r';
             }
         }
-        //Debug.Log("current dir: " + currentDirection);
-        //Debug.Log("buffered dir: " + bufferDirection);
     }
 
     public void Die()
@@ -332,7 +328,16 @@ public class Snake_Script : MonoBehaviour
         }
 
         //2
-        currentDirection = bufferDirection;
+        if ((currentDirection == 'u' || currentDirection == 'd') && horizontalBufferDirection != 'x'){
+            //currently moving vertically - and have a horizontal buffered direction
+            currentDirection = horizontalBufferDirection;
+            horizontalBufferDirection = 'x';
+        }
+        else if ((currentDirection == 'l' || currentDirection == 'r') && verticalBufferDirection != 'x'){
+            //currently moving horizontal - and have a vertical buffered direction
+            currentDirection = verticalBufferDirection;
+            verticalBufferDirection = 'x';
+        }
         
         Vector3 offset = Vector3.zero;
         Vector3 newHeadRotation = Vector3.zero;
