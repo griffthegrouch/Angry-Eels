@@ -6,6 +6,7 @@ public class PauseMenu_Script : MonoBehaviour
 {
     // A reference to the game handler script
     private GameHandler_Script gameHandlerScript;
+    
 
     // The menu screen game object
     private GameObject pauseScreen;
@@ -34,8 +35,6 @@ public class PauseMenu_Script : MonoBehaviour
         pauseBtn = GameObject.Find("PauseBtn");
 
         //hide the pause screen by default
-
-
         HidePauseScreen();
         HidePauseBtn();
 
@@ -100,6 +99,8 @@ public class PauseMenu_Script : MonoBehaviour
         HidePauseBtn();
         HidePauseScreen();
 
+
+
         gameHandlerScript.ReturnHome();   
     }
 
@@ -110,11 +111,12 @@ public class PauseMenu_Script : MonoBehaviour
         {
             PauseBtn();
         }
-        else if ((Input.GetKeyDown(KeyCode.Space)) && (pauseScreen.active == true))
+        else if ((Input.GetKeyDown(KeyCode.Space)) && (pauseScreen.activeSelf == true))
         {
             Debug.Log("resume button clicked");
             ResumeBtn();
         }
+        
         
     }
 

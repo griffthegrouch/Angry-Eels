@@ -273,7 +273,6 @@ public class Menu_Script : MonoBehaviour
     public void ShowAdvancedOptions()
     {
         // Open the advanced options screen
-        Debug.Log("showing advanced options");
         advancedOptionsScreen.SetActive(true);
     }
     public void HideAdvancedOptions()

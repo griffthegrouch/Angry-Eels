@@ -69,6 +69,15 @@ public class Snake_Script : MonoBehaviour
     public Sprite segmentSpriteCurved;
     public Sprite segmentSpriteTail;
 
+    private AudioSource SFXAudio;
+    private AudioClip chompSFX;
+    private AudioClip deathSFX;
+    private AudioClip yummySFX;
+    private AudioClip crashSFX;
+    private AudioClip popSFX;
+    private AudioClip popMultipleSFX;
+    private AudioClip powerUpSFX;
+
     // Flag indicating whether the snake is alive or not
     private bool isAlive = false;
     // List of all the segments of the snake
@@ -130,6 +139,17 @@ public class Snake_Script : MonoBehaviour
     public void SetupSnake(PlayerSettings _playerSettings){
 
         playerSettings = _playerSettings;
+
+        SFXAudio = playerSettings.gameHandler_Script.GetComponents<AudioSource>()[2];
+
+        chompSFX = Resources.Load("Audio/CharacterChompSound") as AudioClip;
+        deathSFX = Resources.Load("Audio/CharacterDeathSound") as AudioClip;
+        yummySFX = Resources.Load("Audio/CharacterYummySound") as AudioClip;
+        crashSFX = Resources.Load("Audio/CrashSound") as AudioClip;
+        popSFX = Resources.Load("Audio/PopSound") as AudioClip;
+        popMultipleSFX = Resources.Load("Audio/PopSequenceSounds") as AudioClip;
+        powerUpSFX = Resources.Load("Audio/PowerUpSound") as AudioClip;
+
         snakeHead = this.transform.GetChild(0).gameObject;
 
         Color col = playerSettings.playerColour;
@@ -349,14 +369,28 @@ public class Snake_Script : MonoBehaviour
         switch (playerSettings.gameHandler_Script.CheckPos(playerSettings.playerNum, targetPos, true))
         {
             case EntityType.NormalFood://if spot was food then eat the food
+                //play sfx
+                if(playerSettings.normalFoodGrowthAmount >= 3){
+                    SFXAudio.PlayOneShot(popMultipleSFX);
+                }else{
+                    SFXAudio.PlayOneShot(popSFX, 50);
+                }
                 EatFood(playerSettings.normalFoodGrowthAmount);
                 goto case EntityType.Empty;//the act as if the target spot was empty
 
             case EntityType.DeadSnakeFood://if spot was food then eat the food
+                //play sfx
+                SFXAudio.PlayOneShot(popSFX, 50);
+                
                 EatFood(playerSettings.deadSnakeFoodGrowthAmount);
                 goto case EntityType.Empty;//the act as if the target spot was empty
 
             case EntityType.GoldFood://if spot was food then eat the food
+                //play sfx
+                SFXAudio.PlayOneShot(yummySFX, 10);
+                SFXAudio.PlayOneShot(popMultipleSFX,50);
+                SFXAudio.PlayOneShot(powerUpSFX);
+
                 //flash gold for the duration that the snake is growing from the extra food
                 if (isFlashing)
                 {
@@ -366,27 +400,34 @@ public class Snake_Script : MonoBehaviour
                 flasherCoroutine = StartCoroutine(FlashFor(playerSettings.snakeSpeed * playerSettings.goldFoodGrowthAmount));
                 goto case EntityType.Empty;//the act as if the target spot was empty
 
-            case EntityType.Empty:   //if the target spot is empty
-                //snake is able to move, then move the snake's head to the target and rotate it accordingly
-                MoveSnake(targetPos, newHeadRotation);
-                break;
-
             case EntityType.Wall://if spot was a wall ---> die
+                //play sfx
+                SFXAudio.PlayOneShot(crashSFX, 20);
+                //SFXAudio.PlayOneShot(deathSFX, 10);
                 Die();
                 break;
 
             case EntityType.Self:
+                //play sfx
                 goto case EntityType.Snake;
 
             case EntityType.Snake://if spot was a snake --->die
                 if (canDie)
                 {
+                    //play sfx
+                    SFXAudio.PlayOneShot(chompSFX, 50);
+                    //SFXAudio.PlayOneShot(deathSFX, 20);
                     Die();
                 }
                 else
                 {
                     goto case EntityType.Empty;
                 }
+                break;
+
+            case EntityType.Empty:   //if the target spot is empty
+                //snake is able to move, then move the snake to the "empty" location
+                MoveSnake(targetPos, newHeadRotation);
                 break;
 
             default:

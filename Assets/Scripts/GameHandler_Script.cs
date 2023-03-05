@@ -51,6 +51,7 @@ public class Options
     public int goldFoodGrowthAmount;
     public float goldFoodSpawnChance;
     public bool doSnakesTurnToFood;
+
     public Options(){
         
     }
@@ -118,6 +119,31 @@ public class GameHandler_Script : MonoBehaviour
     // Prefab for the food
     private GameObject foodPrefab;
 
+    // Audio source for game handler
+    private AudioSource gameHandlerAudio;
+    // Audio source for pause screen
+    private AudioSource pauseScreenAudio;
+    // Audio source for sound effects
+    private AudioSource SFXAudio;
+
+    //all music clips
+    private AudioClip gameMusic;
+    private AudioClip pauseScreenMusic;
+
+
+    //all sound effect clips
+    private AudioClip buttonClickSFX;
+    private AudioClip gameStartSFX;
+    private AudioClip pauseSFX;
+    private AudioClip unPauseSFX;
+
+    
+
+
+
+
+    
+    
     void Start()
     {
         // grab all resources
@@ -132,41 +158,75 @@ public class GameHandler_Script : MonoBehaviour
         wallArr = GameObject.FindGameObjectsWithTag("wall");
 
         menuScript = GameObject.Find("Menu").GetComponent<Menu_Script>();
+
+        //grab audio player
+        gameHandlerAudio = GetComponents<AudioSource>()[0];
+        pauseScreenAudio = GetComponents<AudioSource>()[1];
+        SFXAudio = GetComponents<AudioSource>()[2];
+        
+        
+        //grab sound fx + music
+        gameMusic = Resources.Load("Audio/GameMusic") as AudioClip;
+        pauseScreenMusic = Resources.Load("Audio/PauseScreenMusic") as AudioClip;
+
+        buttonClickSFX = Resources.Load("Audio/ButtonClickSound") as AudioClip;
+        gameStartSFX = Resources.Load("Audio/GameStartSound") as AudioClip;
+        pauseSFX = Resources.Load("Audio/PauseSound") as AudioClip;
+        unPauseSFX = Resources.Load("Audio/UnPauseSound") as AudioClip;
+    
+        
     }
 
     public void Pause(bool b){
         if(b)//game paused
         {   
-            CancelInvoke();
+            Debug.Log("pause");
+            //play sfx
+            SFXAudio.PlayOneShot(pauseSFX);
+            gameHandlerAudio.Pause();
+            pauseScreenAudio.Play(0);
 
+            CancelInvoke();
             Time.timeScale = 0;
 
         }
         else//game unpaused
         {
+            Debug.Log("unpause");
+            //play sfx
+            SFXAudio.PlayOneShot(unPauseSFX);
+            pauseScreenAudio.Pause();
+            gameHandlerAudio.Play(0);
+
             CancelInvoke();
             InvokeRepeating("MoveSnakes", 0, options.snakeSpeed);    
 
             Time.timeScale = 1;
+            
 
         }
         
     }
 
+    //called from the pause menu - restarts game exactly how it was started
     public void RestartGame(){
         EndGame();
         InitializeGame(options);
     }
 
+    //called from the pause menu - ends game and returns to the home screen
     public void ReturnHome(){
+        pauseScreenAudio.Pause();
         EndGame();
         menuScript.ShowMenuScreen();
     }
 
-
     // Initialize the game called from the menu on game start
     public void InitializeGame(Options _options)
     {
+        //play sfx
+        SFXAudio.PlayOneShot(gameStartSFX);
+
         // Set options
         options = _options;
 
@@ -235,6 +295,7 @@ public class GameHandler_Script : MonoBehaviour
 
         //adding new snake script to local snakecripts arr
         snakeScripts[playerIndex] = newSnakeScript;
+
     }
 
     private void MoveSnakes(){
@@ -330,9 +391,9 @@ public class GameHandler_Script : MonoBehaviour
                         case EntityType.NormalFood:
                             SpawnFood(-1, default, EntityType.NormalFood);
                             break;
-                        case EntityType.DeadSnakeFood:
+                        case EntityType.DeadSnakeFood:                            
                             break;
-                        case EntityType.GoldFood:
+                        case EntityType.GoldFood:                
                             SpawnFood(-1, default, EntityType.NormalFood);
                             break;
                     }
