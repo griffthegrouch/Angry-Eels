@@ -180,7 +180,7 @@ public class Snake_Script : MonoBehaviour
 
         Grow(playerSettings.startingSize - 1);// -1 because it starts as a head!
 
-        StartCoroutine(GhostFor(playerSettings.ghostModeDuration));
+        ghosterCoroutine = StartCoroutine(GhostFor(playerSettings.ghostModeDuration));
 
         // Set the isAlive flag to true
         isAlive = true;
@@ -644,6 +644,9 @@ public class Snake_Script : MonoBehaviour
     // Method to make the snake flash gold for a certain duration
     private IEnumerator FlashFor(float duration)
     {
+        //if ghosted - override it
+        isGhosting = false;
+
         // Set the countdown display to show the duration of the golden time
         playerSettings.playerDisplay_Script.StartCountdown(duration, Color.yellow);
 
