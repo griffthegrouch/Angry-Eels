@@ -1,4 +1,4 @@
-﻿
+
                 
                 TODO + IDEAS BELOW
 
@@ -102,7 +102,7 @@
 ***********************************************************************************************
     TODO
 ***********************************************************************************************
-     
+
     currently redoing the menu + advanced options
     1 - get art for the background that reflects the ocean
     2 - make the menus look like driftwood + add sfx like splashing
