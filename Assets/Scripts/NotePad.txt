@@ -103,10 +103,18 @@
     TODO
 ***********************************************************************************************
      
-    - add a quit button
-    - add a win screen
-    - add a title screen
-    - add a high score viewer screen
+    currently redoing the menu + advanced options
+    1 - get art for the background that reflects the ocean
+    2 - make the menus look like driftwood + add sfx like splashing
+    3 - add a transition to make the menu -> game visually appealing and fun
+    4 - quit button
+    5 - title screen
+    
+    6 - win screen
+    7 - how to play screen
+    8 - high score screen
+
+
     - add a couple better sounds (death sound from worms, victory sound / music)
     - add controller controls for the menus
 
@@ -136,6 +144,11 @@
     make number of lives
     make random obstacle maker, and preset stages to choose from.
     make high score file to keep reading from.
+
+    make different levels 
+        - different level sizes
+        - obstacles,
+        - warp pipes to other side of level
 
     add powerups (speed, grow a lot, untargettable)
     make options for food (multiple random spawning, single one that grows you then moves, toggle for dead snakes becoming food )
