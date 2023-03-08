@@ -36,7 +36,7 @@ public class Menu_Script : MonoBehaviour
             3, 1, 0, 
             10, 20, false
         ) },
-        { "Fun", new Options(
+        { "Casual", new Options(
             0.1f, 5, 1.5f, 
             5, 3, 1, 
             30, 25, true
@@ -196,6 +196,7 @@ public class Menu_Script : MonoBehaviour
         }
 
         //setting all the rest of the values for the current options
+        options.RuleSet = this.presetOptions.ElementAt(selectedPreset).Key.ToString();
         options.gameMode = this.gameMode;
         options.goalPoints = this.goalPoints;
         options.numPlayers = this.numPlayers;
@@ -236,7 +237,7 @@ public class Menu_Script : MonoBehaviour
     }
     public void DecreaseGoalPoints()
     {
-        if (goalPoints > 20)
+        if (goalPoints > 10)
         {
             goalPoints -= 10;
         }

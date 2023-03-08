@@ -141,7 +141,7 @@ public class Snake_Script : MonoBehaviour
 
         playerSettings = _playerSettings;
 
-        SFXAudio = playerSettings.gameHandler_Script.GetComponents<AudioSource>()[2];
+        SFXAudio = playerSettings.gameHandler_Script.GetComponents<AudioSource>()[1];
 
         chompSFX = Resources.Load("Audio/CharacterChompSound") as AudioClip;
         deathSFX = Resources.Load("Audio/CharacterDeathSound") as AudioClip;
@@ -176,6 +176,10 @@ public class Snake_Script : MonoBehaviour
         // Reset the snake to its starting values
         ResetSnake();
 
+        //reset the direction and buffer on the snake so it moves up originally
+        verticalBufferDirection = 'x';
+        currentDirection = horizontalBufferDirection = 'u';
+
         score = 1;
 
         Grow(playerSettings.startingSize - 1);// -1 because it starts as a head!
@@ -194,8 +198,8 @@ public class Snake_Script : MonoBehaviour
         snakeHead.transform.rotation = Quaternion.Euler(new Vector3(0, 0, 0));
 
         // Initialize the current and next direction of the snake to up
-        verticalBufferDirection = horizontalBufferDirection = 'x';
-        currentDirection = 'u';
+        verticalBufferDirection = 'x';
+        currentDirection = horizontalBufferDirection = 'u';
 
         score = 0;
         UpdateScore();

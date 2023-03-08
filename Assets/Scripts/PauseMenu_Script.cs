@@ -16,14 +16,19 @@ public class PauseMenu_Script : MonoBehaviour
     // The menu screen game object
     private GameObject pauseBtn;
 
+    // Audio source for pause screen
+    private AudioSource pauseScreenAudio;
+
     // The var to keep track if the game is running
-    bool gameIsRunning = false;
+    public bool gameIsRunning = false;
 
     // Start is called before the first frame update
     void Start()
     {
         // Get a reference to the game handler script
         gameHandlerScript = GameObject.Find("GameHandler").GetComponent<GameHandler_Script>();
+
+        pauseScreenAudio = GetComponent<AudioSource>();
 
         //grab the main menu screen
         pauseScreen = GameObject.Find("PauseScreen");
@@ -35,7 +40,7 @@ public class PauseMenu_Script : MonoBehaviour
         pauseBtn = GameObject.Find("PauseBtn");
 
         //hide the pause screen by default
-        HidePauseScreen();
+        HideScreen();
         HidePauseBtn();
 
     }
@@ -53,68 +58,70 @@ public class PauseMenu_Script : MonoBehaviour
         pauseBtn.SetActive(false);
     }
 
-    public void ShowPauseScreen()
+    public void ShowScreen()
     {        
         pauseScreen.SetActive(true);
-        pauseTextAnimator.SetBool("gamePaused", true);
+        pauseTextAnimator.SetBool("screenOpen", true);
     }
 
-    public void HidePauseScreen()
+    public void HideScreen()
     {
-        pauseTextAnimator.SetBool("gamePaused", false);
+        pauseTextAnimator.SetBool("screenOpen", false);
         pauseScreen.SetActive(false);
     }
 
 
 
-    public void PauseBtn()
+    public void Pause()
     {
-        if(gameIsRunning == true){
-            gameIsRunning = false;
-            ShowPauseScreen();
-            HidePauseBtn();
-            gameHandlerScript.Pause(true);
-        }
+        gameIsRunning = false;
+
+        pauseScreenAudio.Play(0);
+
+        ShowScreen();
+        HidePauseBtn();
+        gameHandlerScript.Pause(true);
+        
     }
 
-    public void ResumeBtn()
+    public void Unpause()
     {
-        if(gameIsRunning == false){
-            gameIsRunning = true;
-            HidePauseScreen();
-            ShowPauseBtn();
+        gameIsRunning = true;
 
-            gameHandlerScript.Pause(false);
-        }
+        pauseScreenAudio.Pause();
+
+        HideScreen();
+        ShowPauseBtn();
+
+        gameHandlerScript.Pause(false);
     }
 
     public void RestartBtn()
     {
+        pauseScreenAudio.Pause();
+        HideScreen();
         gameHandlerScript.RestartGame();
-        ResumeBtn();
+        
     }
 
     public void ReturnHomeBtn()
     {
-        HidePauseBtn();
-        HidePauseScreen();
-
-
-
+        pauseScreenAudio.Pause();
+        HideScreen();
+        gameHandlerScript.EndGame();
         gameHandlerScript.ReturnHome();   
     }
 
     // Update is called once per frame
     void Update()
     {   
-        if ((Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space)) && (pauseScreen.activeSelf == false))
+        if ((Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space)) && (gameIsRunning == true))
         {
-            PauseBtn();
+            Pause();
         }
         else if ((Input.GetKeyDown(KeyCode.Space)) && (pauseScreen.activeSelf == true))
         {
-            Debug.Log("resume button clicked");
-            ResumeBtn();
+            Unpause();
         }
         
         

@@ -33,6 +33,8 @@ public enum EntityType
 // A class for all the options values
 public class Options
 {
+    //the name of the set rules for the game
+    public string RuleSet;
     public GameMode gameMode;
     //num of points required to win (if gamemode is a race to points)
     public int goalPoints;
@@ -81,9 +83,12 @@ public class GameHandler_Script : MonoBehaviour
 
     // script for the main menu
     private Menu_Script menuScript;
+    private PauseMenu_Script pauseScreenScript;
+    private WinScreen_Script winScreenScript;
+    private HighScoreManager_Script highScoreManagerScript;
 
     // All options for the game - set in the menu screen, then passed over on game start
-    private Options options;
+    public Options options;
 
     // 2D array for the player inputs
     private KeyCode[,] playerInputs = new KeyCode[,] {
@@ -111,8 +116,9 @@ public class GameHandler_Script : MonoBehaviour
     private GameObject[] playerDisplays; 
     // always contains all 4 displays
     private PlayerDisplay_Script[] playerDisplayScripts;
+    
 
-/////////////////////////// prefabs
+/////////////////////////// prefabs + resources
 
     // Prefab for the snake
     private GameObject snakePrefab;
@@ -123,8 +129,7 @@ public class GameHandler_Script : MonoBehaviour
 
     // Audio source for game handler
     private AudioSource gameHandlerAudio;
-    // Audio source for pause screen
-    private AudioSource pauseScreenAudio;
+
     // Audio source for sound effects
     private AudioSource SFXAudio;
 
@@ -156,15 +161,19 @@ public class GameHandler_Script : MonoBehaviour
         //grab all player displays
         playerDisplays = GameObject.FindGameObjectsWithTag("playerDisplay");
 
+        // grab scripts
+        menuScript = GameObject.Find("Menu").GetComponent<Menu_Script>();
+        pauseScreenScript = GameObject.Find("PauseMenu").GetComponent<PauseMenu_Script>();
+        winScreenScript = GameObject.Find("WinMenu").GetComponent<WinScreen_Script>();
+        highScoreManagerScript = GameObject.Find("HighScoreMenu").GetComponent<HighScoreManager_Script>();
+
         // grab all existing walls
         wallArr = GameObject.FindGameObjectsWithTag("wall");
 
-        menuScript = GameObject.Find("Menu").GetComponent<Menu_Script>();
-
         //grab audio player
         gameHandlerAudio = GetComponents<AudioSource>()[0];
-        pauseScreenAudio = GetComponents<AudioSource>()[1];
-        SFXAudio = GetComponents<AudioSource>()[2];
+
+        SFXAudio = GetComponents<AudioSource>()[1];
         
         
         //grab sound fx + music
@@ -186,21 +195,17 @@ public class GameHandler_Script : MonoBehaviour
             SFXAudio.PlayOneShot(pauseSFX);
             //switch music playing
             gameHandlerAudio.Pause();
-            pauseScreenAudio.Play(0);
 
             //stop time/snake movement
             CancelInvoke();
             Time.timeScale = 0;
-
         }
         else{
             //game unpaused
             //play sfx
             SFXAudio.PlayOneShot(unPauseSFX);
             //switch music playing
-            pauseScreenAudio.Pause();
             gameHandlerAudio.Play(0);
-
             //resume time + snake movement
             CancelInvoke();
             InvokeRepeating("MoveSnakes", 0, options.snakeSpeed);    
@@ -208,6 +213,17 @@ public class GameHandler_Script : MonoBehaviour
             
         }
         
+    }
+
+
+    public void CloseGame(){ // called to close the game
+        #if UNITY_EDITOR
+            // Application.Quit() does not work in the editor so
+            // UnityEditor.EditorApplication.isPlaying need to be set to false to end the game
+            UnityEditor.EditorApplication.isPlaying = false;
+        #else
+            Application.Quit();
+        #endif
     }
 
     //called from the pause menu - restarts game exactly how it was started
@@ -218,9 +234,38 @@ public class GameHandler_Script : MonoBehaviour
 
     //called from the pause menu - ends game and returns to the home screen
     public void ReturnHome(){
-        pauseScreenAudio.Pause();
-        EndGame();
         menuScript.ShowMenuScreen();
+    }
+
+    public void EndGame(){
+        pauseScreenScript.gameIsRunning = false;
+        foreach (var script in playerDisplayScripts)
+        {
+            script.ShowPrompt();
+            script.StopCountdown();
+            script.UpdateScore(0);
+        }
+        foreach (var snake in snakeScripts)
+        {
+            if(snake != null){
+                Destroy(snake.gameObject);
+            }
+        }
+        foreach (var food in foodList)
+        {
+            Destroy(food.gameObject);
+        }
+        foodList.Clear();
+        CancelInvoke();
+    }
+
+    public void UpdateScore(int playerNum, int score){
+        //called by player indicators to communicate their current scores
+        if (options.gameMode == GameMode.FirstTo && score >= options.goalPoints){
+            EndGame();
+            winScreenScript.GameWon(playerNum, score);
+        }
+
     }
 
     // Initialize the game called from the menu on game start
@@ -264,10 +309,14 @@ public class GameHandler_Script : MonoBehaviour
                 //disable unused player displays
                 playerDisplays[i].gameObject.SetActive(false);
             }
+
+            
         }
         
         // Initialize the food
         SpawnFood(-1, default, EntityType.NormalFood);
+
+        pauseScreenScript.gameIsRunning = true;
 
         //calls Movesnake every user-set time increment to move the snakes
         InvokeRepeating("MoveSnakes", 0, options.snakeSpeed);   
@@ -334,24 +383,7 @@ public class GameHandler_Script : MonoBehaviour
 
     }
 
-    public void EndGame(){
-        foreach (var script in playerDisplayScripts)
-        {
-            script.ShowPrompt();
-            script.StopCountdown();
-            script.UpdateScore(0);
-        }
-        foreach (var snake in snakeScripts)
-        {
-            Destroy(snake.gameObject);
-        }
-        foreach (var food in foodList)
-        {
-            Destroy(food.gameObject);
-        }
-        foodList.Clear();
-        CancelInvoke();
-    }
+
 
     public EntityType CheckPos(int playerNum, Vector3 pos, bool destroyFood)
     {
@@ -484,13 +516,6 @@ public class GameHandler_Script : MonoBehaviour
 
     }
 
-    public void UpdateScore(int playerNum, int score){
-        //called by player indicators to communicate their current scores
-        if (options.gameMode == GameMode.FirstTo && score >= options.goalPoints){
-            EndGame();
-            Debug.Log("Player " + playerNum + " wins!! Congrats!");
-        }
 
-    }
 
 }
