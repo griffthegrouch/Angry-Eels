@@ -185,40 +185,30 @@ public class GameHandler_Script : MonoBehaviour
         pauseSFX = Resources.Load("Audio/PauseSound") as AudioClip;
         unPauseSFX = Resources.Load("Audio/UnPauseSound") as AudioClip;
 
-
-
-
-
-
-    
-        
     }
 
-    public void Pause(bool b){
-        if(b)//game paused
-        {   
-            //play sfx
-            SFXAudio.PlayOneShot(pauseSFX);
-            //switch music playing
-            gameHandlerAudio.Pause();
+    public void Pause(){//game paused - called from pause menu
+        //play sfx
+        SFXAudio.PlayOneShot(pauseSFX);
 
-            //stop time/snake movement
-            CancelInvoke();
-            Time.timeScale = 0;
-        }
-        else{
-            //game unpaused
-            //play sfx
-            SFXAudio.PlayOneShot(unPauseSFX);
-            //switch music playing
-            gameHandlerAudio.Play(0);
-            //resume time + snake movement
-            CancelInvoke();
-            InvokeRepeating("MoveSnakes", 0, options.snakeSpeed);    
-            Time.timeScale = 1;
-            
-        }
-        
+        //switch music playing
+        gameHandlerAudio.Pause();
+
+        //stop time/snake movement
+        CancelInvoke();
+        Time.timeScale = 0;
+    }
+    public void UnPause(){//game unpaused - called from pause menu
+        //play sfx
+        SFXAudio.PlayOneShot(unPauseSFX);
+
+        //switch music playing
+        gameHandlerAudio.Play(0);
+
+        //resume time + snake movement
+        CancelInvoke();
+        InvokeRepeating("MoveSnakes", 0, options.snakeSpeed);    
+        Time.timeScale = 1;
     }
 
 
@@ -240,16 +230,15 @@ public class GameHandler_Script : MonoBehaviour
 
     //called from the pause menu - ends game and returns to the home screen
     public void ReturnHome(){
+        EndGame();
         menuScript.ShowMenuScreen();
     }
 
     public void EndGame(){
-        pauseScreenScript.gameIsRunning = false;
+        pauseScreenScript.Reset();
         foreach (var script in playerGUIScripts)
         {
-            script.ShowPrompt();
-            script.StopCountdown();
-            script.UpdateScore(0);
+            script.Reset();
         }
         foreach (var snake in snakeScripts)
         {
@@ -322,7 +311,7 @@ public class GameHandler_Script : MonoBehaviour
         // Initialize the food
         SpawnFood(-1, default, EntityType.NormalFood);
 
-        pauseScreenScript.gameIsRunning = true;
+        pauseScreenScript.GameStart();
 
         //calls Movesnake every user-set time increment to move the snakes
         InvokeRepeating("MoveSnakes", 0, options.snakeSpeed);   

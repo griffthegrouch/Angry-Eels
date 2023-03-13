@@ -1,222 +1,223 @@
-﻿using System.Collections;
+﻿// Imports necessary for this script
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-/* 
-    class used to control the display for each individual player
-
-    when game begins, displays a message prompting the player to press any key to begin
-    display shows the player's number, colour,
-    score, highscore,
-    also has a timer and indicators to show the player's status (alive, ghosted, golden, or death penalty)
-
-    use flow ->
-        --> displays exist when game starts,
-            handler hides the unused displays
-            handler calls each display's (SetValues) and updates them with all info
-            displays show press button prompt
-        --> player presses button
-            press btn prompt is hidden
-            snake spawns
-            display updates constantly to display the player's score
-        --> when player changes to a temporary state (ghosted, golden, or death penalty)
-            indicator object is shown
-            timer bar displays the duration of time for the current state
+/*
+This class is used to control the display for each individual player.
+It displays the player's number, color, score, highscore, and a timer.
+It also has indicators to show the player's status (alive, ghosted, golden, or death penalty).
 */
-
-
 public class PlayerGUI_Script : MonoBehaviour
 {
-    //the parent to all gui elements
-    private GameObject parent;
+    // Variables to hold references to the GUI elements
+    private GameObject parent; // The parent to all GUI elements
+    private Text playerNumText; // Text that shows the player's number
+    private Image playerColourSprite; // Image that shows the player's color
+    private Text scoreText; // Text that shows the player's current score
+    private Text highscoreText; // Text that shows the player's highscore
+    private GameObject pressKeyPrompt; // Object that prompts the player to press any key to begin
+    private GameObject timerBar; // Object that shows the timer bar
+    private GameObject chargeBar; // Object that shows how full the timer is
+    private Image chargeBarSprite; // Image component of the charge bar object
+    private GameObject ghostIndicator; // Object that shows the ghost indicator
+    private GameObject goldIndicator; // Object that shows the gold indicator
+    private GameObject deadIndicator; // Object that shows the death penalty indicator
 
-    //playernum text
-    private Text playerNumText;
+    // Variables used by the script
+    private GameHandler_Script gameHandlerScript; // Reference to the GameHandler_Script
+    private int playerNum; // The player's number
+    private Color playerColour; // The player's color
+    private float timer; // The timer value
+    private float maxTimerValue; // The maximum timer value
+    private int score; // The player's current score
+    private int highscore; // The player's highscore
 
-    //player colour spriterenderer
-    private Image playerColourSprite;
-
-
-    //score text
-    private Text scoreText;
-    //highscore text
-    private Text highscoreText;
-
-    //press key to begin object
-    private GameObject pressKeyPrompt;
-
-
-    //timer bar object
-    private GameObject timerBar;
-    //how full the timer is
-    private GameObject chargeBar;
-    private Image chargeBarSprite;
-
-
-    //ghost indicator object
-    private GameObject ghostIndicator;
-    //gold indicator object
-    private GameObject goldIndicator;
-    //dead indicator object
-    private GameObject deadIndicator;
-
-    //vars used by the script
-    private GameHandler_Script gameHandlerScript;
-    private int playerNum;
-    private Color playerColour;
-    private float timer;
-    private float maxTimerValue;
-    private int score;
-    private int highscore;
-
-   
     // Start is called before the first frame update
     void Start()
     {
+        // Get references to the GUI elements
         parent = transform.GetChild(0).gameObject;
-
-
         playerColourSprite = parent.transform.GetChild(0).GetChild(0).GetComponent<Image>();
         playerNumText = parent.transform.GetChild(4).GetChild(0).GetComponent<Text>();
-
         pressKeyPrompt = parent.transform.GetChild(2).gameObject;
-
         scoreText = parent.transform.GetChild(1).GetChild(1).GetComponent<Text>();
         highscoreText = parent.transform.GetChild(1).GetChild(3).GetComponent<Text>();
-
         timerBar = parent.transform.GetChild(3).GetChild(0).gameObject;
         chargeBar = timerBar.transform.GetChild(1).gameObject;
-        chargeBarSprite  = chargeBar.GetComponent<Image>();
-
+        chargeBarSprite = chargeBar.GetComponent<Image>();
         ghostIndicator = parent.transform.GetChild(3).GetChild(1).gameObject;
         goldIndicator = parent.transform.GetChild(3).GetChild(2).gameObject;
         deadIndicator = parent.transform.GetChild(3).GetChild(3).gameObject;
 
+        // Hide all indicators
         HideAllIndicators();
-        //hide GUIs to start
+        // Hide GUI elements
         HideGUI();
     }
 
-    
+    // Reset the player GUI to its initial state
+    public void Reset()
+    {
+        // Stop the countdown and hide all indicators
+        StopCountdown();
+        HideAllIndicators();
+        // Update the score to 0 and show the prompt
+        UpdateScore(0);
+        ShowPrompt();
+        // Hide GUI elements
+        HideGUI();
+    }
+
     // Update is called once per frame
     void Update()
     {
-                Debug.Log("showing timer" + timer);
-        //if timer is bigger than 0
-        if (timer > 0){
-            //countdown the timer
+        // If timer is bigger than 0, countdown the timer
+        if (timer > 0)
+        {
             timer -= Time.deltaTime;
 
-            if (timer <= 0){//if timer is negative, set it to 0
+            if (timer <= 0)
+            {
+                // If timer is negative, set it to
+                // 0 and hide all indicators
                 timer = 0;
                 HideAllIndicators();
             }
 
+            // Update the timer bar to show how much time is left
             UpdateTimerBar(timer);
         }
     }
-    public void ShowGUI(){
+
+    // Show the player GUI
+    public void ShowGUI()
+    {
         parent.SetActive(true);
     }
-    public void HideGUI(){
+
+    // Hide the player GUI
+    public void HideGUI()
+    {
         parent.SetActive(false);
     }
 
-    public void ShowPrompt(){
+    // Show the prompt for the player to press any key to begin
+    public void ShowPrompt()
+    {
         pressKeyPrompt.SetActive(true);
     }
-    public void HidePrompt(){
+
+    // Hide the prompt for the player to press any key to begin
+    public void HidePrompt()
+    {
         pressKeyPrompt.SetActive(false);
     }
 
-    public void HideAllIndicators(){
+    // Hide all indicators
+    public void HideAllIndicators()
+    {
         timerBar.SetActive(false);
         ghostIndicator.SetActive(false);
         goldIndicator.SetActive(false);
         deadIndicator.SetActive(false);
     }
 
+    // Set the initial values for the player GUI
     public void SetValues(GameHandler_Script script, int pNum, Color pColour)
     {
-        //grab script
+        // Set the reference to the GameHandler_Script
         gameHandlerScript = script;
-
-        //grab initial values
-        playerNum = pNum + 1;//playernum starts at 0, this display starts at 1
+        // Set the player's number and color
+        playerNum = pNum + 1; // Player number starts at 0, this display starts at 1
         playerColour = pColour;
-
-        //display the player numbers
+        // Set the player's number in the GUI
         playerNumText.text = playerNum.ToString();
-
-        //sets the outline colour, used when starting the game to set the colour to individual player colour
+        // Set the player's color in the GUI
         playerColourSprite.color = playerColour;
-
     }
 
-    public void StartGhostMode(float time){
+    // Start the ghost mode for the player with the given duration
+    public void StartGhostMode(float time)
+    {
+        // Start the countdown and set the timer bar color to gray
         StartCountdown(time);
         SetTimerColour(Color.gray);
+        // Show the ghost indicator
         ghostIndicator.SetActive(true);
     }
-    public void StartGoldMode(float time){
+
+    // Start the gold mode for the player with the given duration
+    public void StartGoldMode(float time)
+    {
+        // Start the countdown and set the timer bar color to yellow
         StartCountdown(time);
         SetTimerColour(Color.yellow);
+        // Show the gold indicator
         goldIndicator.SetActive(true);
     }
 
-    public void StartDeathPenaltyMode(float time){
+    // Start the death penalty mode for the player with the given duration
+    public void StartDeathPenaltyMode(float time)
+    {
+        // Start the countdown and set the timer bar color to black
         StartCountdown(time);
         SetTimerColour(Color.black);
+        // Show the death penalty indicator
         deadIndicator.SetActive(true);
     }
 
-    public void SetTimerColour(Color col){
+    // Set the color of the timer bar
+    public void SetTimerColour(Color col)
+    {
         chargeBarSprite.color = col;
     }
 
-    public void StartCountdown(float time){
-        
+    // Start the countdown for the timer with the given duration
+    public void StartCountdown(float time)
+    {
+        // Stop the countdown, set the timer value and maximum timer value, and show the timer bar
         StopCountdown();
         timer = maxTimerValue = time;
-
         timerBar.SetActive(true);
-
     }
 
-    public void StopCountdown(){
-        // method tells the display's indicator bar to stop counting down 
-        // stops the charge bar and sets it to 0
+    // Stop the countdown for the timer and hide all indicators
+    public void StopCountdown()
+    {
         timer = 0;
         HideAllIndicators();
+        // Set the timer bar color to green
         SetTimerColour(Color.green);
-    }    
-
-    public void UpdateTimerBar(float value){
-        //sets the size of the charge bar inside the timer to show how much time is left
-        //max size is 1 (scale.x = 1)
-        float percentValue = value / maxTimerValue;
-
-        float xScale =  percentValue * 1;
-
-        chargeBar.transform.localScale = new Vector3(xScale, 1, 0);
     }
 
+    // Update the player's score and highscore in the GUI and in the GameHandler_Script
     public void UpdateScore(int s)
     {
         score = s;
-
-        //displaying current score
+        // Update the current score in the GUI
         scoreText.text = score.ToString();
-
-        //checking if current score is higher than highscore
+        // If the current score is higher than the highscore, update the highscore in the GUI
         if (score > highscore)
         {
             highscore = score;
             highscoreText.text = highscore.ToString();
         }
-
+        // Update the score in the GameHandler_Script
         gameHandlerScript.UpdateScore(playerNum, score);
+    }
+
+    // Update the size of the charge bar in the timer to show how much time is left
+    public void UpdateTimerBar(float value)
+    {
+        // Calculate the percentage of time remaining
+        float percentValue = value / maxTimerValue;
+        // Calculate the x scale of the charge bar
+        float xScale = percentValue * 1; // 1 is the maximum size of the charge bar
+        
+        // Set the new scale of the charge bar
+        chargeBar.transform.localScale = new Vector3(xScale, 1, 0);
     }
 
 }

@@ -620,7 +620,6 @@ public class Snake_Script : MonoBehaviour
         // Update the score display
         UpdateScore();
         
-        
     }
 
     public bool CheckForSnakeAtPos(Vector3 pos)

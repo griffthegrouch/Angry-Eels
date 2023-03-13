@@ -21,6 +21,7 @@ public class PauseMenu_Script : MonoBehaviour
 
     // The var to keep track if the game is running
     public bool gameIsRunning = false;
+    private bool gameIsPaused = false;
 
     // Start is called before the first frame update
     void Start()
@@ -74,44 +75,58 @@ public class PauseMenu_Script : MonoBehaviour
     }
 
 
+    public void GameStart(){
+        gameIsRunning = true;
+        gameIsPaused = false;
+        //ShowPauseText();
+    }
+
+    public void Reset(){
+        gameIsRunning = false;
+        
+        pauseScreenAudio.Pause();
+        HidePauseBtn();
+        HideScreen();
+    }
 
     public void Pause()
     {
         gameIsRunning = false;
+        gameIsPaused = true;
 
         pauseScreenAudio.Play(0);
 
         ShowScreen();
-        HidePauseBtn();
-        gameHandlerScript.Pause(true);
+
+       // HidePauseBtn();
+
+        gameHandlerScript.Pause();
         
     }
 
     public void Unpause()
     {
         gameIsRunning = true;
+        gameIsPaused = false;
 
         pauseScreenAudio.Pause();
 
         HideScreen();
-        ShowPauseBtn();
 
-        gameHandlerScript.Pause(false);
+        //ShowPauseBtn();
+
+        gameHandlerScript.UnPause();
     }
 
     public void RestartBtn()
     {
         pauseScreenAudio.Pause();
-        HideScreen();
         gameHandlerScript.RestartGame();
-        
     }
 
     public void ReturnHomeBtn()
     {
         pauseScreenAudio.Pause();
-        HideScreen();
-        gameHandlerScript.EndGame();
         gameHandlerScript.ReturnHome();   
     }
 
@@ -122,7 +137,7 @@ public class PauseMenu_Script : MonoBehaviour
         {
             Pause();
         }
-        else if ((Input.GetKeyDown(KeyCode.Space)) && (pauseScreen.activeSelf == true))
+        else if ((Input.GetKeyDown(KeyCode.Space)) && (gameIsPaused == true))
         {
             Unpause();
         }
