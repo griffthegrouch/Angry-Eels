@@ -107,6 +107,10 @@ public class Menu_Script : MonoBehaviour
         //grab the second menu screen
         advancedOptionsScreen = GameObject.Find("AdvancedOptionsScreen");
 
+        //move screens into position on game load
+        menuScreen.transform.localPosition = Vector2.zero;
+        advancedOptionsScreen.transform.localPosition = Vector2.zero;
+
 
         //grab all the menu screen's changing objects 
         MenuScreenObjects = new Dictionary<string, GameObject>

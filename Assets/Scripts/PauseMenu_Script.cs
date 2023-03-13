@@ -25,6 +25,9 @@ public class PauseMenu_Script : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        //move screen into position on game load
+        transform.localPosition = Vector2.zero;
+
         // Get a reference to the game handler script
         gameHandlerScript = GameObject.Find("GameHandler").GetComponent<GameHandler_Script>();
 

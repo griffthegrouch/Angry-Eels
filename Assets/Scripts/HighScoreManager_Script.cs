@@ -24,6 +24,9 @@ public class HighScoreManager_Script : MonoBehaviour
 
     void Start()
     {
+        //move screen into position on game load
+        transform.localPosition = Vector2.zero;
+
         highScoreScreen = GameObject.Find("HighScoreScreen");
         customHighScoreText = GameObject.Find("CustomText").GetComponent<Text>();
         classicHighScoreText = GameObject.Find("ClassicText").GetComponent<Text>();
@@ -35,7 +38,7 @@ public class HighScoreManager_Script : MonoBehaviour
         LoadHighScores();
         UpdateHighScoreText();
 
-        //HideScreen();
+        HideScreen();
     }
 
     // Initialize the high scores dictionary with an empty dictionary for each rule set

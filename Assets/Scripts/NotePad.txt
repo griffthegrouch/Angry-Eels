@@ -103,16 +103,25 @@
     TODO
 ***********************************************************************************************
 
+    - make it so ghosts cant kill snakes
+
+    movement - add the ability to hold diagonal direction and move the snake in a staircase pattern
+    - call the changes from the original snake movement "added very modern tight-controls"
+    - add the option to use original snake controls and show the contrast between the new control version
+    - add button on home screen specifically to test new controls vs original snake game controls
+    - add a button on home screen to jump in and play retro snake game
+    - add a quick play random button
+
+    - make the page names uniform instead of "screen" use menu for the parent object and screen for physical screen
+
     currently redoing the menu + advanced options
-    1 - get art for the background that reflects the ocean
-    2 - make the menus look like driftwood + add sfx like splashing
-    3 - add a transition to make the menu -> game visually appealing and fun
-    4 - quit button
-    5 - title screen
-    
-    6 - win screen
-    7 - how to play screen
-    8 - high score screen
+    1 - title screen
+    2 - how to play screen
+
+    3 - use art for the background + stage that reflects the ocean
+    4 - make the menus look like driftwood + add sfx like splashing
+    5 - add a transition to make the menu -> game visually appealing and fun
+
 
 
     - add a couple better sounds (death sound from worms, victory sound / music)
@@ -141,6 +150,8 @@
     Ideas
 ***********************************************************************************************
 
+    make bigger fish that can appear that can be eated in piece "leaving bones in the middle"
+    "live" food / fish that can move slowly
     make number of lives
     make random obstacle maker, and preset stages to choose from.
     make high score file to keep reading from.
@@ -154,3 +165,17 @@
     make options for food (multiple random spawning, single one that grows you then moves, toggle for dead snakes becoming food )
     golden food that moves/bounces around
    
+
+
+
+
+
+***********************************************************************************************
+    Art Assets
+***********************************************************************************************
+
+
+
+ghost icon
+   https://www.vecteezy.com/vector-art/8358647-ghost-in-cute-kawaii-cartoon-style-vector-flat-design-illustration-simple-modern-shape-for-halloween-asset-or-icon-element-editable
+
