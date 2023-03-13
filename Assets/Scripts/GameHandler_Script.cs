@@ -113,9 +113,9 @@ public class GameHandler_Script : MonoBehaviour
     private Snake_Script[] snakeScripts;
 
     // Arrays for all the score displays + their scripts
-    private GameObject[] playerDisplays; 
+    private GameObject[] playerGUIs; 
     // always contains all 4 displays
-    private PlayerDisplay_Script[] playerDisplayScripts;
+    private PlayerGUI_Script[] playerGUIScripts;
     
 
 /////////////////////////// prefabs + resources
@@ -159,7 +159,7 @@ public class GameHandler_Script : MonoBehaviour
         foodPrefab = Resources.Load("Food") as GameObject;
 
         //grab all player displays
-        playerDisplays = GameObject.FindGameObjectsWithTag("playerDisplay");
+        playerGUIs = GameObject.FindGameObjectsWithTag("PlayerGUI");
 
         // grab scripts
         menuScript = GameObject.Find("Menu").GetComponent<Menu_Script>();
@@ -184,6 +184,12 @@ public class GameHandler_Script : MonoBehaviour
         gameStartSFX = Resources.Load("Audio/GameStartSound") as AudioClip;
         pauseSFX = Resources.Load("Audio/PauseSound") as AudioClip;
         unPauseSFX = Resources.Load("Audio/UnPauseSound") as AudioClip;
+
+
+
+
+
+
     
         
     }
@@ -239,7 +245,7 @@ public class GameHandler_Script : MonoBehaviour
 
     public void EndGame(){
         pauseScreenScript.gameIsRunning = false;
-        foreach (var script in playerDisplayScripts)
+        foreach (var script in playerGUIScripts)
         {
             script.ShowPrompt();
             script.StopCountdown();
@@ -259,8 +265,10 @@ public class GameHandler_Script : MonoBehaviour
         CancelInvoke();
     }
 
+
+    //called by player indicators to communicate their current scores
     public void UpdateScore(int playerNum, int score){
-        //called by player indicators to communicate their current scores
+        
         if (options.gameMode == GameMode.FirstTo && score >= options.goalPoints){
             EndGame();
             winScreenScript.GameWon(playerNum, score);
@@ -279,7 +287,7 @@ public class GameHandler_Script : MonoBehaviour
 
         // Initialize the player arrays to the size of the amt of players
         snakeScripts = new Snake_Script[options.numPlayers];
-        playerDisplayScripts = new PlayerDisplay_Script[options.numPlayers];
+        playerGUIScripts = new PlayerGUI_Script[options.numPlayers];
         startingPositions = new Vector3[options.numPlayers];
 
         // Initialize the player displays and scripts
@@ -299,15 +307,13 @@ public class GameHandler_Script : MonoBehaviour
                 startingPositions[i] = new Vector3(spawnPosX, -1, 0) + this.transform.position;
 
                 // Get the player display and script
-                playerDisplayScripts[i] = playerDisplays[i].GetComponent<PlayerDisplay_Script>();
+                playerGUIScripts[i] = playerGUIs[i].GetComponent<PlayerGUI_Script>();
+
+                //show GUI
+                playerGUIScripts[i].ShowGUI();
 
                 // Initialize/spawn player
                 InitializePlayer(i);
-            }
-            else
-            {
-                //disable unused player displays
-                playerDisplays[i].gameObject.SetActive(false);
             }
 
             
@@ -333,7 +339,7 @@ public class GameHandler_Script : MonoBehaviour
 
         //determining all the settings for the snake
         PlayerSettings settings = new PlayerSettings(
-            playerIndex, this, playerDisplayScripts[playerIndex], snakeSegmentPrefab,
+            playerIndex, this, playerGUIScripts[playerIndex], snakeSegmentPrefab,
             new KeyCode[] {playerInputs[playerIndex,0], playerInputs[playerIndex,1], playerInputs[playerIndex,2], playerInputs[playerIndex,3]},
             options.playerTypes[playerIndex], options.playerColours[playerIndex], startingPositions[playerIndex],
             options.startingSize, options.snakeSpeed, options.ghostModeDuration, options.deathPenaltyDuration,

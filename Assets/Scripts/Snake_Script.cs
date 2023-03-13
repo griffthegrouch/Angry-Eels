@@ -9,7 +9,7 @@ public class PlayerSettings
 /////////////////////////// vars required to setup snake
     public int playerNum;
     public GameHandler_Script gameHandler_Script;
-    public PlayerDisplay_Script playerDisplay_Script;
+    public PlayerGUI_Script playerGUIScript;
 
     // Prefab for the snake segment
     public GameObject segmentPrefab;
@@ -30,7 +30,7 @@ public class PlayerSettings
     public bool doSnakesTurnToFood;
 
     public PlayerSettings(int _playerNum, 
-    GameHandler_Script _gameHandler_Script, PlayerDisplay_Script _playerDisplay_Script, 
+    GameHandler_Script _gameHandler_Script, PlayerGUI_Script _playerGUIScript, 
     GameObject _segmentPrefab, KeyCode[] _playerInputs, PlayerType _playerType, 
     Color _playerColour, Vector2 _startingPos, int _startingSize, float _snakeSpeed,
     float _ghostModeDuration, float _deathPenaltyDuration,
@@ -39,7 +39,7 @@ public class PlayerSettings
     ){
         playerNum = _playerNum;
         gameHandler_Script = _gameHandler_Script;
-        playerDisplay_Script = _playerDisplay_Script;
+        playerGUIScript = _playerGUIScript;
         segmentPrefab = _segmentPrefab;
         playerInputs = _playerInputs;
         playerColour = _playerColour;
@@ -84,8 +84,7 @@ public class Snake_Script : MonoBehaviour
     private List<GameObject> segments = new List<GameObject>();
     // Current score of the snake
     private int score = 0;
-    // Highest score achieved by the snake
-    private int highscore = 0;
+
     // keeps track of how many segments need to be grown
     private int storedSegments = 0;
     // Flag indicating whether the snake can die or not
@@ -158,8 +157,7 @@ public class Snake_Script : MonoBehaviour
         colourAlt = Color.Lerp(col, Color.white, .42f);
         //colourOutline = new Color(col.r - 0.55f, col.g - 0.55f, col.b - 0.55f);
 
-        playerSettings.playerDisplay_Script.SetoutlineColour(col);
-        playerSettings.playerDisplay_Script.SetValues(playerSettings.playerNum, playerSettings.gameHandler_Script);
+        playerSettings.playerGUIScript.SetValues( playerSettings.gameHandler_Script, playerSettings.playerNum, playerSettings.playerColour);
 
         //setting the colours of the snakes
         snakeHead.GetComponent<SpriteRenderer>().color = colourBase;
@@ -171,7 +169,7 @@ public class Snake_Script : MonoBehaviour
     // Method to start the game for the snake
     public void StartGame()
     {
-        playerSettings.playerDisplay_Script.HidePrompt();
+        playerSettings.playerGUIScript.HidePrompt();
 
         // Reset the snake to its starting values
         ResetSnake();
@@ -300,8 +298,8 @@ public class Snake_Script : MonoBehaviour
             }
         }
         segments.Clear();
-        playerSettings.playerDisplay_Script.UpdateScore(0);
-        playerSettings.playerDisplay_Script.StopCountdown();
+        playerSettings.playerGUIScript.UpdateScore(0);
+        playerSettings.playerGUIScript.StopCountdown();
 
         // Reset the snake to its starting values
         ResetSnake();
@@ -310,7 +308,7 @@ public class Snake_Script : MonoBehaviour
         //if death penalty is on, set up death timer and change snake colour
         if(playerSettings.deathPenaltyDuration != 0){
             SetSnakeColours(Color.grey, Color.grey);
-            playerSettings.playerDisplay_Script.StartCountdown(playerSettings.deathPenaltyDuration, Color.black);
+            playerSettings.playerGUIScript.StartDeathPenaltyMode(playerSettings.deathPenaltyDuration);
             deathTimer = playerSettings.deathPenaltyDuration;
         }        
 
@@ -608,11 +606,7 @@ public class Snake_Script : MonoBehaviour
 
     void UpdateScore()
     {
-        if (score > highscore)
-        {
-            highscore = score;
-        }
-        playerSettings.playerDisplay_Script.UpdateScore(score);
+        playerSettings.playerGUIScript.UpdateScore(score);
     }
 
     // Method to make the snake grow by a certain amount
@@ -652,7 +646,7 @@ public class Snake_Script : MonoBehaviour
         isGhosting = false;
 
         // Set the countdown display to show the duration of the golden time
-        playerSettings.playerDisplay_Script.StartCountdown(duration, Color.yellow);
+        playerSettings.playerGUIScript.StartGoldMode(duration);
 
         // Set the flashing and invincibility flags to true
         isFlashing = true;
@@ -691,7 +685,7 @@ public class Snake_Script : MonoBehaviour
     private IEnumerator GhostFor(float duration)
     {
         // Set the countdown display to show the duration of the ghosting
-        playerSettings.playerDisplay_Script.StartCountdown(duration, Color.white);
+        playerSettings.playerGUIScript.StartGhostMode(duration);
 
         // Set the invincibility and ghosting flags to true
         canDie = false;
