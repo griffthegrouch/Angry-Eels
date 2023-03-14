@@ -42868,7 +42868,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
+    m_Mode: -1
     m_SelectOnUp: {fileID: 0}
     m_SelectOnDown: {fileID: 0}
     m_SelectOnLeft: {fileID: 0}
@@ -53421,11 +53421,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
-    m_SelectOnLeft: {fileID: 0}
-    m_SelectOnRight: {fileID: 0}
+    m_Mode: 4
+    m_SelectOnUp: {fileID: 1756363162}
+    m_SelectOnDown: {fileID: 996656016}
+    m_SelectOnLeft: {fileID: 1950303609}
+    m_SelectOnRight: {fileID: 790660250}
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 0.8235295, g: 0.8705883, b: 0.82745105, a: 1}
@@ -64008,11 +64008,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
-    m_SelectOnLeft: {fileID: 0}
-    m_SelectOnRight: {fileID: 0}
+    m_Mode: 4
+    m_SelectOnUp: {fileID: 708797851}
+    m_SelectOnDown: {fileID: 790660250}
+    m_SelectOnLeft: {fileID: 1756363162}
+    m_SelectOnRight: {fileID: 975400689}
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 0.8235295, g: 0.8705883, b: 0.82745105, a: 1}
@@ -76065,11 +76065,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
-    m_SelectOnLeft: {fileID: 0}
-    m_SelectOnRight: {fileID: 0}
+    m_Mode: 4
+    m_SelectOnUp: {fileID: 708797851}
+    m_SelectOnDown: {fileID: 1212660253}
+    m_SelectOnLeft: {fileID: 1950303609}
+    m_SelectOnRight: {fileID: 1473169474}
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 0.8235295, g: 0.8705883, b: 0.82745105, a: 1}
@@ -84404,11 +84404,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Navigation:
-    m_Mode: 3
-    m_SelectOnUp: {fileID: 0}
-    m_SelectOnDown: {fileID: 0}
-    m_SelectOnLeft: {fileID: 0}
-    m_SelectOnRight: {fileID: 0}
+    m_Mode: 4
+    m_SelectOnUp: {fileID: 708797851}
+    m_SelectOnDown: {fileID: 996656016}
+    m_SelectOnLeft: {fileID: 975400689}
+    m_SelectOnRight: {fileID: 1756363162}
   m_Transition: 1
   m_Colors:
     m_NormalColor: {r: 0.8235295, g: 0.8705883, b: 0.82745105, a: 1}
