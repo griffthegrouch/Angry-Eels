@@ -105,6 +105,8 @@
 
     - make it so ghosts cant kill snakes
 
+    - add save highscore button
+
     movement - add the ability to hold diagonal direction and move the snake in a staircase pattern
     - call the changes from the original snake movement "added very modern tight-controls"
     - add the option to use original snake controls and show the contrast between the new control version
@@ -117,12 +119,9 @@
     currently redoing the menu + advanced options
     1 - title screen
     2 - how to play screen
-
-    3 - use art for the background + stage that reflects the ocean
+        3 - use art for the background + stage that reflects the ocean
     4 - make the menus look like driftwood + add sfx like splashing
     5 - add a transition to make the menu -> game visually appealing and fun
-
-
 
     - add a couple better sounds (death sound from worms, victory sound / music)
     - add controller controls for the menus

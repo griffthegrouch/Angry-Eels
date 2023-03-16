@@ -347,7 +347,6 @@ public class GameHandler_Script : MonoBehaviour
     private void MoveSnakes(){
         // loop through all snakes and attempt to move them one space
 
-        // the logic for this is overkill but fun and infinitely scalable
         // store each snake's new position to determine if they collided head-on
         List <Vector2> newPositions = new List <Vector2>();
         List <int> crashedSnakes = new List <int>();
