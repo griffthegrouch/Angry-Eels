@@ -220,11 +220,21 @@ public class Menu_Script : MonoBehaviour
         {
             Debug.Log("trying to press a button thats currently inactive");
         }
-        
-
+    }
+    public void ShowMenu()
+    {
+        // Open the menu screens
+        gameHandlerScript.activeScreen = ActiveScreen.Title;
+        menuParent.localPosition = Vector2.zero;
+        menuParent.gameObject.SetActive(true);
+    }
+    public void HideMenu()
+    {
+        // Close the menu screens
+        menuParent.gameObject.SetActive(false);
     }
 
-    ////////////////////////////////////////////////////////title screen buttons
+    ////////////////////////////////////////////////////////title screen buttons + methods
 
     public void TitleStartBtn()    // btn press to go to main
     {
@@ -274,7 +284,7 @@ public class Menu_Script : MonoBehaviour
 
     public void TitleExitGameBtn(){
         if(gameHandlerScript.activeScreen == ActiveScreen.Title){
-        
+            gameHandlerScript.CloseGame();
         }
         else
         {
@@ -284,7 +294,7 @@ public class Menu_Script : MonoBehaviour
     
 
 
-    ////////////////////////////////////////////////////////main menu screen buttons
+    ////////////////////////////////////////////////////////main menu screen buttons + methods
 
     public void MainMenuBackBtn(){
         if(gameHandlerScript.activeScreen == ActiveScreen.MainMenu){
@@ -396,6 +406,7 @@ public class Menu_Script : MonoBehaviour
     }
     public void MainMenuCustomizeRulesBtn(){
         if(gameHandlerScript.activeScreen == ActiveScreen.MainMenu){
+            gameHandlerScript.activeScreen = ActiveScreen.AdvancedOptions;
             ShowAdvancedOptions();
         }
         else
@@ -425,12 +436,12 @@ public class Menu_Script : MonoBehaviour
 
 
 
-    ////////////////////////////////////////////////////////advanced options screen buttons
+    ////////////////////////////////////////////////////////advanced options screen buttons + methods
 
 
     public void AdvancedOptionsCloseBtn()
     {
-        if(gameHandlerScript.activeScreen == ActiveScreen.MainMenu){
+        if(gameHandlerScript.activeScreen == ActiveScreen.AdvancedOptions){
             HideAdvancedOptions();
         }
         else
@@ -440,7 +451,7 @@ public class Menu_Script : MonoBehaviour
     }
     public void AdvancedOptionsStartBtn()
     {
-        if(gameHandlerScript.activeScreen == ActiveScreen.MainMenu){
+        if(gameHandlerScript.activeScreen == ActiveScreen.AdvancedOptions){
             StartGame();
         }
         else
@@ -450,7 +461,7 @@ public class Menu_Script : MonoBehaviour
     }
     public void AdvancedOptionsPresetDecreaseBtn()
     {
-        if(gameHandlerScript.activeScreen == ActiveScreen.MainMenu){
+        if(gameHandlerScript.activeScreen == ActiveScreen.AdvancedOptions){
             PreviousPreset();
         }
         else
@@ -460,7 +471,7 @@ public class Menu_Script : MonoBehaviour
     }
     public void AdvancedOptionsPresetIncreaseBtn()
     {
-        if(gameHandlerScript.activeScreen == ActiveScreen.MainMenu){
+        if(gameHandlerScript.activeScreen == ActiveScreen.AdvancedOptions){
             NextPreset();
         }
         else
@@ -470,9 +481,13 @@ public class Menu_Script : MonoBehaviour
     }
     public void AdvancedOptionsCustomizeBtn()
     {
-        if(gameHandlerScript.activeScreen == ActiveScreen.MainMenu){
-            // Open the advanced options screen
-            ShowAdvancedOptions();
+        if(gameHandlerScript.activeScreen == ActiveScreen.AdvancedOptions){
+            //save the selected preset options to override the custom preset
+            presetOptions["Custom"] = _options;
+
+            //set the selected preset back to custom - 
+            selectedPreset = 0;
+            UpdateAdvancedOptionsLock();
         }
         else
         {
@@ -480,9 +495,6 @@ public class Menu_Script : MonoBehaviour
         }
     }
 
-
-
-    // Check for input to open or close the advanced options screen  
     public void ShowAdvancedOptions()
     {
         // Open the advanced options screen
@@ -495,27 +507,15 @@ public class Menu_Script : MonoBehaviour
         advancedOptionsScreen.SetActive(false);
     }
 
-    public void ShowMenu()
-    {
-        // Open the menu screen
-        menuParent.localPosition = Vector2.zero;
-        menuParent.gameObject.SetActive(true);
-    }
-    public void HideMenu()
-    {
-        GetAdvancedOptionsFromScreen();
-        // Close the menu screen
-        menuParent.gameObject.SetActive(false);
-    }
 
-    // Check for input to switch between presets on the advanced options screen
-    public void NextPreset()
+
+    public void NextPreset()//selects next preset and displays it on menus
     {
         // Increase the selected preset index, wrapping around to the first preset if necessary
         if(selectedPreset == 0){
+            //save the shown advanced options to custom
             GetAdvancedOptionsFromScreen();
         }
-
         selectedPreset ++;
 
         if (selectedPreset >= presetOptions.Count)
@@ -526,7 +526,7 @@ public class Menu_Script : MonoBehaviour
         DisplayPreset(selectedPreset);
         UpdateAdvancedOptionsLock();
     }
-    public void PreviousPreset()
+    public void PreviousPreset()//selects previous preset and displays it on menus
     {
         // Decrease the selected preset index, wrapping around to the last preset if necessary
         if(selectedPreset==0){//if changing from custom options preset, save options first
@@ -543,12 +543,13 @@ public class Menu_Script : MonoBehaviour
         UpdateAdvancedOptionsLock();
     }
 
-    public void UsePreset()
+    public void UsePreset()//sets the current options to use the currently selected preset
     {
-        //when use preset is clicked - 
         //use the currently selected preset
         if(selectedPreset == 0){
             GetAdvancedOptionsFromScreen();
+        }else{
+
         }
         UseAdvancedOptionsFromPreset();
     }
@@ -576,7 +577,7 @@ public class Menu_Script : MonoBehaviour
     }
 
     private void UseAdvancedOptionsFromPreset()
-    {   //updates the script's options variables from the selected preset
+    {   //updates the script's options variables from the selected preset and displays them on menus
 
         // Get the advanced options for the preset
         Options _options = presetOptions.ElementAt(selectedPreset).Value;
@@ -589,16 +590,9 @@ public class Menu_Script : MonoBehaviour
         options.normalFoodGrowthAmount = _options.normalFoodGrowthAmount;
         options.goldFoodSpawnChance = _options.goldFoodSpawnChance;
         options.goldFoodGrowthAmount = _options.goldFoodGrowthAmount;
-        
+
         // Set the value of the toggle for the "do snakes turn to food" option
         options.doSnakesTurnToFood = _options.doSnakesTurnToFood;
-
-        //save the selected preset options to override the custom preset
-        presetOptions["Custom"] = _options;
-
-        //set the selected preset back to custom - 
-        selectedPreset = 0;
-        UpdateAdvancedOptionsLock();
 
         //reflect changes on screen
         DisplayPreset(selectedPreset);
@@ -624,7 +618,7 @@ public class Menu_Script : MonoBehaviour
         MenuScreenObjects["DoSnakesTurnIntoFood"].GetComponent<Toggle>().isOn = _options.doSnakesTurnToFood;
     }
 
-    public void GetAdvancedOptionsFromScreen()
+    public void GetAdvancedOptionsFromScreen() //saves the displayed options to "custom" preset
     {   //updates the script's options variables from the advanced options screen
         // Set the values of the dropdown menus for player colours
         playerColoursInts[0] = MenuScreenObjects["P1ColourDropdown"].GetComponent<Dropdown>().value;
@@ -634,8 +628,6 @@ public class Menu_Script : MonoBehaviour
 
         // Set the values of the input fields for speed and duration values
         options.snakeSpeed = float.Parse(MenuScreenObjects["SnakeSpeed"].GetComponent<InputField>().text);
-        options.startingSize = int.Parse(MenuScreenObjects["StartingSize"].GetComponent<InputField>().text);
-        options.ghostModeDuration = float.Parse(MenuScreenObjects["GhostModeDuration"].GetComponent<InputField>().text);
         options.deathPenaltyDuration = float.Parse(MenuScreenObjects["DeathPenaltyDuration"].GetComponent<InputField>().text);
         options.normalFoodGrowthAmount = int.Parse(MenuScreenObjects["NormalFoodGrowthAmount"].GetComponent<InputField>().text);
         options.goldFoodSpawnChance = float.Parse(MenuScreenObjects["GoldFoodSpawnChance"].GetComponent<InputField>().text);

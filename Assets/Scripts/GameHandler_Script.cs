@@ -286,6 +286,7 @@ public class GameHandler_Script : MonoBehaviour
     // Initialize the game called from the menu on game start
     public void InitializeGame(Options _options)
     {
+        activeScreen = ActiveScreen.Game;
         //play sfx
         PlaySFX(gameStartSFX);
 
