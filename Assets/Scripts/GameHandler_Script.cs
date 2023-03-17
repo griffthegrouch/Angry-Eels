@@ -5,11 +5,28 @@ using System.Linq;
 
 
 //public tools for scripts to use
+
+// Enum for the active screen
+public enum ActiveScreen
+{
+    Title,
+    MainMenu,
+    AdvancedOptions,
+    Game,
+    PauseMenu,
+    WinMenu,
+    HighScore,
+
+    //not yet implemented
+    About,
+    TechDemo,
+    RetroGame
+}
 // Enum for the game mode
 public enum GameMode
 {
     Endless,
-    FirstTo
+    Points
 }
 
 // Enum for the player type
@@ -34,64 +51,63 @@ public enum EntityType
 public class Options
 {
     //the name of the set rules for the game
-    public string RuleSet;
-    public GameMode gameMode;
-    //num of points required to win (if gamemode is a race to points)
-    public int goalPoints;
-    //num snakes in the game
-    public int numPlayers;
-    //num human players
-    public int numHumanPlayers;
-    // Array for the player colors
-    public PlayerType[] playerTypes;
-    public Color[] playerColours;
+    public string RuleSet{get; set;}
+    public GameMode gameMode{get; set;}
+    public int goalPoints{get; set;}//num of points required to win (if gamemode is a race to points)
 
-    public float snakeSpeed;
-    public float ghostModeDuration;
-    public float deathPenaltyDuration;
-    public int startingSize;
-    public int normalFoodGrowthAmount;
-    public int deadSnakeFoodGrowthAmount;
-    public int goldFoodGrowthAmount;
-    public float goldFoodSpawnChance;
-    public bool doSnakesTurnToFood;
+    public bool[] activePlayers{get; set;} = {false,false,false,false}; //which players are in the game
+    public int numPlayers{get; set;}   //num players in the game
+    public PlayerType[] playerTypes{get; set;}
+    public Color[] playerColours{get; set;}
+
+    public float snakeSpeed{get; set;}
+    public float ghostModeDuration{get; set;}
+    public float deathPenaltyDuration{get; set;}
+    public int startingSize{get; set;}
+    public int normalFoodGrowthAmount{get; set;}
+    public int deadSnakeFoodGrowthAmount {get; set;} = 1;
+    public int goldFoodGrowthAmount {get; set;}
+    public float goldFoodSpawnChance {get; set;}
+    public bool doSnakesTurnToFood {get; set;}
 
     public Options(){
         
     }
-    public Options( float _snakeSpeed, float _ghostModeDuration, float _deathPenaltyDuration,
-    int _startingSize, int _normalFoodGrowthAmount, int _deadSnakeFoodGrowthAmount, 
-    int _goldFoodGrowthAmount, float _goldFoodSpawnChance, bool _doSnakesTurnToFood){
+    //f snakeSpeed, i startingSize, f ghostModeDuration, f deathPenaltyDuration,
+    //i normalFoodGrowthAmount, f goldFoodSpawnChance,  i goldFoodGrowthAmount, b doSnakesTurnToFood
+    public Options( float _snakeSpeed, int _startingSize, float _ghostModeDuration, float _deathPenaltyDuration,
+    int _normalFoodGrowthAmount, float _goldFoodSpawnChance, int _goldFoodGrowthAmount, bool _doSnakesTurnToFood 
+    ){
         snakeSpeed = _snakeSpeed; 
         ghostModeDuration = _ghostModeDuration;
         deathPenaltyDuration = _deathPenaltyDuration;
         startingSize = _startingSize;
         normalFoodGrowthAmount = _normalFoodGrowthAmount;
-        deadSnakeFoodGrowthAmount = _deadSnakeFoodGrowthAmount;
         goldFoodGrowthAmount = _goldFoodGrowthAmount;
         goldFoodSpawnChance = _goldFoodSpawnChance;
         doSnakesTurnToFood = _doSnakesTurnToFood;
-
     }
 }
-
-
 
 public class GameHandler_Script : MonoBehaviour
 {
 /////////////////////////// vars for the game handler
 
-    // script for the main menu
+    //var keeps track of which screen is currently active (or shown on camera) - defaults to the title screen
+    public ActiveScreen activeScreen {get; set;} = ActiveScreen.Title;
+
+    // scripts for the other screens
     private Menu_Script menuScript;
     private PauseMenu_Script pauseScreenScript;
     private WinScreen_Script winScreenScript;
     private HighScoreManager_Script highScoreManagerScript;
+    
 
     // All options for the game - set in the menu screen, then passed over on game start
-    public Options options;
+    public Options options {get; set;}
 
-    // 2D array for the player inputs
-    private KeyCode[,] playerInputs = new KeyCode[,] {
+    // 2D array for the player inputs - defaults to OG keyboard controls
+    public KeyCode[,] playerInputs {get; set;} = new KeyCode[,] {
         {KeyCode.UpArrow, KeyCode.DownArrow, KeyCode.LeftArrow, KeyCode.RightArrow},
         {KeyCode.W, KeyCode.S, KeyCode.A, KeyCode.D},
         {KeyCode.T, KeyCode.G, KeyCode.F, KeyCode.H},
@@ -145,12 +161,6 @@ public class GameHandler_Script : MonoBehaviour
     private AudioClip unPauseSFX;
 
     
-
-
-
-
-    
-    
     void Start()
     {
         // grab all resources
@@ -162,7 +172,7 @@ public class GameHandler_Script : MonoBehaviour
         playerGUIs = GameObject.FindGameObjectsWithTag("PlayerGUI");
 
         // grab scripts
-        menuScript = GameObject.Find("Menu").GetComponent<Menu_Script>();
+        menuScript = GameObject.Find("MainMenu").GetComponent<Menu_Script>();
         pauseScreenScript = GameObject.Find("PauseMenu").GetComponent<PauseMenu_Script>();
         winScreenScript = GameObject.Find("WinMenu").GetComponent<WinScreen_Script>();
         highScoreManagerScript = GameObject.Find("HighScoreMenu").GetComponent<HighScoreManager_Script>();
@@ -189,7 +199,7 @@ public class GameHandler_Script : MonoBehaviour
 
     public void Pause(){//game paused - called from pause menu
         //play sfx
-        SFXAudio.PlayOneShot(pauseSFX);
+        PlaySFX(pauseSFX);
 
         //switch music playing
         gameHandlerAudio.Pause();
@@ -200,7 +210,7 @@ public class GameHandler_Script : MonoBehaviour
     }
     public void UnPause(){//game unpaused - called from pause menu
         //play sfx
-        SFXAudio.PlayOneShot(unPauseSFX);
+        PlaySFX(unPauseSFX);
 
         //switch music playing
         gameHandlerAudio.Play(0);
@@ -211,6 +221,14 @@ public class GameHandler_Script : MonoBehaviour
         Time.timeScale = 1;
     }
 
+
+    //method plays a sound effect from game handler audio, overload is for playing it with a specific volume
+    public void PlaySFX(AudioClip SFX){
+        float volume = 0.2f;
+        SFXAudio.PlayOneShot(pauseSFX, volume);
+    } public void PlaySFX(AudioClip SFX, float volume){
+        SFXAudio.PlayOneShot(pauseSFX, volume);
+    }
 
     public void CloseGame(){ // called to close the game
         #if UNITY_EDITOR
@@ -231,7 +249,7 @@ public class GameHandler_Script : MonoBehaviour
     //called from the pause menu - ends game and returns to the home screen
     public void ReturnHome(){
         EndGame();
-        menuScript.ShowMenuScreen();
+        menuScript.ShowMenu();
     }
 
     public void EndGame(){
@@ -258,7 +276,7 @@ public class GameHandler_Script : MonoBehaviour
     //called by player indicators to communicate their current scores
     public void UpdateScore(int playerNum, int score){
         
-        if (options.gameMode == GameMode.FirstTo && score >= options.goalPoints){
+        if (options.gameMode == GameMode.Points && score >= options.goalPoints){
             EndGame();
             winScreenScript.GameWon(playerNum, score);
         }
@@ -269,7 +287,7 @@ public class GameHandler_Script : MonoBehaviour
     public void InitializeGame(Options _options)
     {
         //play sfx
-        SFXAudio.PlayOneShot(gameStartSFX);
+        PlaySFX(gameStartSFX);
 
         // Set options
         options = _options;

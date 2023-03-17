@@ -65,11 +65,10 @@ public class Snake_Script : MonoBehaviour
     private PlayerSettings playerSettings;
     private GameObject snakeHead;
 
-    public Sprite segmentSpriteStraight;
-    public Sprite segmentSpriteCurved;
-    public Sprite segmentSpriteTail;
+    public Sprite segmentSpriteStraight {get; set;}
+    public Sprite segmentSpriteCurved {get; set;}
+    public Sprite segmentSpriteTail {get; set;}
 
-    private AudioSource SFXAudio;
     private AudioClip chompSFX;
     private AudioClip deathSFX;
     private AudioClip yummySFX;
@@ -97,9 +96,9 @@ public class Snake_Script : MonoBehaviour
     private float flashTimer = 0;
 
     // Color for the snake head and segments
-    Color colourBase;
+    private Color colourBase;
     // Color for the alternating segments
-    Color colourAlt;
+    private Color colourAlt;
     // Color for the outline of snakes head and segments
     //Color colourOutline;
 
@@ -124,10 +123,10 @@ public class Snake_Script : MonoBehaviour
     // Counter for when player death penalty is active
     private float deathTimer = 0;
     // current direction of the snake 
-    char currentDirection;
+    private char currentDirection;
     // next direction of the snake (as user inputted)
-    char verticalBufferDirection;
-    char horizontalBufferDirection;
+    private char verticalBufferDirection;
+    private char horizontalBufferDirection;
     // Flag indicating whether the game is currently being played or not
 
     // Coroutine for the flashing effect
@@ -139,8 +138,6 @@ public class Snake_Script : MonoBehaviour
     public void SetupSnake(PlayerSettings _playerSettings){
 
         playerSettings = _playerSettings;
-
-        SFXAudio = playerSettings.gameHandler_Script.GetComponents<AudioSource>()[1];
 
         chompSFX = Resources.Load("Audio/CharacterChompSound") as AudioClip;
         deathSFX = Resources.Load("Audio/CharacterDeathSound") as AudioClip;
@@ -167,7 +164,7 @@ public class Snake_Script : MonoBehaviour
     }
 
     // Method to start the game for the snake
-    public void StartGame()
+    private void StartGame()
     {
         playerSettings.playerGUIScript.HidePrompt();
 
@@ -379,25 +376,25 @@ public class Snake_Script : MonoBehaviour
             case EntityType.NormalFood://if spot was food then eat the food
                 //play sfx
                 if(playerSettings.normalFoodGrowthAmount >= 3){
-                    SFXAudio.PlayOneShot(popMultipleSFX);
+                    playerSettings.gameHandler_Script.PlaySFX(popMultipleSFX);
                 }else{
-                    SFXAudio.PlayOneShot(popSFX, 50);
+                    playerSettings.gameHandler_Script.PlaySFX(popSFX);
                 }
                 EatFood(playerSettings.normalFoodGrowthAmount);
                 goto case EntityType.Empty;//the act as if the target spot was empty
 
             case EntityType.DeadSnakeFood://if spot was food then eat the food
                 //play sfx
-                SFXAudio.PlayOneShot(popSFX, 50);
+                playerSettings.gameHandler_Script.PlaySFX(popSFX);
                 
                 EatFood(playerSettings.deadSnakeFoodGrowthAmount);
                 goto case EntityType.Empty;//the act as if the target spot was empty
 
             case EntityType.GoldFood://if spot was food then eat the food
                 //play sfx
-                SFXAudio.PlayOneShot(yummySFX, 10);
-                SFXAudio.PlayOneShot(popMultipleSFX,50);
-                SFXAudio.PlayOneShot(powerUpSFX);
+                playerSettings.gameHandler_Script.PlaySFX(yummySFX);
+                playerSettings.gameHandler_Script.PlaySFX(popMultipleSFX);
+                playerSettings.gameHandler_Script.PlaySFX(powerUpSFX);
 
                 //flash gold for the duration that the snake is growing from the extra food
                 if (isFlashing)
@@ -410,8 +407,8 @@ public class Snake_Script : MonoBehaviour
 
             case EntityType.Wall://if spot was a wall ---> die
                 //play sfx
-                SFXAudio.PlayOneShot(crashSFX, 20);
-                //SFXAudio.PlayOneShot(deathSFX, 10);
+                playerSettings.gameHandler_Script.PlaySFX(crashSFX);
+                //playerSettings.gameHandler_Script.PlaySFX(deathSFX, 10);
                 Die();
                 break;
 
@@ -423,8 +420,8 @@ public class Snake_Script : MonoBehaviour
                 if (canDie)
                 {
                     //play sfx
-                    SFXAudio.PlayOneShot(chompSFX, 50);
-                    //SFXAudio.PlayOneShot(deathSFX, 20);
+                    playerSettings.gameHandler_Script.PlaySFX(chompSFX);
+                    //playerSettings.gameHandler_Script.PlaySFX(deathSFX, 20);
                     Die();
                 }
                 else
@@ -599,7 +596,7 @@ public class Snake_Script : MonoBehaviour
         }
     }
 
-    public void EatFood(int amount)
+    private void EatFood(int amount)
     {
         Grow(amount);
     }
@@ -721,7 +718,7 @@ public class Snake_Script : MonoBehaviour
         }
     }
 
-    void SetSnakeColours(Color _colourBase, Color _colourAlt)// Color _colourOutline)
+    private void SetSnakeColours(Color _colourBase, Color _colourAlt)// Color _colourOutline)
     {
         // Set the color of the snake's outline and base
         snakeHead.GetComponent<SpriteRenderer>().color = _colourBase;
@@ -734,7 +731,7 @@ public class Snake_Script : MonoBehaviour
             segments[i].transform.GetComponent<SpriteRenderer>().color = col;
         }
     }
-    void SetSnakeOpacity(float opacity)
+    private void SetSnakeOpacity(float opacity)
     {
         Color baseColorWithOpacity = colourBase;
         baseColorWithOpacity.a = opacity;
@@ -748,7 +745,7 @@ public class Snake_Script : MonoBehaviour
         SetSnakeColours(baseColorWithOpacity, altColorWithOpacity);//, outlineColorWithOpacity);
     }
 
-    void ResetSnakeColours()
+    private void ResetSnakeColours()
     {
         // Reset the snake's colors to the original outline and base colors
         SetSnakeColours(colourBase, colourAlt);//, colourOutline);

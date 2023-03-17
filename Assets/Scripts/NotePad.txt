@@ -83,19 +83,21 @@
 
     4 -> GUI leaves and snake game is displayed
 
-    5 -> player presses any key and game starts then continues indefinitely
+    5 -> player presses any key and game stars
 
-    6 -> player may pause the game at any time, also displaying the options to restart the game,
-         or return to the menu
+    6 -> players move the snake using directional controls, collecting food and trying to avoid dying
 
+    7 -> player may pause the game at any time, openning the pause menu and freezing the game - also displaying the options to resume, restart the game, or return to home screen
+            (optionally if gamemode is endless, displays a button to save highscore)
+    
+    8b -> resume is clicked -> returns to 4
+    8b -> restart is clicked -> returns to 4
+    8c -> return home is clicked -> returns to 1
+    8d -> save highscore is clicked -> opens highscore screen -> player inputs highscore and has option to return home
 
+    9 -> game continues indefinitely or until goal points are reached
 
-
-
-
-
-
-
+    10 -> goal points are reached -> win screen appears, allowing player to restart game or return home
 
 
 
@@ -114,30 +116,15 @@
     - add a button on home screen to jump in and play retro snake game
     - add a quick play random button
 
-    - make the page names uniform instead of "screen" use menu for the parent object and screen for physical screen
-
     currently redoing the menu + advanced options
     1 - title screen
     2 - how to play screen
-        3 - use art for the background + stage that reflects the ocean
-    4 - make the menus look like driftwood + add sfx like splashing
-    5 - add a transition to make the menu -> game visually appealing and fun
 
-    - add a couple better sounds (death sound from worms, victory sound / music)
+    - add a couple better sounds (death sound from worms, splashing, victory sound / music)
     - add controller controls for the menus
 
-
     - redo the menu screen 
-        want to see what game mode is selected(with ability to change it)before opening advanced options
         want to be able to change player colours without opening advanced options
-        want to see controls for each player 
-        want to show that cpus are disabled (not implemented)
-
-    - make better player displays
-        - use all the space on screen (2 on each side of the game)
-        - indicator to show snake's status
-        - numbered countdown along with the display bar
-        - show controls
 
     - high score saving
         - allow user to save high score locally
@@ -166,15 +153,19 @@
    
 
 
+***********************************************************************************************
+    Unfixable? Bugs
+***********************************************************************************************
+    was unable to manipulate "AdvancedOptionsScreen" through script at all debugs were saying it was moved when it wasnt
+    changing the name to "AdvancedOptionsScreen (1)" fixed the issue entirely, changing it back still causes the issues
+    very strange
 
 
 
 ***********************************************************************************************
-    Art Assets
+    Free Art + Music Assets / Credits
 ***********************************************************************************************
 
-
-
-ghost icon
-   https://www.vecteezy.com/vector-art/8358647-ghost-in-cute-kawaii-cartoon-style-vector-flat-design-illustration-simple-modern-shape-for-halloween-asset-or-icon-element-editable
+    ghost icon
+        https://www.vecteezy.com/vector-art/8358647-ghost-in-cute-kawaii-cartoon-style-vector-flat-design-illustration-simple-modern-shape-for-halloween-asset-or-icon-element-editable
 
