@@ -14,7 +14,6 @@ public class PlayerSettings
     // Prefab for the snake segment
     public GameObject segmentPrefab;
     public KeyCode[] playerInputs;
-    public PlayerType playerType;
     public Color playerColour;
     public Vector2 startingPos;
     // Starting size of the snake
@@ -31,7 +30,7 @@ public class PlayerSettings
 
     public PlayerSettings(int _playerNum, 
     GameHandler_Script _gameHandler_Script, PlayerGUI_Script _playerGUIScript, 
-    GameObject _segmentPrefab, KeyCode[] _playerInputs, PlayerType _playerType, 
+    GameObject _segmentPrefab, KeyCode[] _playerInputs,
     Color _playerColour, Vector2 _startingPos, int _startingSize, float _snakeSpeed,
     float _ghostModeDuration, float _deathPenaltyDuration,
     int _normalFoodGrowthAmount, int _deadSnakeFoodGrowthAmount, int _goldFoodGrowthAmount,

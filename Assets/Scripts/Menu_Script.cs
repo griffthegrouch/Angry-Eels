@@ -17,8 +17,11 @@ public class Menu_Script : MonoBehaviour
     // The number of players in the game - defaulted to 1
     private int numPlayers = 1;
 
+    //which players are in the game - defaults to just player 1
+    private bool[] activePlayers = {true,false,false,false}; 
+
     // The number of human players in the game - defaulted to 1
-    private int numHumanPlayers = 1;
+    //private int numHumanPlayers = 1;
     
     // The values for all options
     private Options options = new Options();
@@ -114,6 +117,7 @@ public class Menu_Script : MonoBehaviour
             
             //advanced options objects
             { "PresetsText",  GameObject.Find("PresetsText")},
+            { "CustomizeBtn",  GameObject.Find("CustomizeBtn")},
             { "P1ColourDropdown",  GameObject.Find("P1ColourDropdown")},
             { "P2ColourDropdown",  GameObject.Find("P2ColourDropdown")},
             { "P3ColourDropdown",  GameObject.Find("P3ColourDropdown")},
@@ -170,15 +174,14 @@ public class Menu_Script : MonoBehaviour
     public void StartGame()
     {
         // Start the game using the current game mode, goal points, number of players, and advanced options
-        PlayerType[] playerTypes = new PlayerType[numPlayers];
+        playerColoursInts[0] = MenuScreenObjects["P1ColourDropdown"].GetComponent<Dropdown>().value;
+        playerColoursInts[1] = MenuScreenObjects["P2ColourDropdown"].GetComponent<Dropdown>().value;
+        playerColoursInts[2] = MenuScreenObjects["P3ColourDropdown"].GetComponent<Dropdown>().value;
+        playerColoursInts[3] = MenuScreenObjects["P4ColourDropdown"].GetComponent<Dropdown>().value;
+
         Color[] playerColours = new Color[numPlayers];
         for (int i = 0; i < numPlayers; i++)
         {
-            if(numHumanPlayers > i){
-                playerTypes[i] = PlayerType.Human;
-            }
-            else playerTypes[i] = PlayerType.Computer;
-
             playerColours[i] = SnakeColoursDictionary.ElementAt(playerColoursInts[i]).Value;
         }
 
@@ -187,7 +190,6 @@ public class Menu_Script : MonoBehaviour
         options.gameMode = this.gameMode;
         options.goalPoints = this.goalPoints;
         options.numPlayers = this.numPlayers;
-        options.playerTypes = playerTypes;
         options.playerColours = playerColours;
         gameHandlerScript.InitializeGame(options);
 
@@ -198,27 +200,35 @@ public class Menu_Script : MonoBehaviour
     void Update()
     {
         if(gameHandlerScript.activeScreen == ActiveScreen.MainMenu){
-            //if player 1 presses a key while on menu screen
-            if (Input.GetKeyDown(gameHandlerScript.playerInputs[0,0]) ||Input.GetKeyDown(gameHandlerScript.playerInputs[0,1]) ||Input.GetKeyDown(gameHandlerScript.playerInputs[0,2]) ||Input.GetKeyDown(gameHandlerScript.playerInputs[0,3]) )
+            //if a player presses a key while on menu screen
+            for (int i = 0; i < 4; i++)
             {
-                AddPlayer(0);
-            }
-            if (Input.GetKeyDown(gameHandlerScript.playerInputs[1,0]) ||Input.GetKeyDown(gameHandlerScript.playerInputs[1,1]) ||Input.GetKeyDown(gameHandlerScript.playerInputs[1,2]) ||Input.GetKeyDown(gameHandlerScript.playerInputs[1,3]) )
-            {
-                AddPlayer(1);
-            }
-            if (Input.GetKeyDown(gameHandlerScript.playerInputs[2,0]) ||Input.GetKeyDown(gameHandlerScript.playerInputs[2,1]) ||Input.GetKeyDown(gameHandlerScript.playerInputs[2,2]) ||Input.GetKeyDown(gameHandlerScript.playerInputs[2,3]) )
-            {
-                AddPlayer(2);
-            }
-            if (Input.GetKeyDown(gameHandlerScript.playerInputs[3,0]) ||Input.GetKeyDown(gameHandlerScript.playerInputs[3,1]) ||Input.GetKeyDown(gameHandlerScript.playerInputs[3,2]) ||Input.GetKeyDown(gameHandlerScript.playerInputs[3,3]) )
-            {
-                AddPlayer(3);
+                if (Input.GetKeyDown(gameHandlerScript.playerInputs[i,0]) ||Input.GetKeyDown(gameHandlerScript.playerInputs[i,1]) ||Input.GetKeyDown(gameHandlerScript.playerInputs[i,2]) ||Input.GetKeyDown(gameHandlerScript.playerInputs[i,3]) )
+                {
+                    //if player isnt active - add them
+                    if(activePlayers[i] == false)
+                    {
+                        AddPlayer(i);
+                    }
+                    else
+                    {   //if a player is active and presses up button 
+                        if (Input.GetKeyDown(gameHandlerScript.playerInputs[i,0]))
+                        {
+                            //cycle their player colour positively one increment
+                            IncrementPlayerColour(i, 1);
+                        }
+                        //if a player is active and presses down button
+                        if (Input.GetKeyDown(gameHandlerScript.playerInputs[i,1]))
+                        {   //cycle their player colour negatively one increment
+                            IncrementPlayerColour(i, -1);
+                        }
+                    }
+                }
             }
         }
         else
         {
-            Debug.Log("trying to press a button thats currently inactive");
+            //Debug.Log("trying to press a button thats currently inactive");
         }
     }
     public void ShowMenu()
@@ -232,6 +242,40 @@ public class Menu_Script : MonoBehaviour
     {
         // Close the menu screens
         menuParent.gameObject.SetActive(false);
+    }
+
+    public void IncrementPlayerColour(int pNum, int i){
+        //called to cycle player colours in menu display, also changing the advanced options menu values 
+
+        //setup a couple useful vars
+        int totalColours = SnakeColoursDictionary.Count;
+
+        Dropdown[] dropdowns = new Dropdown[]{
+            MenuScreenObjects["P1ColourDropdown"].GetComponent<Dropdown>(),
+            MenuScreenObjects["P2ColourDropdown"].GetComponent<Dropdown>(),
+            MenuScreenObjects["P3ColourDropdown"].GetComponent<Dropdown>(),
+            MenuScreenObjects["P4ColourDropdown"].GetComponent<Dropdown>()
+        };
+        //SnakeColoursDictionary.ElementAt(playerColoursInts[i]).Value;
+        int newColourVal = playerColoursInts[pNum] += i;
+        //if value is outside of range, subtract or add total number of colours until it is
+        while (newColourVal < 0 || newColourVal > totalColours-1)
+        {
+            if(newColourVal > totalColours-1){
+                //if player colour is bigger than max value, rollover from min value
+                newColourVal -= totalColours;
+            }else if (newColourVal < 0){
+                //if player colour is smaller than min value, rollover from max value
+                newColourVal += totalColours;
+            }
+        }
+
+        //save new colour val
+        playerColoursInts[pNum] = newColourVal;        
+        //set the player indicator to the correct colour
+        playerIndicators[pNum].transform.GetChild(2).GetChild(1).GetComponent<Image>().color = SnakeColoursDictionary.ElementAt(playerColoursInts[pNum]).Value;
+        //update advanced options screen colour selectors
+        dropdowns[pNum].value = newColourVal;
     }
 
     ////////////////////////////////////////////////////////title screen buttons + methods
@@ -296,22 +340,12 @@ public class Menu_Script : MonoBehaviour
 
     ////////////////////////////////////////////////////////main menu screen buttons + methods
 
-    public void MainMenuBackBtn(){
-        if(gameHandlerScript.activeScreen == ActiveScreen.MainMenu){
-            gameHandlerScript.activeScreen = ActiveScreen.MainMenu;
-            StartCoroutine(TransitionMenuParent(new Vector2(0,500), new Vector2(0,0), 2f));
-        }
-        else
-        {
-            Debug.Log("trying to press a button thats currently inactive");
-        }
 
-    }
 
 
     void AddPlayer(int pNum){ //sets a player (called by index) as active and shows their indicator
-        if(options.activePlayers[pNum] == false){
-            options.activePlayers[pNum] = true; //set the player to be active
+        if(activePlayers[pNum] == false){
+            activePlayers[pNum] = true; //set the player to be active
             playerIndicators[pNum].transform.GetChild(1).gameObject.SetActive(false);  //hide the presskey prompt
             playerIndicators[pNum].transform.GetChild(2).gameObject.SetActive(true);   //show the player indicator
             playerIndicators[pNum].transform.GetChild(2).GetChild(1).GetComponent<Image>().color = SnakeColoursDictionary.ElementAt(playerColoursInts[pNum]).Value;//set the player indicator to the correct colour
@@ -320,12 +354,24 @@ public class Menu_Script : MonoBehaviour
     }
 
     void ResetPlayers(){//loops through all players and indicators and resets them
-        for (int i = 0; i < 4; i++)
+        for (int i = 1; i < 4; i++)
         {
-            options.activePlayers[i] = false;
+            activePlayers[i] = false;
             playerIndicators[i].transform.GetChild(1).gameObject.SetActive(true);   //show the presskey prompt
             playerIndicators[i].transform.GetChild(2).gameObject.SetActive(false);  //hide the player indicator
             playerIndicators[i].transform.GetChild(2).GetChild(1).GetComponent<Image>().color = Color.white;    //reset the indicator to white
+        }
+
+    }
+
+    public void MainMenuBackBtn(){
+        if(gameHandlerScript.activeScreen == ActiveScreen.MainMenu){
+            gameHandlerScript.activeScreen = ActiveScreen.Title;
+            StartCoroutine(TransitionMenuParent(new Vector2(0,500), new Vector2(0,0), 2f));
+        }
+        else
+        {
+            Debug.Log("trying to press a button thats currently inactive");
         }
 
     }
@@ -442,6 +488,7 @@ public class Menu_Script : MonoBehaviour
     public void AdvancedOptionsCloseBtn()
     {
         if(gameHandlerScript.activeScreen == ActiveScreen.AdvancedOptions){
+            gameHandlerScript.activeScreen = ActiveScreen.MainMenu;
             HideAdvancedOptions();
         }
         else
@@ -479,14 +526,14 @@ public class Menu_Script : MonoBehaviour
             Debug.Log("trying to press a button thats currently inactive");
         }
     }
-    public void AdvancedOptionsCustomizeBtn()
+    public void AdvancedOptionsCustomizeBtn()//allows the user to customize an existing preset
     {
         if(gameHandlerScript.activeScreen == ActiveScreen.AdvancedOptions){
             //save the selected preset options to override the custom preset
-            presetOptions["Custom"] = _options;
-
-            //set the selected preset back to custom - 
+            presetOptions["Custom"] = presetOptions.ElementAt(selectedPreset).Value;
+            //set the selected preset back to custom
             selectedPreset = 0;
+            DisplayPreset(selectedPreset);
             UpdateAdvancedOptionsLock();
         }
         else
@@ -501,8 +548,8 @@ public class Menu_Script : MonoBehaviour
         advancedOptionsScreen.SetActive(true);
     }
     public void HideAdvancedOptions()
-    {   //save the displayed advanced options
-        GetAdvancedOptionsFromScreen();
+    {   //save the displayed advanced options from screen first
+        SaveAdvancedOptionsFromScreen();
         // Close the advanced options screen
         advancedOptionsScreen.SetActive(false);
     }
@@ -514,7 +561,7 @@ public class Menu_Script : MonoBehaviour
         // Increase the selected preset index, wrapping around to the first preset if necessary
         if(selectedPreset == 0){
             //save the shown advanced options to custom
-            GetAdvancedOptionsFromScreen();
+            SaveAdvancedOptionsFromScreen();
         }
         selectedPreset ++;
 
@@ -530,7 +577,7 @@ public class Menu_Script : MonoBehaviour
     {
         // Decrease the selected preset index, wrapping around to the last preset if necessary
         if(selectedPreset==0){//if changing from custom options preset, save options first
-            GetAdvancedOptionsFromScreen();
+            SaveAdvancedOptionsFromScreen();
         }
 
         selectedPreset--;
@@ -541,17 +588,6 @@ public class Menu_Script : MonoBehaviour
         }
         DisplayPreset(selectedPreset);
         UpdateAdvancedOptionsLock();
-    }
-
-    public void UsePreset()//sets the current options to use the currently selected preset
-    {
-        //use the currently selected preset
-        if(selectedPreset == 0){
-            GetAdvancedOptionsFromScreen();
-        }else{
-
-        }
-        UseAdvancedOptionsFromPreset();
     }
     public void UseRetroSnakePreset()//unused
     {
@@ -565,6 +601,8 @@ public class Menu_Script : MonoBehaviour
             //if not displaying a preset, lock controls
             b = true;
         }
+        //locks the "cutomize button" - only available when looking at existing presets (not custom)
+        MenuScreenObjects["CustomizeBtn"].GetComponent<Button>().interactable = !b;
         //used to lock menu controls when displaying a preset
         MenuScreenObjects["SnakeSpeed"].GetComponent<InputField>().interactable = b;
         MenuScreenObjects["StartingSize"].GetComponent<InputField>().interactable = b;
@@ -576,67 +614,60 @@ public class Menu_Script : MonoBehaviour
         MenuScreenObjects["DoSnakesTurnIntoFood"].GetComponent<Toggle>().interactable = b;
     }
 
-    private void UseAdvancedOptionsFromPreset()
+    private void UseAdvancedOptionsFromPreset(int i)
     {   //updates the script's options variables from the selected preset and displays them on menus
-
         // Get the advanced options for the preset
-        Options _options = presetOptions.ElementAt(selectedPreset).Value;
+        Options tempOptions = presetOptions.ElementAt(i).Value;
 
         // Set the values of the input fields for speed and duration values
-        options.snakeSpeed = _options.snakeSpeed;
-        options.startingSize = _options.startingSize;
-        options.ghostModeDuration = _options.ghostModeDuration;
-        options.deathPenaltyDuration = _options.deathPenaltyDuration;
-        options.normalFoodGrowthAmount = _options.normalFoodGrowthAmount;
-        options.goldFoodSpawnChance = _options.goldFoodSpawnChance;
-        options.goldFoodGrowthAmount = _options.goldFoodGrowthAmount;
+        options.snakeSpeed = tempOptions.snakeSpeed;
+        options.startingSize = tempOptions.startingSize;
+        options.ghostModeDuration = tempOptions.ghostModeDuration;
+        options.deathPenaltyDuration = tempOptions.deathPenaltyDuration;
+        options.normalFoodGrowthAmount = tempOptions.normalFoodGrowthAmount;
+        options.goldFoodSpawnChance = tempOptions.goldFoodSpawnChance;
+        options.goldFoodGrowthAmount = tempOptions.goldFoodGrowthAmount;
 
         // Set the value of the toggle for the "do snakes turn to food" option
-        options.doSnakesTurnToFood = _options.doSnakesTurnToFood;
+        options.doSnakesTurnToFood = tempOptions.doSnakesTurnToFood;
 
         //reflect changes on screen
-        DisplayPreset(selectedPreset);
+        DisplayPreset(i);
     }
 
     private void DisplayPreset(int i)
-    {   //updates the advanced options menu screen from the script's selected preset option
-        Options _options = presetOptions.ElementAt(i).Value;
+    {   //updates the advanced options screen from the script's selected preset option
+        Options tempOptions = presetOptions.ElementAt(i).Value;
 
         //display the title of the preset
-        MenuScreenObjects["PresetsText"].GetComponent<Text>().text = presetOptions.ElementAt(i).Key; //displays the currently selected preset on advanced options
-        MenuScreenObjects["RulesetBlock"].transform.GetChild(1).GetComponent<Text>().text = presetOptions.ElementAt(selectedPreset).Key; ; //displays the currently selected preset on main menu
+        MenuScreenObjects["PresetsText"].GetComponent<Text>().text = presetOptions.ElementAt(i).Key; //displays the currently selected preset name on advanced options
+        MenuScreenObjects["RulesetBlock"].transform.GetChild(1).GetComponent<Text>().text = presetOptions.ElementAt(selectedPreset).Key; ; //displays the currently selected preset name on main menu
 
         // Set the values of the input fields for speed and duration values
-        MenuScreenObjects["SnakeSpeed"].GetComponent<InputField>().text = _options.snakeSpeed.ToString();
-        MenuScreenObjects["StartingSize"].GetComponent<InputField>().text = _options.startingSize.ToString();
-        MenuScreenObjects["GhostModeDuration"].GetComponent<InputField>().text = _options.ghostModeDuration.ToString();
-        MenuScreenObjects["DeathPenaltyDuration"].GetComponent<InputField>().text = _options.deathPenaltyDuration.ToString();
-        MenuScreenObjects["NormalFoodGrowthAmount"].GetComponent<InputField>().text = _options.normalFoodGrowthAmount.ToString();
-        MenuScreenObjects["GoldFoodSpawnChance"].GetComponent<InputField>().text = _options.goldFoodSpawnChance.ToString();
-        MenuScreenObjects["GoldFoodGrowthAmount"].GetComponent<InputField>().text = _options.goldFoodGrowthAmount.ToString();
+        MenuScreenObjects["SnakeSpeed"].GetComponent<InputField>().text = tempOptions.snakeSpeed.ToString();
+        MenuScreenObjects["StartingSize"].GetComponent<InputField>().text = tempOptions.startingSize.ToString();
+        MenuScreenObjects["GhostModeDuration"].GetComponent<InputField>().text = tempOptions.ghostModeDuration.ToString();
+        MenuScreenObjects["DeathPenaltyDuration"].GetComponent<InputField>().text = tempOptions.deathPenaltyDuration.ToString();
+        MenuScreenObjects["NormalFoodGrowthAmount"].GetComponent<InputField>().text = tempOptions.normalFoodGrowthAmount.ToString();
+        MenuScreenObjects["GoldFoodSpawnChance"].GetComponent<InputField>().text = tempOptions.goldFoodSpawnChance.ToString();
+        MenuScreenObjects["GoldFoodGrowthAmount"].GetComponent<InputField>().text = tempOptions.goldFoodGrowthAmount.ToString();
         // Set the value of the toggle for the "do snakes turn to food" option
-        MenuScreenObjects["DoSnakesTurnIntoFood"].GetComponent<Toggle>().isOn = _options.doSnakesTurnToFood;
+        MenuScreenObjects["DoSnakesTurnIntoFood"].GetComponent<Toggle>().isOn = tempOptions.doSnakesTurnToFood;
     }
-
-    public void GetAdvancedOptionsFromScreen() //saves the displayed options to "custom" preset
-    {   //updates the script's options variables from the advanced options screen
-        // Set the values of the dropdown menus for player colours
-        playerColoursInts[0] = MenuScreenObjects["P1ColourDropdown"].GetComponent<Dropdown>().value;
-        playerColoursInts[1] = MenuScreenObjects["P2ColourDropdown"].GetComponent<Dropdown>().value;
-        playerColoursInts[2] = MenuScreenObjects["P3ColourDropdown"].GetComponent<Dropdown>().value;
-        playerColoursInts[3] = MenuScreenObjects["P4ColourDropdown"].GetComponent<Dropdown>().value;
-
-        // Set the values of the input fields for speed and duration values
-        options.snakeSpeed = float.Parse(MenuScreenObjects["SnakeSpeed"].GetComponent<InputField>().text);
-        options.deathPenaltyDuration = float.Parse(MenuScreenObjects["DeathPenaltyDuration"].GetComponent<InputField>().text);
-        options.normalFoodGrowthAmount = int.Parse(MenuScreenObjects["NormalFoodGrowthAmount"].GetComponent<InputField>().text);
-        options.goldFoodSpawnChance = float.Parse(MenuScreenObjects["GoldFoodSpawnChance"].GetComponent<InputField>().text);
-        options.goldFoodGrowthAmount = int.Parse(MenuScreenObjects["GoldFoodGrowthAmount"].GetComponent<InputField>().text);
-        // Set the value of the toggle for the "do snakes turn to food" option
-        options.doSnakesTurnToFood = MenuScreenObjects["DoSnakesTurnIntoFood"].GetComponent<Toggle>().isOn;
-
+    public void SaveAdvancedOptionsFromScreen() //saves the displayed options to "custom" preset
+    {
+        Options tempOptions = new Options();//create temp place to store advanced options
+        //grab all values displayed on advanced options screen
+        tempOptions.snakeSpeed = float.Parse(MenuScreenObjects["SnakeSpeed"].GetComponent<InputField>().text);
+        tempOptions.startingSize = int.Parse(MenuScreenObjects["StartingSize"].GetComponent<InputField>().text);
+        tempOptions.ghostModeDuration =  float.Parse(MenuScreenObjects["GhostModeDuration"].GetComponent<InputField>().text);
+        tempOptions.deathPenaltyDuration = float.Parse(MenuScreenObjects["DeathPenaltyDuration"].GetComponent<InputField>().text);
+        tempOptions.normalFoodGrowthAmount = int.Parse(MenuScreenObjects["NormalFoodGrowthAmount"].GetComponent<InputField>().text);
+        tempOptions.goldFoodSpawnChance = float.Parse(MenuScreenObjects["GoldFoodSpawnChance"].GetComponent<InputField>().text);
+        tempOptions.goldFoodGrowthAmount = int.Parse(MenuScreenObjects["GoldFoodGrowthAmount"].GetComponent<InputField>().text);
+        tempOptions.doSnakesTurnToFood = MenuScreenObjects["DoSnakesTurnIntoFood"].GetComponent<Toggle>().isOn;
         //save options to custom preset
-        presetOptions["Custom"]= options;
+        presetOptions["Custom"]= tempOptions;
     }
 
 }

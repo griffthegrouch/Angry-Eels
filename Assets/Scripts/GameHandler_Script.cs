@@ -54,12 +54,9 @@ public class Options
     public string RuleSet{get; set;}
     public GameMode gameMode{get; set;}
     public int goalPoints{get; set;}//num of points required to win (if gamemode is a race to points)
-
-    public bool[] activePlayers{get; set;} = {false,false,false,false}; //which players are in the game
-    public int numPlayers{get; set;}   //num players in the game
-    public PlayerType[] playerTypes{get; set;}
+    public int numPlayers{get; set;}   //num players in the game, set automatically when changing var activePlayers
+    //public PlayerType[] playerTypes{get; set;}
     public Color[] playerColours{get; set;}
-
     public float snakeSpeed{get; set;}
     public float ghostModeDuration{get; set;}
     public float deathPenaltyDuration{get; set;}
@@ -349,7 +346,7 @@ public class GameHandler_Script : MonoBehaviour
         PlayerSettings settings = new PlayerSettings(
             playerIndex, this, playerGUIScripts[playerIndex], snakeSegmentPrefab,
             new KeyCode[] {playerInputs[playerIndex,0], playerInputs[playerIndex,1], playerInputs[playerIndex,2], playerInputs[playerIndex,3]},
-            options.playerTypes[playerIndex], options.playerColours[playerIndex], startingPositions[playerIndex],
+            options.playerColours[playerIndex], startingPositions[playerIndex],
             options.startingSize, options.snakeSpeed, options.ghostModeDuration, options.deathPenaltyDuration,
             options.normalFoodGrowthAmount, options.deadSnakeFoodGrowthAmount, options.goldFoodGrowthAmount,
             options.doSnakesTurnToFood
