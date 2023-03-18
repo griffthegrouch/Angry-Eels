@@ -54,6 +54,7 @@ public class Options
     public string RuleSet{get; set;}
     public GameMode gameMode{get; set;}
     public int goalPoints{get; set;}//num of points required to win (if gamemode is a race to points)
+    public bool[] activePlayers{get; set;} = {true,false,false,false}; //which players are in the game - defaults to just player 1
     public int numPlayers{get; set;}   //num players in the game, set automatically when changing var activePlayers
     //public PlayerType[] playerTypes{get; set;}
     public Color[] playerColours{get; set;}
@@ -111,6 +112,8 @@ public class GameHandler_Script : MonoBehaviour
         {KeyCode.I, KeyCode.K, KeyCode.J, KeyCode.L}
     };
 
+    public KeyCode[,] activePlayerInputs {get; set;}
+
     // Array for all the wall blocks in the game
     private GameObject[] wallArr;
 
@@ -135,10 +138,11 @@ public class GameHandler_Script : MonoBehaviour
 
     // Prefab for the snake
     private GameObject snakePrefab;
-    // Prefab for the snake segment
-    private GameObject snakeSegmentPrefab;
     // Prefab for the food
     private GameObject foodPrefab;
+
+    // Player Resources
+    private PlayerResources playerResources;
 
     // Audio source for game handler
     private AudioSource gameHandlerAudio;
@@ -161,9 +165,9 @@ public class GameHandler_Script : MonoBehaviour
     void Start()
     {
         // grab all resources
-        snakePrefab = Resources.Load("Snake") as GameObject;
-        snakeSegmentPrefab = Resources.Load("SnakeSegment") as GameObject;
-        foodPrefab = Resources.Load("Food") as GameObject;
+        snakePrefab = Resources.Load("Prefabs/Snake") as GameObject;
+
+        foodPrefab = Resources.Load("Prefabs/Food") as GameObject;
 
         //grab all player displays
         playerGUIs = GameObject.FindGameObjectsWithTag("PlayerGUI");
@@ -182,7 +186,6 @@ public class GameHandler_Script : MonoBehaviour
 
         SFXAudio = GetComponents<AudioSource>()[1];
         
-        
         //grab sound fx + music
         gameMusic = Resources.Load("Audio/GameMusic") as AudioClip;
         pauseScreenMusic = Resources.Load("Audio/PauseScreenMusic") as AudioClip;
@@ -192,6 +195,20 @@ public class GameHandler_Script : MonoBehaviour
         pauseSFX = Resources.Load("Audio/PauseSound") as AudioClip;
         unPauseSFX = Resources.Load("Audio/UnPauseSound") as AudioClip;
 
+        Sprite[] sprites = Resources.LoadAll<Sprite>("Sprites/snake_game_sprites");
+        playerResources = new PlayerResources(
+            (Resources.Load("Prefabs/SnakeSegment") as GameObject),
+            sprites[6] as Sprite,
+            sprites[0] as Sprite,
+            sprites[10] as Sprite,
+            (Resources.Load("Audio/CharacterChompSound") as AudioClip),
+            (Resources.Load("Audio/CharacterDeathSound") as AudioClip),
+            (Resources.Load("Audio/CharacterYummySound") as AudioClip),
+            (Resources.Load("Audio/CrashSound") as AudioClip),
+            (Resources.Load("Audio/PopSound") as AudioClip),
+            (Resources.Load("Audio/PopSequenceSounds") as AudioClip),
+            (Resources.Load("Audio/PowerUpSound") as AudioClip)
+        );
     }
 
     public void Pause(){//game paused - called from pause menu
@@ -217,7 +234,6 @@ public class GameHandler_Script : MonoBehaviour
         InvokeRepeating("MoveSnakes", 0, options.snakeSpeed);    
         Time.timeScale = 1;
     }
-
 
     //method plays a sound effect from game handler audio, overload is for playing it with a specific volume
     public void PlaySFX(AudioClip SFX){
@@ -295,9 +311,19 @@ public class GameHandler_Script : MonoBehaviour
         playerGUIScripts = new PlayerGUI_Script[options.numPlayers];
         startingPositions = new Vector3[options.numPlayers];
 
+        activePlayerInputs = new KeyCode[options.numPlayers,4];
+        int activePlayerCounter = 0;
         // Initialize the player displays and scripts
         for (int i = 0; i < 4; i++)
         {
+            //getting the player controls / inputs
+            if(options.activePlayers[i] == true){
+                for (int j = 0; j < 4; j++)
+                {   //loop through all 4 inputs and map them to the active player's controls
+                    activePlayerInputs[activePlayerCounter,j] = playerInputs[i,j];
+                }
+                activePlayerCounter ++;
+            }
             if (i < options.numPlayers)
             {
                 //calculate spawn positions (calculates equal horizontal positions for each snake with space on each side)
@@ -314,14 +340,12 @@ public class GameHandler_Script : MonoBehaviour
                 // Get the player display and script
                 playerGUIScripts[i] = playerGUIs[i].GetComponent<PlayerGUI_Script>();
 
-                //show GUI
+                // Show GUI
                 playerGUIScripts[i].ShowGUI();
 
                 // Initialize/spawn player
                 InitializePlayer(i);
             }
-
-            
         }
         
         // Initialize the food
@@ -343,9 +367,9 @@ public class GameHandler_Script : MonoBehaviour
         Snake_Script newSnakeScript = Instantiate(snakePrefab, this.transform.position, new Quaternion(0, 0, 0, 0), this.transform).GetComponent<Snake_Script>();
 
         //determining all the settings for the snake
-        PlayerSettings settings = new PlayerSettings(
-            playerIndex, this, playerGUIScripts[playerIndex], snakeSegmentPrefab,
-            new KeyCode[] {playerInputs[playerIndex,0], playerInputs[playerIndex,1], playerInputs[playerIndex,2], playerInputs[playerIndex,3]},
+        PlayerSettings playerSettings = new PlayerSettings(
+            playerIndex, this, playerGUIScripts[playerIndex],
+            new KeyCode[] {activePlayerInputs[playerIndex,0], activePlayerInputs[playerIndex,1], activePlayerInputs[playerIndex,2], activePlayerInputs[playerIndex,3]},
             options.playerColours[playerIndex], startingPositions[playerIndex],
             options.startingSize, options.snakeSpeed, options.ghostModeDuration, options.deathPenaltyDuration,
             options.normalFoodGrowthAmount, options.deadSnakeFoodGrowthAmount, options.goldFoodGrowthAmount,
@@ -353,7 +377,7 @@ public class GameHandler_Script : MonoBehaviour
         );
         
         //passing all the relevant information to the new snake
-        newSnakeScript.SetupSnake(settings);
+        newSnakeScript.SetupSnake(playerSettings, playerResources);
 
         //adding new snake script to local snakescripts arr
         snakeScripts[playerIndex] = newSnakeScript;

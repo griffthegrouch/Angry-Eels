@@ -7,30 +7,25 @@ using UnityEngine;
 public class PlayerSettings
 {
 /////////////////////////// vars required to setup snake
-    public int playerNum;
-    public GameHandler_Script gameHandler_Script;
-    public PlayerGUI_Script playerGUIScript;
+    public int playerNum{get; set;}
+    public GameHandler_Script gameHandler_Script{get; set;}
+    public PlayerGUI_Script playerGUIScript{get; set;}
+    public KeyCode[] playerInputs{get; set;}
 
-    // Prefab for the snake segment
-    public GameObject segmentPrefab;
-    public KeyCode[] playerInputs;
-    public Color playerColour;
-    public Vector2 startingPos;
-    // Starting size of the snake
-    public int startingSize;
-    public float snakeSpeed;
-    // Duration player is invincible directly after spawning
-    public float ghostModeDuration;
-    // Duration player is unable to play after dying
-    public float deathPenaltyDuration;
-    public int normalFoodGrowthAmount;
-    public int deadSnakeFoodGrowthAmount;
-    public int goldFoodGrowthAmount;
-    public bool doSnakesTurnToFood;
+    public Color playerColour{get; set;}
+    public Vector2 startingPos{get; set;}
+    public int startingSize{get; set;}    // Starting size of the snake
+    public float snakeSpeed{get; set;}
+    public float ghostModeDuration{get; set;}    // Duration player is invincible directly after spawning
+    public float deathPenaltyDuration{get; set;}    // Duration player is unable to play after dying
+    public int normalFoodGrowthAmount{get; set;}
+    public int deadSnakeFoodGrowthAmount{get; set;}
+    public int goldFoodGrowthAmount{get; set;}
+    public bool doSnakesTurnToFood{get; set;}
 
     public PlayerSettings(int _playerNum, 
     GameHandler_Script _gameHandler_Script, PlayerGUI_Script _playerGUIScript, 
-    GameObject _segmentPrefab, KeyCode[] _playerInputs,
+    KeyCode[] _playerInputs,
     Color _playerColour, Vector2 _startingPos, int _startingSize, float _snakeSpeed,
     float _ghostModeDuration, float _deathPenaltyDuration,
     int _normalFoodGrowthAmount, int _deadSnakeFoodGrowthAmount, int _goldFoodGrowthAmount,
@@ -39,7 +34,6 @@ public class PlayerSettings
         playerNum = _playerNum;
         gameHandler_Script = _gameHandler_Script;
         playerGUIScript = _playerGUIScript;
-        segmentPrefab = _segmentPrefab;
         playerInputs = _playerInputs;
         playerColour = _playerColour;
         startingPos = _startingPos;
@@ -51,100 +45,77 @@ public class PlayerSettings
         deadSnakeFoodGrowthAmount = _deadSnakeFoodGrowthAmount;
         goldFoodGrowthAmount = _goldFoodGrowthAmount;
         doSnakesTurnToFood = _doSnakesTurnToFood;
-
-        
     }
 
+}
+public class PlayerResources
+{
+    public GameObject segmentPrefab{get; set;}
+    public Sprite segmentSpriteStraight {get; set;}
+    public Sprite segmentSpriteCurved {get; set;}
+    public Sprite segmentSpriteTail {get; set;}
+    public AudioClip chompSFX {get; set;}
+    public AudioClip deathSFX {get; set;}
+    public AudioClip yummySFX {get; set;}
+    public AudioClip crashSFX {get; set;}
+    public AudioClip popSFX {get; set;}
+    public AudioClip popMultipleSFX {get; set;}
+    public AudioClip powerUpSFX {get; set;}
+    public PlayerResources(
+        GameObject _segmentPrefab, Sprite _segmentSpriteStraight, Sprite _segmentSpriteCurved, Sprite _segmentSpriteTail,
+        AudioClip _chompSFX, AudioClip _deathSFX, AudioClip _yummySFX, AudioClip _crashSFX, 
+        AudioClip _popSFX, AudioClip _popMultipleSFX, AudioClip _powerUpSFX)
+    {
+        segmentPrefab = _segmentPrefab;
+        segmentSpriteStraight = _segmentSpriteStraight;
+        segmentSpriteCurved = _segmentSpriteCurved;
+        segmentSpriteTail = _segmentSpriteTail;
+        chompSFX = _chompSFX;
+        deathSFX = _deathSFX;
+        yummySFX = _yummySFX;
+        crashSFX = _crashSFX;
+        popSFX = _popSFX;
+        popMultipleSFX = _popMultipleSFX;
+        powerUpSFX = _powerUpSFX;
+    }
 }
 
 
 public class Snake_Script : MonoBehaviour
 {
-
     private PlayerSettings playerSettings;
+    private PlayerResources playerResources;
     private GameObject snakeHead;
+    private bool isAlive = false;    // Flag indicating whether the snake is alive or not
+    private List<GameObject> segments = new List<GameObject>();    // List of all the segments of the snake
+    private int score = 0;    // Current score of the snake (how many segments long)
+    private int storedSegments = 0;    // keeps track of how many segments need to be grown
+    private bool canDie = true;    // Flag indicating whether the snake can die or not
+    private bool isFlashing = false;       // Flag indicating whether the snake is flashing due to eating gold food
+    private float flashDuration = 0.3f;    // Duration of flashing after eating gold food
+    private float flashTimer = 0;    // Time remaining for the flashing effect
+    private Color colourBase;   // Color for the snake head and odd numbered segments
+    private Color colourAlt;    // Color for the even numbered segments
+    private Color colFlashing1 = new Color(1, 1, 0);    // Color for the gold flashing effect of the snake head and odd numbered segments
+    private Color colFlashing2 = new Color(0.9f, 0.9f, 0);    // Color for the flashing effect
+    private bool isGhosting = false;    // Flag indicating whether the snake is ghosting or not
+    private float ghostDuration = .6f;  // Duration of ghosting cycles - bounces snake's opacity between two values during ghosting
+    private float ghostTimer = 0;    // Time remaining for the ghosting effect
+    private float ghostOpacity1 = 0.2f;   // Opacity for the ghosting effect of the snake head and odd numbered segments
+    private float ghostOpacity2 = 0.6f;   // Opacity for the ghosting effect of the even numbered segments   
+    private Color colGhost1;    // Color for the ghosting effect of the snake head and odd numbered segments
+    private Color colGhost2;    // Color for the ghosting effect of the even numbered segments
+    private float deathTimer = 0;    // Timer remaining for when player death penalty is active
+    private char currentDirection;   // current direction of the snake 
+    private char verticalBufferDirection;   // next vertical (U or D) direction of the snake (as user inputted)
+    private char horizontalBufferDirection; // next horizontal (L or R) direction of the snake (as user inputted)
+    private Coroutine flasherCoroutine;     // Coroutine for the flashing effect
+    private Coroutine ghosterCoroutine;     // Coroutine for the ghosting effect
 
-    public Sprite segmentSpriteStraight {get; set;}
-    public Sprite segmentSpriteCurved {get; set;}
-    public Sprite segmentSpriteTail {get; set;}
-
-    private AudioClip chompSFX;
-    private AudioClip deathSFX;
-    private AudioClip yummySFX;
-    private AudioClip crashSFX;
-    private AudioClip popSFX;
-    private AudioClip popMultipleSFX;
-    private AudioClip powerUpSFX;
-
-    // Flag indicating whether the snake is alive or not
-    private bool isAlive = false;
-    // List of all the segments of the snake
-    private List<GameObject> segments = new List<GameObject>();
-    // Current score of the snake
-    private int score = 0;
-
-    // keeps track of how many segments need to be grown
-    private int storedSegments = 0;
-    // Flag indicating whether the snake can die or not
-    private bool canDie = true;
-    // Flag indicating whether the snake is flashing due to eating gold food
-    private bool isFlashing = false;
-    // Duration of flashing after eating gold food
-    private float flashDuration = 0.3f;
-    // Time remaining for the flashing effect
-    private float flashTimer = 0;
-
-    // Color for the snake head and segments
-    private Color colourBase;
-    // Color for the alternating segments
-    private Color colourAlt;
-    // Color for the outline of snakes head and segments
-    //Color colourOutline;
-
-    // Color for the flashing effect
-    private Color colFlashing1 = new Color(1, 1, 0);
-    // Color for the flashing effect
-    private Color colFlashing2 = new Color(0.9f, 0.9f, 0);
-    // Flag indicating whether the snake is ghosting or not
-    private bool isGhosting = false;
-    // Duration of ghosting    // Duration of ghosting cycles - bounces snake's opacity between two values during ghosting
-    private float ghostDuration = .6f;
-    // Time remaining for the ghosting effect
-    private float ghostTimer = 0;
-    // Opacity for the ghosting effect
-    private float ghostOpacity1 = 0.2f;
-    // Opacity for the ghosting effect
-    private float ghostOpacity2 = 0.6f;
-    // Color for the ghosting effect
-    private Color colGhost1;
-    // Color for the ghosting effect
-    private Color colGhost2;
-    // Counter for when player death penalty is active
-    private float deathTimer = 0;
-    // current direction of the snake 
-    private char currentDirection;
-    // next direction of the snake (as user inputted)
-    private char verticalBufferDirection;
-    private char horizontalBufferDirection;
-    // Flag indicating whether the game is currently being played or not
-
-    // Coroutine for the flashing effect
-    private Coroutine flasherCoroutine;
-    // Coroutine for the ghosting effect
-    private Coroutine ghosterCoroutine;
-
-
-    public void SetupSnake(PlayerSettings _playerSettings){
+    public void SetupSnake(PlayerSettings _playerSettings, PlayerResources _playerResources){
 
         playerSettings = _playerSettings;
-
-        chompSFX = Resources.Load("Audio/CharacterChompSound") as AudioClip;
-        deathSFX = Resources.Load("Audio/CharacterDeathSound") as AudioClip;
-        yummySFX = Resources.Load("Audio/CharacterYummySound") as AudioClip;
-        crashSFX = Resources.Load("Audio/CrashSound") as AudioClip;
-        popSFX = Resources.Load("Audio/PopSound") as AudioClip;
-        popMultipleSFX = Resources.Load("Audio/PopSequenceSounds") as AudioClip;
-        powerUpSFX = Resources.Load("Audio/PowerUpSound") as AudioClip;
+        playerResources = _playerResources;
 
         snakeHead = this.transform.GetChild(0).gameObject;
 
@@ -197,7 +168,6 @@ public class Snake_Script : MonoBehaviour
 
         score = 0;
         UpdateScore();
-
     }
 
     private void Update()
@@ -375,25 +345,25 @@ public class Snake_Script : MonoBehaviour
             case EntityType.NormalFood://if spot was food then eat the food
                 //play sfx
                 if(playerSettings.normalFoodGrowthAmount >= 3){
-                    playerSettings.gameHandler_Script.PlaySFX(popMultipleSFX);
+                    playerSettings.gameHandler_Script.PlaySFX(playerResources.popMultipleSFX);
                 }else{
-                    playerSettings.gameHandler_Script.PlaySFX(popSFX);
+                    playerSettings.gameHandler_Script.PlaySFX(playerResources.popSFX);
                 }
                 EatFood(playerSettings.normalFoodGrowthAmount);
                 goto case EntityType.Empty;//the act as if the target spot was empty
 
             case EntityType.DeadSnakeFood://if spot was food then eat the food
                 //play sfx
-                playerSettings.gameHandler_Script.PlaySFX(popSFX);
+                playerSettings.gameHandler_Script.PlaySFX(playerResources.popSFX);
                 
                 EatFood(playerSettings.deadSnakeFoodGrowthAmount);
                 goto case EntityType.Empty;//the act as if the target spot was empty
 
             case EntityType.GoldFood://if spot was food then eat the food
                 //play sfx
-                playerSettings.gameHandler_Script.PlaySFX(yummySFX);
-                playerSettings.gameHandler_Script.PlaySFX(popMultipleSFX);
-                playerSettings.gameHandler_Script.PlaySFX(powerUpSFX);
+                playerSettings.gameHandler_Script.PlaySFX(playerResources.yummySFX);
+                playerSettings.gameHandler_Script.PlaySFX(playerResources.popMultipleSFX);
+                playerSettings.gameHandler_Script.PlaySFX(playerResources.powerUpSFX);
 
                 //flash gold for the duration that the snake is growing from the extra food
                 if (isFlashing)
@@ -406,7 +376,7 @@ public class Snake_Script : MonoBehaviour
 
             case EntityType.Wall://if spot was a wall ---> die
                 //play sfx
-                playerSettings.gameHandler_Script.PlaySFX(crashSFX);
+                playerSettings.gameHandler_Script.PlaySFX(playerResources.crashSFX);
                 //playerSettings.gameHandler_Script.PlaySFX(deathSFX, 10);
                 Die();
                 break;
@@ -419,7 +389,7 @@ public class Snake_Script : MonoBehaviour
                 if (canDie)
                 {
                     //play sfx
-                    playerSettings.gameHandler_Script.PlaySFX(chompSFX);
+                    playerSettings.gameHandler_Script.PlaySFX(playerResources.chompSFX);
                     //playerSettings.gameHandler_Script.PlaySFX(deathSFX, 20);
                     Die();
                 }
@@ -449,8 +419,8 @@ public class Snake_Script : MonoBehaviour
 
             storedSegments -= 1;
             // Instantiate a new segment prefab 
-            GameObject newSegment = Instantiate(playerSettings.segmentPrefab, snakeHead.transform.position, Quaternion.identity, transform);
-
+            GameObject newSegment = Instantiate(playerResources.segmentPrefab, snakeHead.transform.position, Quaternion.identity, transform);
+            Debug.Log(newSegment.transform.position);
             // Set the color of the segment outline to the player colour
             newSegment.GetComponent<SpriteRenderer>().color = colourBase;
 
@@ -462,7 +432,7 @@ public class Snake_Script : MonoBehaviour
             // Add the new segment to the list of segments
             segments.Add(newSegment);
         }
-
+        Debug.Log(snakeHead);
         //1- move the head
         Vector3 oldPos = snakeHead.transform.position;
         //snake is able to move, then move the snake's head to the target and rotate it accordingly
@@ -503,9 +473,10 @@ public class Snake_Script : MonoBehaviour
         Vector2 previousSegmentDir =  Vector2.zero;
         Vector2 nextSegmentDir = Vector2.zero;
         Vector3 newRotation = Vector3.zero;
-        Sprite newSprite;
+        Sprite newSprite = playerResources.segmentSpriteStraight;
         GameObject currentSeg;
         
+        Debug.Log(newSprite);
 
         //cycle through each segment
         for (int i = 0; i < segments.Count; i++)
@@ -531,16 +502,16 @@ public class Snake_Script : MonoBehaviour
             if(i != segments.Count - 1){
                 //determing if its a horizontal straight segment
                 if(previousSegmentDir.y == 0 && nextSegmentDir.y == 0){
-                    newSprite = segmentSpriteStraight;
+                    newSprite = playerResources.segmentSpriteStraight;
                     newRotation = new Vector3(0, 0, 90);
                 }
                 //determing if its a vertical straight segment
                 else if(previousSegmentDir.x == 0 && nextSegmentDir.x == 0){
-                    newSprite = segmentSpriteStraight;
+                    newSprite = playerResources.segmentSpriteStraight;
                     newRotation = new Vector3(0, 0, 0);
                 }
                 else {
-                    newSprite = segmentSpriteCurved;
+                    newSprite = playerResources.segmentSpriteCurved;
                     //if its not a straight segment, determine which direction the curve needs to go
                     
                     switch (previousSegmentDir + nextSegmentDir)
@@ -565,7 +536,7 @@ public class Snake_Script : MonoBehaviour
             }
             //if its the last segment (tail)
             else{
-                newSprite = segmentSpriteTail;
+                newSprite = playerResources.segmentSpriteTail;
 
                 //using the previous segment's relative position to determine which way to angle tail
                 switch (previousSegmentDir)
