@@ -243,7 +243,7 @@ public class GameHandler_Script : MonoBehaviour
         SFXAudio.PlayOneShot(pauseSFX, volume);
     }
 
-    public void CloseGame(){ // called to close the game
+    public void ExitGame(){ // called to close the game
         #if UNITY_EDITOR
             // Application.Quit() does not work in the editor so
             // UnityEditor.EditorApplication.isPlaying need to be set to false to end the game
@@ -262,7 +262,7 @@ public class GameHandler_Script : MonoBehaviour
     //called from the pause menu - ends game and returns to the home screen
     public void ReturnHome(){
         EndGame();
-        menuScript.ShowMenu();
+        menuScript.ReturnToTitle();
     }
 
     public void EndGame(){
@@ -312,17 +312,20 @@ public class GameHandler_Script : MonoBehaviour
         startingPositions = new Vector3[options.numPlayers];
 
         activePlayerInputs = new KeyCode[options.numPlayers,4];
+        Debug.Log(options.numPlayers);
         int activePlayerCounter = 0;
         // Initialize the player displays and scripts
         for (int i = 0; i < 4; i++)
         {
             //getting the player controls / inputs
             if(options.activePlayers[i] == true){
+                activePlayerCounter ++;
                 for (int j = 0; j < 4; j++)
                 {   //loop through all 4 inputs and map them to the active player's controls
-                    activePlayerInputs[activePlayerCounter,j] = playerInputs[i,j];
+                    Debug.Log(activePlayerCounter-1 + " " + j + "   " + activePlayerInputs[activePlayerCounter-1,j]);
+                    activePlayerInputs[activePlayerCounter-1,j] = playerInputs[i,j];
                 }
-                activePlayerCounter ++;
+                
             }
             if (i < options.numPlayers)
             {
@@ -350,8 +353,6 @@ public class GameHandler_Script : MonoBehaviour
         
         // Initialize the food
         SpawnFood(-1, default, EntityType.NormalFood);
-
-        pauseScreenScript.GameStart();
 
         //calls Movesnake every user-set time increment to move the snakes
         InvokeRepeating("MoveSnakes", 0, options.snakeSpeed);   

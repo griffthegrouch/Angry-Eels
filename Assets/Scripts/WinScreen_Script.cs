@@ -91,9 +91,9 @@ public class WinScreen_Script : MonoBehaviour
         gameHandlerScript.ReturnHome();   
     }
 
-    public void CloseGameBtn()
+    public void ExitGameBtn()
     {
-        gameHandlerScript.CloseGame();
+        gameHandlerScript.ExitGame();
     }
 
     // Update is called once per frame

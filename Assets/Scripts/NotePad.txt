@@ -110,6 +110,7 @@
     - add save highscore button
 
     movement - add the ability to hold diagonal direction and move the snake in a staircase pattern
+             - add the ability to (chase the tail) where you wont collide with a snake's tail if its moving
     - call the changes from the original snake movement "added very modern tight-controls"
     - add the option to use original snake controls and show the contrast between the new control version
     - add button on home screen specifically to test new controls vs original snake game controls

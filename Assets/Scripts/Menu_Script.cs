@@ -169,7 +169,7 @@ public class Menu_Script : MonoBehaviour
         options.numPlayers = this.numPlayers;
 
         //close the menu's windows
-        HideMenu();
+        CloseMenu();
 
         //tell the handler to start the game
         gameHandlerScript.InitializeGame(options);
@@ -210,14 +210,14 @@ public class Menu_Script : MonoBehaviour
             //Debug.Log("trying to press a button thats currently inactive");
         }
     }
-    public void ShowMenu()
+    public void ReturnToTitle()
     {
         // Open the menu screens
         gameHandlerScript.activeScreen = ActiveScreen.Title;
         menuParent.localPosition = Vector2.zero;
         menuParent.gameObject.SetActive(true);
     }
-    public void HideMenu()
+    public void CloseMenu()
     {
         // Close the menu screens
         menuParent.gameObject.SetActive(false);
@@ -261,7 +261,8 @@ public class Menu_Script : MonoBehaviour
     {
         if(gameHandlerScript.activeScreen == ActiveScreen.Title){
             gameHandlerScript.activeScreen = ActiveScreen.MainMenu;
-            StartCoroutine(TransitionMenuParent(new Vector2(0,0), new Vector2(0,500), 1f));
+            ResetPlayers();
+            StartCoroutine(TransitionMenuParent(new Vector2(0,0), new Vector2(0,500), .75f));
         }
         else
         {
@@ -277,7 +278,6 @@ public class Menu_Script : MonoBehaviour
         {
             elapsedTime += Time.deltaTime;
             float t = elapsedTime / duration;
-
             menuParent.transform.localPosition = Vector3.Lerp(startPos, endPos, t);
             yield return null;
         }
@@ -305,7 +305,7 @@ public class Menu_Script : MonoBehaviour
 
     public void TitleExitGameBtn(){
         if(gameHandlerScript.activeScreen == ActiveScreen.Title){
-            gameHandlerScript.CloseGame();
+            gameHandlerScript.ExitGame();
         }
         else
         {
@@ -321,11 +321,12 @@ public class Menu_Script : MonoBehaviour
             playerIndicators[pNum].transform.GetChild(1).gameObject.SetActive(false);  //hide the presskey prompt
             playerIndicators[pNum].transform.GetChild(2).gameObject.SetActive(true);   //show the player indicator
             playerIndicators[pNum].transform.GetChild(2).GetChild(1).GetComponent<Image>().color = SnakeColoursDictionary.ElementAt(playerColoursInts[pNum]).Value;//set the player indicator to the correct colour
-            numPlayers =+ 1;
+            numPlayers += 1;
         }
     }
 
     void ResetPlayers(){//loops through all players and indicators and resets them - keeps player one active
+        numPlayers = 1;
         for (int i = 1; i < 4; i++)
         {
             activePlayers[i] = false;
@@ -339,7 +340,7 @@ public class Menu_Script : MonoBehaviour
     public void MainMenuBackBtn(){
         if(gameHandlerScript.activeScreen == ActiveScreen.MainMenu){
             gameHandlerScript.activeScreen = ActiveScreen.Title;
-            StartCoroutine(TransitionMenuParent(new Vector2(0,500), new Vector2(0,0), 2f));
+            StartCoroutine(TransitionMenuParent(new Vector2(0,500), new Vector2(0,0), .75f));
         }
         else
         {

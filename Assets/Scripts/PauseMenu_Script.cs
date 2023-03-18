@@ -45,22 +45,86 @@ public class PauseMenu_Script : MonoBehaviour
 
         //hide the pause screen by default
         HideScreen();
-        HidePauseBtn();
+        //HidePauseBtn();
+    }
 
+     // Update is called once per frame
+    void Update()
+    {   
+        if ((Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space)) && (gameHandlerScript.activeScreen == ActiveScreen.Game))
+        {   // if gamescreen is active and you press space or click, pause game
+            Pause();
+        }
+        else if ((Input.GetKeyDown(KeyCode.Space)) && (gameHandlerScript.activeScreen == ActiveScreen.PauseMenu))
+        {   // if pause screen is active and you press space, unpause game
+            Unpause();
+        }
     }
 
 
-
-    public void ShowPauseBtn()//hidden at the start of the game
+    //////////////////////////////////////////////////////// pause menu buttons
+    public void ExitGameBtn()
     {
-        pauseBtn.SetActive(true);
-        gameIsRunning = true;
+        if(gameHandlerScript.activeScreen == ActiveScreen.PauseMenu){
+            gameHandlerScript.ExitGame();
+        }
+        else
+        {
+            Debug.Log("trying to press a button thats currently inactive");
+        }
+    }
+    public void ResumeBtn()
+    {
+        if(gameHandlerScript.activeScreen == ActiveScreen.PauseMenu){
+            Unpause();
+        }
+        else
+        {
+            Debug.Log("trying to press a button thats currently inactive");
+        }
+    }
+     public void RestartBtn()
+    {
+        if(gameHandlerScript.activeScreen == ActiveScreen.PauseMenu){
+            Unpause();
+            gameHandlerScript.RestartGame();
+        }
+        else
+        {
+            Debug.Log("trying to press a button thats currently inactive");
+        }
+    }
+    public void ReturnHomeBtn()
+    {
+        if(gameHandlerScript.activeScreen == ActiveScreen.PauseMenu){
+            Unpause();
+            gameHandlerScript.ReturnHome(); 
+        }
+        else
+        {
+            Debug.Log("trying to press a button thats currently inactive");
+        }  
+    }
+    
+
+    public void Pause()
+    {
+        gameHandlerScript.activeScreen = ActiveScreen.PauseMenu;
+        pauseScreenAudio.Play(0);
+
+        ShowScreen();
+        gameHandlerScript.Pause();
     }
 
-    public void HidePauseBtn()//hidden at the start of the game
+    public void Unpause()
     {
-        pauseBtn.SetActive(false);
+        gameHandlerScript.activeScreen = ActiveScreen.Game;
+        pauseScreenAudio.Pause();
+
+        HideScreen();
+        gameHandlerScript.UnPause();
     }
+
 
     public void ShowScreen()
     {        
@@ -75,74 +139,8 @@ public class PauseMenu_Script : MonoBehaviour
     }
 
 
-    public void GameStart(){
-        gameIsRunning = true;
-        gameIsPaused = false;
-        //ShowPauseText();
-    }
-
-    public void Reset(){
-        gameIsRunning = false;
-        
+    public void Reset(){        
         pauseScreenAudio.Pause();
-        HidePauseBtn();
         HideScreen();
     }
-
-    public void Pause()
-    {
-        gameIsRunning = false;
-        gameIsPaused = true;
-
-        pauseScreenAudio.Play(0);
-
-        ShowScreen();
-
-       // HidePauseBtn();
-
-        gameHandlerScript.Pause();
-        
-    }
-
-    public void Unpause()
-    {
-        gameIsRunning = true;
-        gameIsPaused = false;
-
-        pauseScreenAudio.Pause();
-
-        HideScreen();
-
-        //ShowPauseBtn();
-
-        gameHandlerScript.UnPause();
-    }
-
-    public void RestartBtn()
-    {
-        pauseScreenAudio.Pause();
-        gameHandlerScript.RestartGame();
-    }
-
-    public void ReturnHomeBtn()
-    {
-        pauseScreenAudio.Pause();
-        gameHandlerScript.ReturnHome();   
-    }
-
-    // Update is called once per frame
-    void Update()
-    {   
-        if ((Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space)) && (gameIsRunning == true))
-        {
-            Pause();
-        }
-        else if ((Input.GetKeyDown(KeyCode.Space)) && (gameIsPaused == true))
-        {
-            Unpause();
-        }
-        
-        
-    }
-
 }
