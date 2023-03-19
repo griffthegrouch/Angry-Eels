@@ -2,7 +2,13 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum SnakeState{
+    Alive,
+    Dead,
+    Golden,
+    Ghosted
 
+}
 
 public class PlayerSettings
 {
@@ -11,7 +17,6 @@ public class PlayerSettings
     public GameHandler_Script gameHandler_Script{get; set;}
     public PlayerGUI_Script playerGUIScript{get; set;}
     public KeyCode[] playerInputs{get; set;}
-
     public Color playerColour{get; set;}
     public Vector2 startingPos{get; set;}
     public int startingSize{get; set;}    // Starting size of the snake
@@ -81,36 +86,50 @@ public class PlayerResources
 }
 
 
+
+
 public class Snake_Script : MonoBehaviour
 {
     private PlayerSettings playerSettings;
     private PlayerResources playerResources;
     private GameObject snakeHead;
-    private bool isAlive = false;    // Flag indicating whether the snake is alive or not
+    public SnakeState snakeState {get; set;} = SnakeState.Dead; // flag indicating which state the snake is currently in - defaults to dead
     private List<GameObject> segments = new List<GameObject>();    // List of all the segments of the snake
     private int score = 0;    // Current score of the snake (how many segments long)
     private int storedSegments = 0;    // keeps track of how many segments need to be grown
-    private bool canDie = true;    // Flag indicating whether the snake can die or not
-    private bool isFlashing = false;       // Flag indicating whether the snake is flashing due to eating gold food
-    private float flashDuration = 0.3f;    // Duration of flashing after eating gold food
-    private float flashTimer = 0;    // Time remaining for the flashing effect
+
+
+
+
+
+    private float bounceTimer = 0;  // Timer used for colour bouncing and opacity bouncing
+    private float bounceSpeed;      // temp speed used for the bouncing colour + opacity functions
+    private Color bounceColour1;    // temp colour used for the bouncing colour function
+    private Color bounceColour2;    // temp colour used for the bouncing colour function
+    private float bounceOpacity1;    // temp float used for the bouncing opacity function
+    private float bounceOpacity2;    // temp float used for the bouncing opacity function
+
+
     private Color colourBase;   // Color for the snake head and odd numbered segments
     private Color colourAlt;    // Color for the even numbered segments
-    private Color colFlashing1 = new Color(1, 1, 0);    // Color for the gold flashing effect of the snake head and odd numbered segments
-    private Color colFlashing2 = new Color(0.9f, 0.9f, 0);    // Color for the flashing effect
-    private bool isGhosting = false;    // Flag indicating whether the snake is ghosting or not
-    private float ghostDuration = .6f;  // Duration of ghosting cycles - bounces snake's opacity between two values during ghosting
-    private float ghostTimer = 0;    // Time remaining for the ghosting effect
+
+    private float goldBounceSpeed = 0.3f;    // speed snake flashes gold
+    private Color goldColour1 = new Color(1, 1, 0);       // Color for the gold flashing effect highest value
+    private Color goldColour2 = new Color(0.9f, 0.9f, 0); // Color for the gold flashing effect lowest value
+    private Coroutine goldCoroutine;     // Coroutine for the flashing effect
+
+    private float ghostBounceSpeed = .6f;  // Duration of ghosting cycles - bounces snake's opacity between two values during ghosting
     private float ghostOpacity1 = 0.2f;   // Opacity for the ghosting effect of the snake head and odd numbered segments
     private float ghostOpacity2 = 0.6f;   // Opacity for the ghosting effect of the even numbered segments   
-    private Color colGhost1;    // Color for the ghosting effect of the snake head and odd numbered segments
-    private Color colGhost2;    // Color for the ghosting effect of the even numbered segments
+    private Coroutine ghostCoroutine;     // Coroutine for the ghosting effect
+
+
+
     private float deathTimer = 0;    // Timer remaining for when player death penalty is active
     private char currentDirection;   // current direction of the snake 
     private char verticalBufferDirection;   // next vertical (U or D) direction of the snake (as user inputted)
     private char horizontalBufferDirection; // next horizontal (L or R) direction of the snake (as user inputted)
-    private Coroutine flasherCoroutine;     // Coroutine for the flashing effect
-    private Coroutine ghosterCoroutine;     // Coroutine for the ghosting effect
+
 
     public void SetupSnake(PlayerSettings _playerSettings, PlayerResources _playerResources){
 
@@ -136,50 +155,79 @@ public class Snake_Script : MonoBehaviour
     // Method to start the game for the snake
     private void StartGame()
     {
+        //hide the prompt telling player to start the game
         playerSettings.playerGUIScript.HidePrompt();
 
         // Reset the snake to its starting values
         ResetSnake();
 
-        //reset the direction and buffer on the snake so it moves up originally
-        verticalBufferDirection = 'x';
-        currentDirection = horizontalBufferDirection = 'u';
+        // Set the state to alive
+        snakeState = SnakeState.Alive;
 
-        score = 1;
+        score = 1;// starts at score 1 because its just a head to start
 
-        Grow(playerSettings.startingSize - 1);// -1 because it starts as a head!
+        Grow(playerSettings.startingSize - 1);// starting size -1 because it starts as a head segment
 
-        ghosterCoroutine = StartCoroutine(GhostFor(playerSettings.ghostModeDuration));
-
-        // Set the isAlive flag to true
-        isAlive = true;
+        if(playerSettings.ghostModeDuration > 0){//if ghosting is enabled, start the game off ghosted
+            ghostCoroutine = StartCoroutine(GhostFor(playerSettings.ghostModeDuration));
+        }
     }
 
-    // Method to reset the snake to its starting values
+    // Method to reset the snake to its starting vGoldenalues
     public void ResetSnake()
     {
-        // Reset the position of the snake head to the starting position
+        // Set the state to alive
+        snakeState = SnakeState.Dead;
+
+        //stop any temporary state
+        StopAllCoroutines();
+        playerSettings.playerGUIScript.StopCountdown();
+
+        // delete all segments of the snake
+        if (playerSettings.doSnakesTurnToFood)
+        {   //if snake turns into food, spawn food where snake was
+            playerSettings.gameHandler_Script.SpawnFood(playerSettings.playerNum, snakeHead.transform.position, EntityType.DeadSnakeFood);
+            foreach (GameObject seg in segments)
+            { 
+                playerSettings.gameHandler_Script.SpawnFood(playerSettings.playerNum, seg.transform.position, EntityType.DeadSnakeFood);
+                Destroy(seg);
+            }
+        }
+        else{
+            foreach (GameObject seg in segments)
+            {
+                Destroy(seg);
+            }
+        }
+        segments.Clear();
+
+        //reset snakes colours (just the head)
+        ResetSnakeColours();
+
+        // Reset the position + rotation of the snake head to the starting position
         snakeHead.transform.position = playerSettings.startingPos;
         snakeHead.transform.rotation = Quaternion.Euler(new Vector3(0, 0, 0));
 
-        // Initialize the current and next direction of the snake to up
+        // Initialize the current and next direction of the snake to up so it moves up on spawn
         verticalBufferDirection = 'x';
         currentDirection = horizontalBufferDirection = 'u';
 
         score = 0;
         UpdateScore();
+
     }
 
     private void Update()
     {
-        if (isFlashing)
+        Debug.Log(snakeState);
+        if (snakeState == SnakeState.Golden)
         {
-            FlashColour();
+            BounceColour();
         }
 
-        if (isGhosting)
+        if (snakeState == SnakeState.Ghosted)
         {
-            FlashGhost();
+            BounceOpacity();
         }
 
         if(deathTimer != 0){
@@ -191,7 +239,7 @@ public class Snake_Script : MonoBehaviour
             return;
         }
 
-        if (isAlive == false)
+        if (snakeState == SnakeState.Dead)
         {//if snake isnt moving, pressing any button will reset it
             if (Input.GetKeyDown(playerSettings.playerInputs[0]) || Input.GetKeyDown(playerSettings.playerInputs[1]) || Input.GetKeyDown(playerSettings.playerInputs[2]) || Input.GetKeyDown(playerSettings.playerInputs[3]))
             {
@@ -238,38 +286,10 @@ public class Snake_Script : MonoBehaviour
     public void Die()
     {
         //stop the game
-        isAlive = false;
-
-        //reset snake values
-        StopAllCoroutines();
-        isFlashing = false;
-        isGhosting = false;
-        canDie = true;
-        ResetSnakeColours();
-
-        if (playerSettings.doSnakesTurnToFood)
-        {
-            
-            playerSettings.gameHandler_Script.SpawnFood(playerSettings.playerNum, snakeHead.transform.position, EntityType.DeadSnakeFood);
-            foreach (GameObject seg in segments)
-            {
-                playerSettings.gameHandler_Script.SpawnFood(playerSettings.playerNum, seg.transform.position, EntityType.DeadSnakeFood);
-                Destroy(seg);
-            }
-        }
-        else{
-            foreach (GameObject seg in segments)
-            {
-                Destroy(seg);
-            }
-        }
-        segments.Clear();
-        playerSettings.playerGUIScript.UpdateScore(0);
-        playerSettings.playerGUIScript.StopCountdown();
+        snakeState = SnakeState.Dead;
 
         // Reset the snake to its starting values
         ResetSnake();
-
 
         //if death penalty is on, set up death timer and change snake colour
         if(playerSettings.deathPenaltyDuration != 0){
@@ -277,7 +297,6 @@ public class Snake_Script : MonoBehaviour
             playerSettings.playerGUIScript.StartDeathPenaltyMode(playerSettings.deathPenaltyDuration);
             deathTimer = playerSettings.deathPenaltyDuration;
         }        
-
     }
 
     public Vector2 TryMoveSnake()
@@ -290,7 +309,7 @@ public class Snake_Script : MonoBehaviour
         // returns the target position
 
         //1
-        if (!isAlive)
+        if (snakeState == SnakeState.Dead)//if snake is dead, it cant move, exit method
         {
             return snakeHead.transform.position;
         }
@@ -366,12 +385,12 @@ public class Snake_Script : MonoBehaviour
                 playerSettings.gameHandler_Script.PlaySFX(playerResources.powerUpSFX);
 
                 //flash gold for the duration that the snake is growing from the extra food
-                if (isFlashing)
+                if (snakeState == SnakeState.Golden)
                 {
-                    StopCoroutine(flasherCoroutine);
+                    StopCoroutine(goldCoroutine);
                 }
                 EatFood(playerSettings.goldFoodGrowthAmount);
-                flasherCoroutine = StartCoroutine(FlashFor(playerSettings.snakeSpeed * playerSettings.goldFoodGrowthAmount));
+                goldCoroutine = StartCoroutine(GoldFor(playerSettings.snakeSpeed * playerSettings.goldFoodGrowthAmount));
                 goto case EntityType.Empty;//the act as if the target spot was empty
 
             case EntityType.Wall://if spot was a wall ---> die
@@ -386,7 +405,7 @@ public class Snake_Script : MonoBehaviour
                 goto case EntityType.Snake;
 
             case EntityType.Snake://if spot was a snake --->die
-                if (canDie)
+                if (snakeState == SnakeState.Alive)
                 {
                     //play sfx
                     playerSettings.gameHandler_Script.PlaySFX(playerResources.chompSFX);
@@ -432,7 +451,6 @@ public class Snake_Script : MonoBehaviour
             // Add the new segment to the list of segments
             segments.Add(newSegment);
         }
-        Debug.Log(snakeHead);
         //1- move the head
         Vector3 oldPos = snakeHead.transform.position;
         //snake is able to move, then move the snake's head to the target and rotate it accordingly
@@ -476,8 +494,6 @@ public class Snake_Script : MonoBehaviour
         Sprite newSprite = playerResources.segmentSpriteStraight;
         GameObject currentSeg;
         
-        Debug.Log(newSprite);
-
         //cycle through each segment
         for (int i = 0; i < segments.Count; i++)
         {
@@ -605,86 +621,95 @@ public class Snake_Script : MonoBehaviour
         return false;
     }
 
-    // Method to make the snake flash gold for a certain duration
-    private IEnumerator FlashFor(float duration)
+
+
+
+    private IEnumerator GoldFor(float duration)//call this to make the snake flash gold for a certain duration
     {
-        //if ghosted - override it
-        isGhosting = false;
+        // set the temp vars to be used for bouncing snake between gold colours
+        bounceColour1 = goldColour1;
+        bounceColour2 = goldColour2;
+
+        bounceSpeed = goldBounceSpeed;
+        bounceTimer = 0;
+
+        // Set the state to gold
+        snakeState = SnakeState.Golden;
 
         // Set the countdown display to show the duration of the golden time
         playerSettings.playerGUIScript.StartGoldMode(duration);
 
-        // Set the flashing and invincibility flags to true
-        isFlashing = true;
-        canDie = false;
-
         // Wait for the duration of the golden time
         yield return new WaitForSeconds(duration);
 
-        // Set the flashing and invincibility flags to false
-        isFlashing = false;
-        canDie = true;
+        //return snake to regular state
+        snakeState = SnakeState.Alive;
 
         // Reset the snake's colors to their normal colors
         ResetSnakeColours();
     }
-    private void FlashColour()
-    {
-        // Calculate the current color of the snake by lerping between colFlashing1 and colFlashing2
-        Color colour = Color.Lerp(colFlashing1, colFlashing2, flashTimer);
+    private void BounceColour()//this bounces the snake's colours between the two colours
+    {   
+        // Calculate the current color of the snake by lerping between goldColour1 and goldColour2
+        Color colour = Color.Lerp(bounceColour1, bounceColour2, bounceTimer);
 
         // Set the colors of the snake's head and segments
-        SetSnakeColours(colFlashing1, colFlashing2);// colour);
+        SetSnakeColours(colour, colour);
 
         // Increment the flash time
-        flashTimer += Time.deltaTime / flashDuration;
+        bounceTimer += Time.deltaTime / bounceSpeed;
 
         // If the flash time has reached 1, reset it and swap the flashing colors
-        if (flashTimer >= 1)
+        if (bounceTimer >= 1)
         {
-            flashTimer = 0;
-            Color tempColour = colFlashing1;
-            colFlashing1 = colFlashing2;
-            colFlashing2 = tempColour;
+            bounceTimer = 0;
+            Color tempColor = bounceColour1;
+            bounceColour1 = bounceColour2;
+            bounceColour1 = tempColor;
         }
     }
-    private IEnumerator GhostFor(float duration)
+    private IEnumerator GhostFor(float duration)    //call this to make the snake ghosted for a duration
     {
+        // set the temp vars to be used for bouncing snake between ghost opacities
+        bounceOpacity1 = ghostOpacity1;
+        bounceOpacity2 = ghostOpacity2;
+
+        bounceSpeed = ghostBounceSpeed;
+        bounceTimer = 0;
+
         // Set the countdown display to show the duration of the ghosting
         playerSettings.playerGUIScript.StartGhostMode(duration);
 
-        // Set the invincibility and ghosting flags to true
-        canDie = false;
-        isGhosting = true;
+        // Set the state to ghosted
+        snakeState = SnakeState.Ghosted;
 
         // Wait for the duration of the ghosting
         yield return new WaitForSeconds(duration);
 
-        // Set the invincibility and ghosting flags to false
-        canDie = true;
-        isGhosting = false;
+        //set the state back to normal
+        snakeState = SnakeState.Alive;
 
         // Reset the snake's colors to their normal colors
         ResetSnakeColours();
     }
-    private void FlashGhost()
+    private void BounceOpacity() //bounces the snake's opacity between the set values over the set speed
     {
         // Calculate the current opacity of the snake by lerping between ghostOpacity1 and ghostOpacity2
-        float opacity = Mathf.Lerp(ghostOpacity1, ghostOpacity2, ghostTimer);
+        float opacity = Mathf.Lerp(bounceOpacity1, bounceOpacity2, bounceTimer);
 
         // Set the colors of the snake's head and segments
         SetSnakeOpacity(opacity);
 
         // Increment the ghost time
-        ghostTimer += Time.deltaTime / ghostDuration;
+        bounceTimer += Time.deltaTime / bounceSpeed;
 
         // If the ghost time has reached 1, reset it and swap the ghosting colors
-        if (ghostTimer >= 1)
+        if (bounceTimer >= 1)
         {
-            ghostTimer = 0;
-            Color tempColor = colGhost1;
-            colGhost1 = colGhost2;
-            colGhost2 = tempColor;
+            bounceTimer = 0;
+            Color tempColor = bounceColour1;
+            bounceColour1 = bounceColour2;
+            bounceColour1 = tempColor;
         }
     }
 
@@ -709,15 +734,12 @@ public class Snake_Script : MonoBehaviour
         Color altColorWithOpacity = colourAlt;
         altColorWithOpacity.a = opacity;
 
-        //Color outlineColorWithOpacity = colourOutline;
-        //outlineColorWithOpacity.a = opacity;
-
-        SetSnakeColours(baseColorWithOpacity, altColorWithOpacity);//, outlineColorWithOpacity);
+        SetSnakeColours(baseColorWithOpacity, altColorWithOpacity);
     }
 
     private void ResetSnakeColours()
     {
         // Reset the snake's colors to the original outline and base colors
-        SetSnakeColours(colourBase, colourAlt);//, colourOutline);
+        SetSnakeColours(colourBase, colourAlt);
     }
 }

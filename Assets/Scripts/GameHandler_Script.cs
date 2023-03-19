@@ -300,6 +300,8 @@ public class GameHandler_Script : MonoBehaviour
     public void InitializeGame(Options _options)
     {
         activeScreen = ActiveScreen.Game;
+
+        pauseMenu_Script.ShowPrompt();
         //play sfx
         PlaySFX(gameStartSFX);
 

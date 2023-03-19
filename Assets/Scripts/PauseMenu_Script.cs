@@ -13,8 +13,8 @@ public class PauseMenu_Script : MonoBehaviour
 
     private Animator pauseTextAnimator;
 
-    // The menu screen game object
-    private GameObject pauseBtn;
+    // The pause prompt GameObject
+    private GameObject pausePrompt;
 
     // Audio source for pause screen
     private AudioSource pauseScreenAudio;
@@ -41,11 +41,11 @@ public class PauseMenu_Script : MonoBehaviour
         pauseTextAnimator = GameObject.Find("PauseText").GetComponent<Animator>();
 
         //grab the pause button
-        pauseBtn = GameObject.Find("PauseBtn");
+        pausePrompt = GameObject.Find("PausePrompt");
 
         //hide the pause screen by default
         HideScreen();
-        //HidePauseBtn();
+        HidePrompt();
     }
 
      // Update is called once per frame
@@ -98,6 +98,7 @@ public class PauseMenu_Script : MonoBehaviour
     {
         if(gameHandlerScript.activeScreen == ActiveScreen.PauseMenu){
             Unpause();
+            HidePrompt();
             gameHandlerScript.ReturnHome(); 
         }
         else
@@ -112,6 +113,8 @@ public class PauseMenu_Script : MonoBehaviour
         gameHandlerScript.activeScreen = ActiveScreen.PauseMenu;
         pauseScreenAudio.Play(0);
 
+        HidePrompt();
+
         ShowScreen();
         gameHandlerScript.Pause();
     }
@@ -120,6 +123,8 @@ public class PauseMenu_Script : MonoBehaviour
     {
         gameHandlerScript.activeScreen = ActiveScreen.Game;
         pauseScreenAudio.Pause();
+
+        ShowPrompt();
 
         HideScreen();
         gameHandlerScript.UnPause();
@@ -136,6 +141,15 @@ public class PauseMenu_Script : MonoBehaviour
     {
         pauseTextAnimator.SetBool("screenOpen", false);
         pauseScreen.SetActive(false);
+    }
+    public void ShowPrompt()
+    {        
+        pausePrompt.SetActive(true);
+    }
+
+    public void HidePrompt()
+    {
+        pausePrompt.SetActive(false);
     }
 
 
