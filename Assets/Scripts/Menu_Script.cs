@@ -4,31 +4,35 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
+public enum RuleSet
+{
+    Custom,
+    Classic,
+    Casual,
+    Wild
+}
 public class Menu_Script : MonoBehaviour
 {
     private GameMode gameMode = GameMode.Endless;// The currently selected game mode - defaulted to endless
-    private int goalPoints = 0;// The goal points for the "First to" game mode - defaulted to 0
-    private int numPlayers = 1;    // The number of players in the game - defaulted to 1
+    private int goalPoints = 0; // The goal points for the "First to" game mode - defaulted to 0
+    private int numPlayers = 1; // The number of players in the game - defaulted to 1
     private bool[] activePlayers = {true,false,false,false}; //which players are in the game - defaults to just player 1
     private Options options = new Options();    // The values for all options
 
     // The names and values for the preset options
     private Dictionary<string, Options> presetOptions = new Dictionary<string, Options>
     {
-            //f snakeSpeed, i startingSize, f ghostModeDuration, f deathPenaltyDuration,
-            // i normalFoodGrowthAmount, f goldFoodSpawnChance,  i goldFoodGrowthAmount, b doSnakesTurnToFood
+            // Ruleset ruleSet 
+            //f snakeSpeed, i startingSize, f ghostModeDuration, f deathPenaltyDuration, i normalFoodGrowthAmount, f goldFoodSpawnChance,  i goldFoodGrowthAmount, b doSnakesTurnToFood
         { "Custom", new Options() },
         { "Classic", new Options(
-            0.12f, 3, 2f, 0f, 
-            1, 30, 20, false
+            RuleSet.Classic, 0.12f, 3, 2f, 0f, 1, 30, 20, false
         ) },
         { "Casual", new Options(
-            0.1f, 5, 3f, 3f,
-            3, 15, 25, true
+            RuleSet.Casual, 0.1f, 5, 3f, 3f, 3, 15, 25, true
         ) },
         { "Wild", new Options(
-            0.05f, 3, 2f, 5f, 
-            5, 15, 50, true
+            RuleSet.Wild, 0.05f, 3, 2f, 5f, 5, 15, 50, true
         ) }
     };
     // The currently selected preset index - defaults to classic mode
@@ -147,7 +151,7 @@ public class Menu_Script : MonoBehaviour
     public void StartGame()    // Starts the game, sends all options values to the game handler and tells it to start
     {
         // Start the game using the current game mode, goal points, number of players, and advanced options
-        //get all advanced options
+        // get all advanced options
         options = presetOptions.ElementAt(selectedPreset).Value;
 
         //gettings all the player colours
@@ -158,11 +162,11 @@ public class Menu_Script : MonoBehaviour
         Color[] playerColours = new Color[numPlayers];
         for (int i = 0; i < numPlayers; i++)
         {   playerColours[i] = SnakeColoursDictionary.ElementAt(playerColoursInts[i]).Value;    }
+        
         //setting the player colours
         options.playerColours = playerColours;
 
         //setting all the rest of the values for the current options
-        options.RuleSet = this.presetOptions.ElementAt(selectedPreset).Key.ToString(); //name of ruleset
         options.gameMode = this.gameMode;
         options.goalPoints = this.goalPoints;
         options.activePlayers = this.activePlayers;
@@ -628,6 +632,7 @@ public class Menu_Script : MonoBehaviour
     public void SaveAdvancedOptionsFromScreen() //saves the displayed options to "custom" preset
     {
         Options tempOptions = new Options();//create temp place to store advanced options
+        tempOptions.ruleSet = RuleSet.Custom;
         //grab all values displayed on advanced options screen
         tempOptions.snakeSpeed = float.Parse(MenuScreenObjects["SnakeSpeed"].GetComponent<InputField>().text);
         tempOptions.startingSize = int.Parse(MenuScreenObjects["StartingSize"].GetComponent<InputField>().text);

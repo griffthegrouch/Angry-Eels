@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using System.Linq;
+
 
 public class HighScoreManager_Script : MonoBehaviour
 {
@@ -13,6 +15,8 @@ public class HighScoreManager_Script : MonoBehaviour
         Wild
     }
 
+    private GameHandler_Script gameHandlerScript;
+
     private GameObject highScoreScreen;
     private Text customHighScoreText;
     private Text classicHighScoreText;
@@ -20,11 +24,11 @@ public class HighScoreManager_Script : MonoBehaviour
     private Text wildHighScoreText;
 
     // Dictionary to store the high scores for each rule set
-    private Dictionary<RuleSet, Dictionary<string, int>> highScores;
+    private Dictionary<RuleSet, List<KeyValuePair<string, int>>> highScores;
 
     void Start()
     {
-        //move screen into position on game load
+        gameHandlerScript = GameObject.Find("GameHandler").GetComponent<GameHandler_Script>();
         transform.localPosition = Vector2.zero;
 
         highScoreScreen = GameObject.Find("HighScoreScreen");
@@ -33,51 +37,56 @@ public class HighScoreManager_Script : MonoBehaviour
         casualHighScoreText = GameObject.Find("CasualText").GetComponent<Text>();
         wildHighScoreText = GameObject.Find("WildText").GetComponent<Text>();
 
-        highScores = new Dictionary<RuleSet, Dictionary<string, int>>();
+        highScores = new Dictionary<RuleSet, List<KeyValuePair<string, int>>>();
         InitializeHighScores();
         LoadHighScores();
         UpdateHighScoreText();
 
-        HideScreen();
+        CloseMenu();
     }
 
-    // Initialize the high scores dictionary with an empty dictionary for each rule set
+    public void OpenMenu()
+    {
+        highScoreScreen.SetActive(true);
+    }
+
+    public void CloseMenu()
+    {
+        highScoreScreen.SetActive(false);
+    }
+
     private void InitializeHighScores()
     {
         foreach (RuleSet ruleSet in System.Enum.GetValues(typeof(RuleSet)))
         {
-            highScores.Add(ruleSet, new Dictionary<string, int>());
+            highScores.Add(ruleSet, new List<KeyValuePair<string, int>>());
         }
     }
 
-    // Load the high scores for each rule set from PlayerPrefs and add them to the dictionary
     private void LoadHighScores()
     {
         foreach (RuleSet ruleSet in System.Enum.GetValues(typeof(RuleSet)))
         {
-            Dictionary<string, int> scoresForRuleSet = highScores[ruleSet];
-            for (int i = 1; i <= 10; i++)
+            for (int i = 0; i < 10; i++)
             {
                 string key = ruleSet.ToString() + "HighScore" + i.ToString();
-                int score = PlayerPrefs.GetInt(key, 0);
-                scoresForRuleSet.Add(key, score);
+                string playerName = PlayerPrefs.GetString(key + "Name", "Player " + (i + 1));
+                int score = PlayerPrefs.GetInt(key + "Score", 0);
+                highScores[ruleSet].Add(new KeyValuePair<string, int>(playerName, score));
             }
         }
     }
 
-    // Update the high score text for each rule set in the UI
     private void UpdateHighScoreText()
     {
         foreach (RuleSet ruleSet in System.Enum.GetValues(typeof(RuleSet)))
         {
-            Dictionary<string, int> scoresForRuleSet = highScores[ruleSet];
             string text = "";
-            for (int i = 1; i <= 10; i++)
+            List<KeyValuePair<string, int>> scoresForRuleSet = highScores[ruleSet];
+            for (int i = 0; i < scoresForRuleSet.Count; i++)
             {
-                string key = ruleSet.ToString() + "HighScore" + i.ToString();
-                int score = scoresForRuleSet[key];
-                // Get the player name from the high score key
-                string playerName = key.Substring(key.IndexOf("HighScore") + 9);
+                string playerName = scoresForRuleSet[i].Key;
+                int score = scoresForRuleSet[i].Value;
                 text += playerName + ": " + score.ToString() + "\n";
             }
             switch (ruleSet)
@@ -98,37 +107,20 @@ public class HighScoreManager_Script : MonoBehaviour
         }
     }
 
-
-    // Save a new high score for the given name, score, and rule set
-    public void SaveHighScore(string name, int score, string ruleSetName)
+    public void SaveHighScore(string name, int score, RuleSet ruleSet)
     {
-        RuleSet ruleSet = (RuleSet)System.Enum.Parse( typeof(RuleSet), ruleSetName );
-        Dictionary<string, int> scoresForRuleSet = highScores[ruleSet];
-        string key = ruleSet.ToString() + "HighScore" + name;
-        if (scoresForRuleSet.ContainsKey(key))
+        List<KeyValuePair<string, int>> scoresForRuleSet = highScores[ruleSet];
+        scoresForRuleSet.Add(new KeyValuePair<string, int>(name, score));
+        scoresForRuleSet = scoresForRuleSet.OrderByDescending(entry => entry.Value).Take(10).ToList();
+        highScores[ruleSet] = scoresForRuleSet;
+        for (int i = 0; i < scoresForRuleSet.Count; i++)
         {
-            if (score > scoresForRuleSet[key])
-            {
-                scoresForRuleSet[key] = score;
-                PlayerPrefs.SetInt(key, score);
-                PlayerPrefs.Save();
-                UpdateHighScoreText();
-            }
+            string key = ruleSet.ToString() + "HighScore" + i.ToString();
+            PlayerPrefs.SetString(key + "Name", scoresForRuleSet[i].Key);
+            PlayerPrefs.SetInt(key + "Score", scoresForRuleSet[i].Value);
         }
-        else
-        {
-            PlayerPrefs.SetInt(key,score);
-            Debug.Log("new key created: " + key);
-        }
+        PlayerPrefs.Save();
         UpdateHighScoreText();
-
     }
 
-    public void ShowScreen(){
-        highScoreScreen.SetActive(true);
-    }
-
-    public void HideScreen(){
-        highScoreScreen.SetActive(false);
-    }
 }

@@ -51,7 +51,7 @@ public enum EntityType
 public class Options
 {
     //the name of the set rules for the game
-    public string RuleSet{get; set;}
+    public RuleSet ruleSet{get; set;}
     public GameMode gameMode{get; set;}
     public int goalPoints{get; set;}//num of points required to win (if gamemode is a race to points)
     public bool[] activePlayers{get; set;} = {true,false,false,false}; //which players are in the game - defaults to just player 1
@@ -73,9 +73,10 @@ public class Options
     }
     //f snakeSpeed, i startingSize, f ghostModeDuration, f deathPenaltyDuration,
     //i normalFoodGrowthAmount, f goldFoodSpawnChance,  i goldFoodGrowthAmount, b doSnakesTurnToFood
-    public Options( float _snakeSpeed, int _startingSize, float _ghostModeDuration, float _deathPenaltyDuration,
+    public Options( RuleSet _ruleSet, float _snakeSpeed, int _startingSize, float _ghostModeDuration, float _deathPenaltyDuration,
     int _normalFoodGrowthAmount, float _goldFoodSpawnChance, int _goldFoodGrowthAmount, bool _doSnakesTurnToFood 
-    ){
+    ){//has a big constructor so i dont have to use a bunch of big object initializers later on
+        ruleSet = _ruleSet;
         snakeSpeed = _snakeSpeed; 
         ghostModeDuration = _ghostModeDuration;
         deathPenaltyDuration = _deathPenaltyDuration;
