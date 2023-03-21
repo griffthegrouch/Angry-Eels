@@ -109,35 +109,30 @@
 
     - make it so ghosts cant kill snakes
 
-    
     - add save highscore button
     
-    
-    - about screen
-
+    - make the about screen (dev info, idea behind it, retro vs new snake comparison demo mode)
 
     - add a couple better sounds (death sound from worms, splashing, victory sound / music)
 
 
     - update movement
-    movement - add the ability to hold diagonal direction and move the snake in a staircase pattern
-             - add the ability to (chase the tail) where you wont collide with a snake's tail if its moving
-    - call the changes from the original snake movement "added very modern tight-controls"
+    movement
+        - add the ability to hold one direction then tap another to move one spot that direction then continue moving 
+        - add the ability to hold diagonal direction and move the snake in a staircase pattern
+        - add the ability to (chase the tail) where you wont collide with a snake's tail if its moving
     - add the option to use original snake controls and show the contrast between the new control version
     - add button on home screen specifically to test new controls vs original snake game controls
+
     - add a button on home screen to jump in and play retro snake game
     - add a quick play random button
-
-
-
-
-
 
 
 ***********************************************************************************************
     Ideas
 ***********************************************************************************************
 
+    powerup to eat other snakes that  "cuts" them off where you intersect them, turning them into food
     make bigger fish that can appear that can be eated in piece "leaving bones in the middle"
     "live" food / fish that can move slowly
     make number of lives

@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
@@ -51,33 +51,35 @@ public enum EntityType
 public class Options
 {
     //the name of the set rules for the game
-    public RuleSet ruleSet{get; set;}
-    public GameMode gameMode{get; set;}
-    public int goalPoints{get; set;}//num of points required to win (if gamemode is a race to points)
-    public bool[] activePlayers{get; set;} = {true,false,false,false}; //which players are in the game - defaults to just player 1
-    public int numPlayers{get; set;}   //num players in the game, set automatically when changing var activePlayers
+    public RuleSet ruleSet { get; set; }
+    public GameMode gameMode { get; set; }
+    public int goalPoints { get; set; }//num of points required to win (if gamemode is a race to points)
+    public bool[] activePlayers { get; set; } = { true, false, false, false }; //which players are in the game - defaults to just player 1
+    public int numPlayers { get; set; }   //num players in the game, set automatically when changing var activePlayers
     //public PlayerType[] playerTypes{get; set;}
-    public Color[] playerColours{get; set;}
-    public float snakeSpeed{get; set;}
-    public float ghostModeDuration{get; set;}
-    public float deathPenaltyDuration{get; set;}
-    public int startingSize{get; set;}
-    public int normalFoodGrowthAmount{get; set;}
-    public int deadSnakeFoodGrowthAmount {get; set;} = 1;
-    public int goldFoodGrowthAmount {get; set;}
-    public float goldFoodSpawnChance {get; set;}
-    public bool doSnakesTurnToFood {get; set;}
+    public Color[] playerColours { get; set; }
+    public float snakeSpeed { get; set; }
+    public float ghostModeDuration { get; set; }
+    public float deathPenaltyDuration { get; set; }
+    public int startingSize { get; set; }
+    public int normalFoodGrowthAmount { get; set; }
+    public int deadSnakeFoodGrowthAmount { get; set; } = 1;
+    public int goldFoodGrowthAmount { get; set; }
+    public float goldFoodSpawnChance { get; set; }
+    public bool doSnakesTurnToFood { get; set; }
 
-    public Options(){
-        
+    public Options()
+    {
+
     }
     //f snakeSpeed, i startingSize, f ghostModeDuration, f deathPenaltyDuration,
     //i normalFoodGrowthAmount, f goldFoodSpawnChance,  i goldFoodGrowthAmount, b doSnakesTurnToFood
-    public Options( RuleSet _ruleSet, float _snakeSpeed, int _startingSize, float _ghostModeDuration, float _deathPenaltyDuration,
-    int _normalFoodGrowthAmount, float _goldFoodSpawnChance, int _goldFoodGrowthAmount, bool _doSnakesTurnToFood 
-    ){//has a big constructor so i dont have to use a bunch of big object initializers later on
+    public Options(RuleSet _ruleSet, float _snakeSpeed, int _startingSize, float _ghostModeDuration, float _deathPenaltyDuration,
+    int _normalFoodGrowthAmount, float _goldFoodSpawnChance, int _goldFoodGrowthAmount, bool _doSnakesTurnToFood
+    )
+    {//has a big constructor so i dont have to use a bunch of big object initializers later on
         ruleSet = _ruleSet;
-        snakeSpeed = _snakeSpeed; 
+        snakeSpeed = _snakeSpeed;
         ghostModeDuration = _ghostModeDuration;
         deathPenaltyDuration = _deathPenaltyDuration;
         startingSize = _startingSize;
@@ -90,30 +92,30 @@ public class Options
 
 public class GameHandler_Script : MonoBehaviour
 {
-/////////////////////////// vars for the game handler
+    /////////////////////////// vars for the game handler
 
     //var keeps track of which screen is currently active (or shown on camera) - defaults to the title screen
-    public ActiveScreen activeScreen {get; set;} = ActiveScreen.Title;
+    public ActiveScreen activeScreen { get; set; } = ActiveScreen.Title;
 
     // scripts for the other screens
     private Menu_Script menuScript;
     private PauseMenu_Script pauseScreenScript;
     private WinScreen_Script winScreenScript;
     private HighScoreManager_Script highScoreManagerScript;
-    
+
 
     // All options for the game - set in the menu screen, then passed over on game start
-    public Options options {get; set;}
+    public Options options { get; set; }
 
     // 2D array for the player inputs - defaults to OG keyboard controls
-    public KeyCode[,] playerInputs {get; set;} = new KeyCode[,] {
+    public KeyCode[,] playerInputs { get; set; } = new KeyCode[,] {
         {KeyCode.UpArrow, KeyCode.DownArrow, KeyCode.LeftArrow, KeyCode.RightArrow},
         {KeyCode.W, KeyCode.S, KeyCode.A, KeyCode.D},
         {KeyCode.T, KeyCode.G, KeyCode.F, KeyCode.H},
         {KeyCode.I, KeyCode.K, KeyCode.J, KeyCode.L}
     };
 
-    public KeyCode[,] activePlayerInputs {get; set;}
+    public KeyCode[,] activePlayerInputs { get; set; }
 
     // Array for all the wall blocks in the game
     private GameObject[] wallArr;
@@ -121,7 +123,7 @@ public class GameHandler_Script : MonoBehaviour
     // List for all the food in the game
     private List<GameObject> foodList = new List<GameObject>();
 
-/////////////////////////// vars for the snakes
+    /////////////////////////// vars for the snakes
 
     // Array for the starting positions of the snakes, generated on game setup from # of players
     private Vector3[] startingPositions;
@@ -130,12 +132,12 @@ public class GameHandler_Script : MonoBehaviour
     private Snake_Script[] snakeScripts;
 
     // Arrays for all the score displays + their scripts
-    private GameObject[] playerGUIs; 
+    private GameObject[] playerGUIs;
     // always contains all 4 displays
     private PlayerGUI_Script[] playerGUIScripts;
-    
 
-/////////////////////////// prefabs + resources
+
+    /////////////////////////// prefabs + resources
 
     // Prefab for the snake
     private GameObject snakePrefab;
@@ -162,7 +164,7 @@ public class GameHandler_Script : MonoBehaviour
     private AudioClip pauseSFX;
     private AudioClip unPauseSFX;
 
-    
+
     void Start()
     {
         // grab all resources
@@ -186,7 +188,7 @@ public class GameHandler_Script : MonoBehaviour
         gameHandlerAudio = GetComponents<AudioSource>()[0];
 
         SFXAudio = GetComponents<AudioSource>()[1];
-        
+
         //grab sound fx + music
         gameMusic = Resources.Load("Audio/GameMusic") as AudioClip;
         pauseScreenMusic = Resources.Load("Audio/PauseScreenMusic") as AudioClip;
@@ -212,7 +214,8 @@ public class GameHandler_Script : MonoBehaviour
         );
     }
 
-    public void Pause(){//game paused - called from pause menu
+    public void Pause()
+    {//game paused - called from pause menu
         //play sfx
         PlaySFX(pauseSFX);
 
@@ -223,7 +226,8 @@ public class GameHandler_Script : MonoBehaviour
         CancelInvoke();
         Time.timeScale = 0;
     }
-    public void UnPause(){//game unpaused - called from pause menu
+    public void UnPause()
+    {//game unpaused - called from pause menu
         //play sfx
         PlaySFX(unPauseSFX);
 
@@ -232,53 +236,63 @@ public class GameHandler_Script : MonoBehaviour
 
         //resume time + snake movement
         CancelInvoke();
-        InvokeRepeating("MoveSnakes", 0, options.snakeSpeed);    
+        InvokeRepeating("MoveSnakes", 0, options.snakeSpeed);
         Time.timeScale = 1;
     }
 
     //method plays a sound effect from game handler audio, overload is for playing it with a specific volume
-    public void PlaySFX(AudioClip SFX){
+    public void PlaySFX(AudioClip SFX)
+    {
         float volume = 0.2f;
         SFXAudio.PlayOneShot(pauseSFX, volume);
-    } public void PlaySFX(AudioClip SFX, float volume){
+    }
+    public void PlaySFX(AudioClip SFX, float volume)
+    {
         SFXAudio.PlayOneShot(pauseSFX, volume);
     }
 
-    public void ExitGame(){ // called to close the game
-        // Application.Quit() does not work in the editor so need to compile different game exit code for build
-        #if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
-        #else
+    public void ExitGame()
+    { // called to close the game
+      // Application.Quit() does not work in the editor so need to compile different game exit code for build
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
             Application.Quit();
-        #endif
+#endif
     }
 
     //called from the pause menu - restarts game exactly how it was started
-    public void RestartGame(){
+    public void RestartGame()
+    {
         EndGame();
         InitializeGame(options);
     }
 
     //called from the pause menu - ends game and returns to the main menu
-    public void LeaveGameReturnHome(){
+    public void LeaveGameReturnHome()
+    {
         EndGame();
         menuScript.Open(ActiveScreen.MainMenu);
     }
 
-    public void ReturnToTitle(){
+    public void ReturnToTitle()
+    {
         menuScript.Open(ActiveScreen.Title);
     }
 
-    public void OpenHighScoreScreen(){
+    public void OpenHighScoreScreen()
+    {
         activeScreen = ActiveScreen.HighScore;
         highScoreManagerScript.Open();
     }
 
-    public void OpenSaveScoreScreen(){
+    public void OpenSaveScoreScreen()
+    {
 
     }
 
-    public void EndGame(){
+    public void EndGame()
+    {
         pauseScreenScript.Reset();
         foreach (var script in playerGUIScripts)
         {
@@ -286,7 +300,8 @@ public class GameHandler_Script : MonoBehaviour
         }
         foreach (var snake in snakeScripts)
         {
-            if(snake != null){
+            if (snake != null)
+            {
                 Destroy(snake.gameObject);
             }
         }
@@ -300,9 +315,11 @@ public class GameHandler_Script : MonoBehaviour
 
 
     //called by player indicators to communicate their current scores
-    public void UpdateScore(int playerNum, int score){
-        
-        if (options.gameMode == GameMode.Points && score >= options.goalPoints){
+    public void UpdateScore(int playerNum, int score)
+    {
+
+        if (options.gameMode == GameMode.Points && score >= options.goalPoints)
+        {
             EndGame();
             winScreenScript.GameWon(playerNum, score);
             OpenSaveScoreScreen();
@@ -327,19 +344,20 @@ public class GameHandler_Script : MonoBehaviour
         playerGUIScripts = new PlayerGUI_Script[options.numPlayers];
         startingPositions = new Vector3[options.numPlayers];
 
-        activePlayerInputs = new KeyCode[options.numPlayers,4];
+        activePlayerInputs = new KeyCode[options.numPlayers, 4];
         int activePlayerCounter = 0;
         // Initialize the player displays and scripts
         for (int i = 0; i < 4; i++)
         {
             //getting the player controls / inputs
-            if(options.activePlayers[i] == true){
-                activePlayerCounter ++;
+            if (options.activePlayers[i] == true)
+            {
+                activePlayerCounter++;
                 for (int j = 0; j < 4; j++)
                 {   //loop through all 4 inputs and map them to the active player's controls
-                    activePlayerInputs[activePlayerCounter-1,j] = playerInputs[i,j];
+                    activePlayerInputs[activePlayerCounter - 1, j] = playerInputs[i, j];
                 }
-                
+
             }
             if (i < options.numPlayers)
             {
@@ -364,12 +382,12 @@ public class GameHandler_Script : MonoBehaviour
                 InitializePlayer(i);
             }
         }
-        
+
         // Initialize the food
         SpawnFood(-1, default, EntityType.NormalFood);
 
         //calls Movesnake every user-set time increment to move the snakes
-        InvokeRepeating("MoveSnakes", 0, options.snakeSpeed);   
+        InvokeRepeating("MoveSnakes", 0, options.snakeSpeed);
     }
 
     // Initialize a player/snake
@@ -384,13 +402,13 @@ public class GameHandler_Script : MonoBehaviour
         //determining all the settings for the snake
         PlayerSettings playerSettings = new PlayerSettings(
             playerIndex, this, playerGUIScripts[playerIndex],
-            new KeyCode[] {activePlayerInputs[playerIndex,0], activePlayerInputs[playerIndex,1], activePlayerInputs[playerIndex,2], activePlayerInputs[playerIndex,3]},
+            new KeyCode[] { activePlayerInputs[playerIndex, 0], activePlayerInputs[playerIndex, 1], activePlayerInputs[playerIndex, 2], activePlayerInputs[playerIndex, 3] },
             options.playerColours[playerIndex], startingPositions[playerIndex],
             options.startingSize, options.snakeSpeed, options.ghostModeDuration, options.deathPenaltyDuration,
             options.normalFoodGrowthAmount, options.deadSnakeFoodGrowthAmount, options.goldFoodGrowthAmount,
             options.doSnakesTurnToFood
         );
-        
+
         //passing all the relevant information to the new snake
         newSnakeScript.SetupSnake(playerSettings, playerResources);
 
@@ -399,19 +417,30 @@ public class GameHandler_Script : MonoBehaviour
 
     }
 
-    private void MoveSnakes(){
+    private void MoveSnakes()
+    {
         // loop through all snakes and attempt to move them one space
 
         // store each snake's new position to determine if they collided head-on
-        List <Vector2> newPositions = new List <Vector2>();
-        List <int> crashedSnakes = new List <int>();
+        List<Vector2> newPositions = new List<Vector2>();
+        List<int> crashedSnakes = new List<int>();
 
-        foreach (Snake_Script snakeScript in snakeScripts)
+        foreach (Snake_Script snakeScript in snakeScripts)//checking if snakes collide
         {
-            newPositions.Add(snakeScript.TryMoveSnake());
+            if (snakeScript.snakeState == SnakeState.Ghosted)
+            {
+                // snakes cant crash into ghosted snakes, take it out of collision with snakes check
+                snakeScript.TryMoveSnake();
+            }
+            else
+            {
+                newPositions.Add(snakeScript.TryMoveSnake());
+            }
+
         }
 
-        if(options.numPlayers > 1){
+        if (options.numPlayers > 1)
+        {
             //some cool Linq to determine if any of the snake's new positions are duplicates 
             var duplicatePositions = newPositions
                 .Select((value, index) => new { value, index }) // add the index to each value
@@ -446,13 +475,21 @@ public class GameHandler_Script : MonoBehaviour
             {
                 if (i != playerNum && snakeScripts[i].CheckForSnakeAtPos(pos))
                 {
-                    return EntityType.Snake;
+                    if (snakeScripts[i].snakeState == SnakeState.Ghosted)
+                    {
+                        return EntityType.Empty;//if snake in location is ghosted, return empty
+                    }
+                    else
+                    {
+                        return EntityType.Snake;//if snake in location isnt ghosted, return snake
+                    }
+
                 }
             }
         }
         else// game handler calling this method
         {
-            // check if bumping into any snakes
+            // check if position contains any snakes
             foreach (Snake_Script snake in snakeScripts)
             {
                 if (snake.CheckForSnakeAtPos(pos))
@@ -461,7 +498,7 @@ public class GameHandler_Script : MonoBehaviour
                 }
             }
         }
-        // check if bumping into wall
+        // check if position contains a wall
         foreach (GameObject wall in wallArr)
         {
             if (pos == wall.transform.position)
@@ -469,7 +506,7 @@ public class GameHandler_Script : MonoBehaviour
                 return EntityType.Wall;
             }
         }
-        // check if bumping into food
+        // check if position contains food
         foreach (GameObject food in foodList)
         {
             if (pos == food.transform.position)
@@ -499,9 +536,9 @@ public class GameHandler_Script : MonoBehaviour
                         case EntityType.NormalFood:
                             SpawnFood(-1, default, EntityType.NormalFood);
                             break;
-                        case EntityType.DeadSnakeFood:                            
+                        case EntityType.DeadSnakeFood:
                             break;
-                        case EntityType.GoldFood:                
+                        case EntityType.GoldFood:
                             SpawnFood(-1, default, EntityType.NormalFood);
                             break;
                     }
@@ -521,11 +558,11 @@ public class GameHandler_Script : MonoBehaviour
         if (pos == default)
         {
             // find a new position for the food
-            pos = new Vector3(Random.Range(0, 25), Random.Range(0, 25), 0)+ this.transform.position;
+            pos = new Vector3(Random.Range(0, 25), Random.Range(0, 25), 0) + this.transform.position;
 
             while (CheckPos(-1, pos, false) != EntityType.Empty)
             {
-                pos = new Vector3(Random.Range(0, 25), Random.Range(0, 25), 0)+ this.transform.position;
+                pos = new Vector3(Random.Range(0, 25), Random.Range(0, 25), 0) + this.transform.position;
             }
         }
         //if attempting to spawn at a specific position
@@ -557,7 +594,7 @@ public class GameHandler_Script : MonoBehaviour
             default:
                 break;
         }
-        
+
         newFood.tag = foodType.ToString();
         foodList.Add(newFood);
 

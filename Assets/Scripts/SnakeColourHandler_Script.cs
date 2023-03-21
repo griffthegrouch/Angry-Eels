@@ -46,7 +46,6 @@ public class SnakeColourHandler_Script : MonoBehaviour
 
     public void AddRenderer(SpriteRenderer newRenderer)
     {
-        Debug.Log(renderers.Count);
         //add the new renderer to the list
         renderers.Add(newRenderer);
 

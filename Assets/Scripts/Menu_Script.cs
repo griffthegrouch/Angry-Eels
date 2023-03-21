@@ -23,16 +23,23 @@ public class Menu_Script : MonoBehaviour
     private Dictionary<string, Options> presetOptions = new Dictionary<string, Options>
     {
             // Ruleset ruleSet 
-            //f snakeSpeed, i startingSize, f ghostModeDuration, f deathPenaltyDuration, i normalFoodGrowthAmount, f goldFoodSpawnChance,  i goldFoodGrowthAmount, b doSnakesTurnToFood
+            // f snakeSpeed, i startingSize, f ghostModeDuration, f deathPenaltyDuration,
+            // i normalFoodGrowthAmount, f goldFoodSpawnChance,  i goldFoodGrowthAmount, b doSnakesTurnToFood
         { "Custom", new Options() },
         { "Classic", new Options(
-            RuleSet.Classic, 0.12f, 3, 2f, 0f, 1, 30, 20, false
+            RuleSet.Classic,
+            0.12f, 3, 2f, 0f, 
+            1, 30, 20, false
         ) },
         { "Casual", new Options(
-            RuleSet.Casual, 0.1f, 5, 3f, 3f, 3, 15, 25, true
+            RuleSet.Casual, 
+            0.1f, 5, 3f, 3f, 
+            3, 15, 25, true
         ) },
         { "Wild", new Options(
-            RuleSet.Wild, 0.05f, 3, 2f, 5f, 5, 15, 50, true
+            RuleSet.Wild, 
+            0.05f, 3, 2f, 5f, 
+            5, 15, 50, true
         ) }
     };
     // The currently selected preset index - defaults to classic mode

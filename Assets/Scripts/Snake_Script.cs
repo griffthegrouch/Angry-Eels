@@ -159,7 +159,8 @@ public class Snake_Script : MonoBehaviour
 
         // delete all segments of the snake
         storedSegments = 0;
-        if (playerSettings.doSnakesTurnToFood)
+        
+        if (playerSettings.doSnakesTurnToFood && score > 0)
         {   //if snake turns into food, spawn food where snake was
             playerSettings.gameHandler_Script.SpawnFood(playerSettings.playerNum, snakeHead.transform.position, EntityType.DeadSnakeFood);
             foreach (GameObject seg in segments)
@@ -250,6 +251,7 @@ public class Snake_Script : MonoBehaviour
 
     public void Die()
     {
+
         //stop the game
         snakeState = SnakeState.Dead;
 
@@ -321,9 +323,12 @@ public class Snake_Script : MonoBehaviour
         //setting the new target position
         Vector3 targetPos = snakeHead.transform.position + offset;
 
+        // if ghosted, cant eat food yet, wont destroy food when running into it
+        bool hungry = snakeState == SnakeState.Ghosted ? false : true; 
+
         // 3 
         //check if theres anything in the target position
-        switch (playerSettings.gameHandler_Script.CheckPos(playerSettings.playerNum, targetPos, true))
+        switch (playerSettings.gameHandler_Script.CheckPos(playerSettings.playerNum, targetPos, hungry))
         {
             case EntityType.NormalFood://if spot was food then eat the food
                 //play sfx
