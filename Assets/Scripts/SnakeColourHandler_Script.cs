@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,10 +8,10 @@ public class SnakeColourHandler_Script : MonoBehaviour
     // includes the original snake colours + gold flashing + ghost opacity flashing
     private Snake_Script snakeScript;
     private Color playerColour;
-    private List<SpriteRenderer> renderers { get; set; } = new List<SpriteRenderer>();  // List of all the snakes' renderers (head and segments)
+    private List<SpriteRenderer> renderers;  // List of all the snakes' renderers (head and segments)
 
     private Color colourEven;   // Color for the snake head and odd numbered segments
-    private Color colourOdd;   // Color for the even numbered segments
+    private Color colourOdd;   // Color for the even numbered segments   
 
 
     private float bounceTimer = 0;  // Timer used for colour bouncing and opacity bouncing
@@ -40,16 +40,18 @@ public class SnakeColourHandler_Script : MonoBehaviour
         colourEven = playerColour;//new Color(col.r - 0.2f, col.g - 0.2f, col.b - 0.2f);
         colourOdd = Color.Lerp(playerColour, Color.white, .42f);//setting alt colour based off original
 
+        renderers = new List<SpriteRenderer>(); 
         AddRenderer(headRenderer);
     }
 
     public void AddRenderer(SpriteRenderer newRenderer)
     {
+        Debug.Log(renderers.Count);
         //add the new renderer to the list
         renderers.Add(newRenderer);
 
         // Set the color of the segment correctly based on if its even or odd
-        Color col = renderers.Count % 2 == 1 ? colourEven : colourOdd;
+        Color col = (renderers.Count+1) % 2 == 1 ? colourEven : colourOdd;
         newRenderer.color = col;
     }
  
