@@ -245,9 +245,8 @@ public class GameHandler_Script : MonoBehaviour
     }
 
     public void ExitGame(){ // called to close the game
+        // Application.Quit() does not work in the editor so need to compile different game exit code for build
         #if UNITY_EDITOR
-            // Application.Quit() does not work in the editor so
-            // UnityEditor.EditorApplication.isPlaying need to be set to false to end the game
             UnityEditor.EditorApplication.isPlaying = false;
         #else
             Application.Quit();
@@ -260,10 +259,23 @@ public class GameHandler_Script : MonoBehaviour
         InitializeGame(options);
     }
 
-    //called from the pause menu - ends game and returns to the home screen
-    public void ReturnHome(){
+    //called from the pause menu - ends game and returns to the main menu
+    public void LeaveGameReturnHome(){
         EndGame();
-        menuScript.ReturnToTitle();
+        menuScript.Open(ActiveScreen.MainMenu);
+    }
+
+    public void ReturnToTitle(){
+        menuScript.Open(ActiveScreen.Title);
+    }
+
+    public void OpenHighScoreScreen(){
+        activeScreen = ActiveScreen.HighScore;
+        highScoreManagerScript.Open();
+    }
+
+    public void OpenSaveScoreScreen(){
+
     }
 
     public void EndGame(){
@@ -293,6 +305,7 @@ public class GameHandler_Script : MonoBehaviour
         if (options.gameMode == GameMode.Points && score >= options.goalPoints){
             EndGame();
             winScreenScript.GameWon(playerNum, score);
+            OpenSaveScoreScreen();
         }
 
     }
@@ -302,7 +315,7 @@ public class GameHandler_Script : MonoBehaviour
     {
         activeScreen = ActiveScreen.Game;
 
-        pauseMenu_Script.ShowPrompt();
+        pauseScreenScript.ShowPrompt();
         //play sfx
         PlaySFX(gameStartSFX);
 
@@ -315,7 +328,6 @@ public class GameHandler_Script : MonoBehaviour
         startingPositions = new Vector3[options.numPlayers];
 
         activePlayerInputs = new KeyCode[options.numPlayers,4];
-        Debug.Log(options.numPlayers);
         int activePlayerCounter = 0;
         // Initialize the player displays and scripts
         for (int i = 0; i < 4; i++)
@@ -325,7 +337,6 @@ public class GameHandler_Script : MonoBehaviour
                 activePlayerCounter ++;
                 for (int j = 0; j < 4; j++)
                 {   //loop through all 4 inputs and map them to the active player's controls
-                    Debug.Log(activePlayerCounter-1 + " " + j + "   " + activePlayerInputs[activePlayerCounter-1,j]);
                     activePlayerInputs[activePlayerCounter-1,j] = playerInputs[i,j];
                 }
                 
@@ -420,8 +431,6 @@ public class GameHandler_Script : MonoBehaviour
         }
 
     }
-
-
 
     public EntityType CheckPos(int playerNum, Vector3 pos, bool destroyFood)
     {

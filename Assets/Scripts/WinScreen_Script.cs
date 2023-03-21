@@ -54,45 +54,62 @@ public class WinScreen_Script : MonoBehaviour
         nameInput = GameObject.Find("NameEntry").GetComponent<InputField>();
 
         //hide the pause screen by default
-        HideScreen();
+        Close();
     }
 
     public void GameWon(int playerNum, int _score){
         score = _score;
         winnerNameText.text =  "Player " + playerNum + " with " + score + " points";
-        ShowScreen();
+        Open();
     }
-    public void ShowScreen()
+
+    public void Open()
     {        
         winScreen.SetActive(true);
         winnerTextAnimator.SetBool("screenOpen", true);
     }
 
-    public void HideScreen()
+    public void Close()
     {
         winnerTextAnimator.SetBool("screenOpen", false);
         winScreen.SetActive(false);
     }
 
     public void SaveBtn(){
-        highScoreManagerScript.SaveHighScore(nameInput.text, score, gameHandlerScript.options.RuleSet);
-        highScoreManagerScript.ShowScreen();
+        if(gameHandlerScript.activeScreen != ActiveScreen.WinMenu){
+            Debug.Log("trying to press a button thats currently inactive");
+            return;
+        } 
+        highScoreManagerScript.SaveHighScore(nameInput.text, score, gameHandlerScript.options.ruleSet);
+        highScoreManagerScript.Open();
     }
 
     public void RestartBtn()
     {
-        HideScreen();
+        if(gameHandlerScript.activeScreen != ActiveScreen.WinMenu){
+            Debug.Log("trying to press a button thats currently inactive");
+            return;
+        } 
+        Close();
         gameHandlerScript.RestartGame();
     }
 
     public void ReturnHomeBtn()
     {
-        HideScreen();
-        gameHandlerScript.ReturnHome();   
+        if(gameHandlerScript.activeScreen != ActiveScreen.WinMenu){
+            Debug.Log("trying to press a button thats currently inactive");
+            return;
+        } 
+        Close();
+        gameHandlerScript.ReturnToTitle();   
     }
 
     public void ExitGameBtn()
     {
+        if(gameHandlerScript.activeScreen != ActiveScreen.WinMenu){
+            Debug.Log("trying to press a button thats currently inactive");
+            return;
+        } 
         gameHandlerScript.ExitGame();
     }
 

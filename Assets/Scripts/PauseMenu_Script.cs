@@ -6,11 +6,10 @@ public class PauseMenu_Script : MonoBehaviour
 {
     // A reference to the game handler script
     private GameHandler_Script gameHandlerScript;
-    
+
 
     // The menu screen game object
     private GameObject pauseScreen;
-
     private Animator pauseTextAnimator;
 
     // The pause prompt GameObject
@@ -19,9 +18,6 @@ public class PauseMenu_Script : MonoBehaviour
     // Audio source for pause screen
     private AudioSource pauseScreenAudio;
 
-    // The var to keep track if the game is running
-    public bool gameIsRunning = false;
-    private bool gameIsPaused = false;
 
     // Start is called before the first frame update
     void Start()
@@ -44,13 +40,13 @@ public class PauseMenu_Script : MonoBehaviour
         pausePrompt = GameObject.Find("PausePrompt");
 
         //hide the pause screen by default
-        HideScreen();
+        Close();
         HidePrompt();
     }
 
-     // Update is called once per frame
+    // Update is called once per frame
     void Update()
-    {   
+    {
         if ((Input.GetMouseButtonDown(0) || Input.GetKeyDown(KeyCode.Space)) && (gameHandlerScript.activeScreen == ActiveScreen.Game))
         {   // if gamescreen is active and you press space or click, pause game
             Pause();
@@ -65,48 +61,62 @@ public class PauseMenu_Script : MonoBehaviour
     //////////////////////////////////////////////////////// pause menu buttons
     public void ExitGameBtn()
     {
-        if(gameHandlerScript.activeScreen == ActiveScreen.PauseMenu){
-            gameHandlerScript.ExitGame();
-        }
-        else
+        if (gameHandlerScript.activeScreen != ActiveScreen.PauseMenu)
         {
             Debug.Log("trying to press a button thats currently inactive");
+            return;
         }
+        gameHandlerScript.ExitGame();
+
     }
     public void ResumeBtn()
     {
-        if(gameHandlerScript.activeScreen == ActiveScreen.PauseMenu){
-            Unpause();
-        }
-        else
+        if (gameHandlerScript.activeScreen != ActiveScreen.PauseMenu)
         {
             Debug.Log("trying to press a button thats currently inactive");
+            return;
         }
+        Unpause();
+
     }
-     public void RestartBtn()
+    public void RestartBtn()
     {
-        if(gameHandlerScript.activeScreen == ActiveScreen.PauseMenu){
-            Unpause();
-            gameHandlerScript.RestartGame();
-        }
-        else
+        if (gameHandlerScript.activeScreen != ActiveScreen.PauseMenu)
         {
             Debug.Log("trying to press a button thats currently inactive");
+            return;
         }
+        Unpause();
+        gameHandlerScript.RestartGame();
+
     }
     public void ReturnHomeBtn()
     {
-        if(gameHandlerScript.activeScreen == ActiveScreen.PauseMenu){
-            Unpause();
-            HidePrompt();
-            gameHandlerScript.ReturnHome(); 
-        }
-        else
+        if (gameHandlerScript.activeScreen != ActiveScreen.PauseMenu)
         {
             Debug.Log("trying to press a button thats currently inactive");
-        }  
+            return;
+        }
+        Unpause();
+        HidePrompt();
+        gameHandlerScript.LeaveGameReturnHome();
+
     }
-    
+    public void EndGameAndSaveScore()
+    {
+        if (gameHandlerScript.activeScreen != ActiveScreen.PauseMenu)
+        {
+            Debug.Log("trying to press a button thats currently inactive");
+            return;
+        }
+        //gameHandlerScript.
+    }
+
+
+
+
+
+
 
     public void Pause()
     {
@@ -115,7 +125,7 @@ public class PauseMenu_Script : MonoBehaviour
 
         HidePrompt();
 
-        ShowScreen();
+        Open();
         gameHandlerScript.Pause();
     }
 
@@ -126,24 +136,24 @@ public class PauseMenu_Script : MonoBehaviour
 
         ShowPrompt();
 
-        HideScreen();
+        Close();
         gameHandlerScript.UnPause();
     }
 
 
-    public void ShowScreen()
-    {        
+    public void Open()
+    {
         pauseScreen.SetActive(true);
         pauseTextAnimator.SetBool("screenOpen", true);
     }
 
-    public void HideScreen()
+    public void Close()
     {
         pauseTextAnimator.SetBool("screenOpen", false);
         pauseScreen.SetActive(false);
     }
     public void ShowPrompt()
-    {        
+    {
         pausePrompt.SetActive(true);
     }
 
@@ -153,8 +163,9 @@ public class PauseMenu_Script : MonoBehaviour
     }
 
 
-    public void Reset(){        
+    public void Reset()
+    {
         pauseScreenAudio.Pause();
-        HideScreen();
+        Close();
     }
 }

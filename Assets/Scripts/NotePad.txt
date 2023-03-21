@@ -105,10 +105,21 @@
     TODO
 ***********************************************************************************************
 
+    WHATS LEFT  BEFORE PUBLISHING
+
     - make it so ghosts cant kill snakes
 
+    
     - add save highscore button
+    
+    
+    - about screen
 
+
+    - add a couple better sounds (death sound from worms, splashing, victory sound / music)
+
+
+    - update movement
     movement - add the ability to hold diagonal direction and move the snake in a staircase pattern
              - add the ability to (chase the tail) where you wont collide with a snake's tail if its moving
     - call the changes from the original snake movement "added very modern tight-controls"
@@ -117,20 +128,10 @@
     - add a button on home screen to jump in and play retro snake game
     - add a quick play random button
 
-    currently redoing the menu + advanced options
-    1 - title screen
-    2 - how to play screen
 
-    - add a couple better sounds (death sound from worms, splashing, victory sound / music)
-    - add controller controls for the menus
 
-    - redo the menu screen 
-        want to be able to change player colours without opening advanced options
 
-    - high score saving
-        - allow user to save high score locally
-        - let user enter a 4 char name retro-stye
-        - save the score, player name, and what gamemode was selected
+
 
 
 ***********************************************************************************************
@@ -141,7 +142,6 @@
     "live" food / fish that can move slowly
     make number of lives
     make random obstacle maker, and preset stages to choose from.
-    make high score file to keep reading from.
 
     make different levels 
         - different level sizes

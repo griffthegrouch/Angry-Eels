@@ -7,13 +7,6 @@ using System.Linq;
 
 public class HighScoreManager_Script : MonoBehaviour
 {
-    public enum RuleSet
-    {
-        Custom,
-        Classic,
-        Casual,
-        Wild
-    }
 
     private GameHandler_Script gameHandlerScript;
 
@@ -42,17 +35,22 @@ public class HighScoreManager_Script : MonoBehaviour
         LoadHighScores();
         UpdateHighScoreText();
 
-        CloseMenu();
+        Close();
     }
 
-    public void OpenMenu()
+    public void Open()
     {
         highScoreScreen.SetActive(true);
     }
 
-    public void CloseMenu()
+    public void Close()
     {
         highScoreScreen.SetActive(false);
+    }
+
+    public int IsThisHighscore(RuleSet ruleSet, int score)//call to ask if the score is a highscore for given ruleset, returns the number the new score would achieve
+    {
+        return 1;
     }
 
     private void InitializeHighScores()

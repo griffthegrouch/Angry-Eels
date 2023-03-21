@@ -139,6 +139,8 @@ public class Menu_Script : MonoBehaviour
         
         //setup the preset selector and display the default values
         DisplayPreset(selectedPreset);
+        //lock the controls if displaying a preset (not custom)
+        UpdateAdvancedOptionsLock();
 
         //then update gamemode indicator to reflect the default selection
         UpdateGameMode(options.gameMode);
@@ -173,7 +175,7 @@ public class Menu_Script : MonoBehaviour
         options.numPlayers = this.numPlayers;
 
         //close the menu's windows
-        CloseMenu();
+        Close();
 
         //tell the handler to start the game
         gameHandlerScript.InitializeGame(options);
@@ -214,14 +216,29 @@ public class Menu_Script : MonoBehaviour
             //Debug.Log("trying to press a button thats currently inactive");
         }
     }
-    public void ReturnToTitle()
-    {
-        // Open the menu screens
-        gameHandlerScript.activeScreen = ActiveScreen.Title;
-        menuParent.localPosition = Vector2.zero;
+    public void Open(ActiveScreen screen){// Open the menu screens, able to open to a specific screen   
+        switch (screen)
+        {
+            case ActiveScreen.Title:
+                gameHandlerScript.activeScreen = ActiveScreen.Title;
+                menuParent.localPosition = Vector2.zero;
+                break;
+            case ActiveScreen.MainMenu:
+                gameHandlerScript.activeScreen = ActiveScreen.MainMenu;
+                menuParent.localPosition = new Vector2(0,500);
+                break;
+            case ActiveScreen.AdvancedOptions:
+                gameHandlerScript.activeScreen = ActiveScreen.AdvancedOptions;
+                ShowAdvancedOptions();
+                menuParent.localPosition = new Vector2(0,500);
+                break;
+            default:
+                Debug.LogError("opened menu but didnt set active screen to a valid menu screen");
+                break;
+        }
         menuParent.gameObject.SetActive(true);
     }
-    public void CloseMenu()
+    public void Close()
     {
         // Close the menu screens
         menuParent.gameObject.SetActive(false);
@@ -475,6 +492,7 @@ public class Menu_Script : MonoBehaviour
             if(selectedPreset == 0){//if using the custom preset, first save the values from the screen
                 SaveAdvancedOptionsFromScreen();   
             }
+            HideAdvancedOptions();
             StartGame();
         }
         else
@@ -502,7 +520,7 @@ public class Menu_Script : MonoBehaviour
             Debug.Log("trying to press a button thats currently inactive");
         }
     }
-    public void AdvancedOptionsCustomizeBtn()//allows the user to customize an existing preset
+    public void AdvancedOptionsCustomizeBtn()//saves the preset's values to the custom preset, it allows the user to customize an existing preset
     {
         if(gameHandlerScript.activeScreen == ActiveScreen.AdvancedOptions){
             //save the selected preset options to override the custom preset
