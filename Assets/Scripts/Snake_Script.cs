@@ -2,7 +2,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum SnakeState{
+public enum SnakeState
+{
     Alive,
     Dead,
     Golden,
@@ -12,30 +13,31 @@ public enum SnakeState{
 
 public class PlayerSettings
 {
-/////////////////////////// vars required to setup snake
-    public int playerNum{get; set;}
-    public GameHandler_Script gameHandler_Script{get; set;}
-    public PlayerGUI_Script playerGUIScript{get; set;}
-    public KeyCode[] playerInputs{get; set;}
-    public Color playerColour{get; set;}
-    public Vector2 startingPos{get; set;}
-    public int startingSize{get; set;}    // Starting size of the snake
-    public float snakeSpeed{get; set;}
-    public float ghostModeDuration{get; set;}    // Duration player is invincible directly after spawning
-    public float deathPenaltyDuration{get; set;}    // Duration player is unable to play after dying
-    public int normalFoodGrowthAmount{get; set;}
-    public int deadSnakeFoodGrowthAmount{get; set;}
-    public int goldFoodGrowthAmount{get; set;}
-    public bool doSnakesTurnToFood{get; set;}
+    /////////////////////////// vars required to setup snake
+    public int playerNum { get; set; }
+    public GameHandler_Script gameHandler_Script { get; set; }
+    public PlayerGUI_Script playerGUIScript { get; set; }
+    public KeyCode[] playerInputs { get; set; }
+    public Color playerColour { get; set; }
+    public Vector2 startingPos { get; set; }
+    public int startingSize { get; set; }    // Starting size of the snake
+    public float snakeSpeed { get; set; }
+    public float ghostModeDuration { get; set; }    // Duration player is invincible directly after spawning
+    public float deathPenaltyDuration { get; set; }    // Duration player is unable to play after dying
+    public int normalFoodGrowthAmount { get; set; }
+    public int deadSnakeFoodGrowthAmount { get; set; }
+    public int goldFoodGrowthAmount { get; set; }
+    public bool doSnakesTurnToFood { get; set; }
 
-    public PlayerSettings(int _playerNum, 
-    GameHandler_Script _gameHandler_Script, PlayerGUI_Script _playerGUIScript, 
+    public PlayerSettings(int _playerNum,
+    GameHandler_Script _gameHandler_Script, PlayerGUI_Script _playerGUIScript,
     KeyCode[] _playerInputs,
     Color _playerColour, Vector2 _startingPos, int _startingSize, float _snakeSpeed,
     float _ghostModeDuration, float _deathPenaltyDuration,
     int _normalFoodGrowthAmount, int _deadSnakeFoodGrowthAmount, int _goldFoodGrowthAmount,
     bool _doSnakesTurnToFood
-    ){
+    )
+    {
         playerNum = _playerNum;
         gameHandler_Script = _gameHandler_Script;
         playerGUIScript = _playerGUIScript;
@@ -55,20 +57,20 @@ public class PlayerSettings
 }
 public class PlayerResources
 {
-    public GameObject segmentPrefab{get; set;}
-    public Sprite segmentSpriteStraight {get; set;}
-    public Sprite segmentSpriteCurved {get; set;}
-    public Sprite segmentSpriteTail {get; set;}
-    public AudioClip chompSFX {get; set;}
-    public AudioClip deathSFX {get; set;}
-    public AudioClip yummySFX {get; set;}
-    public AudioClip crashSFX {get; set;}
-    public AudioClip popSFX {get; set;}
-    public AudioClip popMultipleSFX {get; set;}
-    public AudioClip powerUpSFX {get; set;}
+    public GameObject segmentPrefab { get; set; }
+    public Sprite segmentSpriteStraight { get; set; }
+    public Sprite segmentSpriteCurved { get; set; }
+    public Sprite segmentSpriteTail { get; set; }
+    public AudioClip chompSFX { get; set; }
+    public AudioClip deathSFX { get; set; }
+    public AudioClip yummySFX { get; set; }
+    public AudioClip crashSFX { get; set; }
+    public AudioClip popSFX { get; set; }
+    public AudioClip popMultipleSFX { get; set; }
+    public AudioClip powerUpSFX { get; set; }
     public PlayerResources(
         GameObject _segmentPrefab, Sprite _segmentSpriteStraight, Sprite _segmentSpriteCurved, Sprite _segmentSpriteTail,
-        AudioClip _chompSFX, AudioClip _deathSFX, AudioClip _yummySFX, AudioClip _crashSFX, 
+        AudioClip _chompSFX, AudioClip _deathSFX, AudioClip _yummySFX, AudioClip _crashSFX,
         AudioClip _popSFX, AudioClip _popMultipleSFX, AudioClip _powerUpSFX)
     {
         segmentPrefab = _segmentPrefab;
@@ -95,23 +97,37 @@ public class Snake_Script : MonoBehaviour
     private SnakeColourHandler_Script colourHandler;
     private GameObject snakeHead;
 
-    public SnakeState snakeState {get; set;} = SnakeState.Dead; // flag indicating which state the snake is currently in - defaults to dead
+    public SnakeState snakeState { get; set; } = SnakeState.Dead; // flag indicating which state the snake is currently in - defaults to dead
     private List<GameObject> segments = new List<GameObject>();    // List of all the segments of the snake
 
     private int score = 0;    // Current score of the snake (how many segments long)
     private int storedSegments = 0;    // keeps track of how many segments need to be grown
     private float deathTimer = 0;    // Timer remaining for when player death penalty is active
+
+
+    //vars for snake movement
+    private Dictionary<KeyCode, Vector2> inputDirections;
     private char currentDirection;   // current direction of the snake 
     private char verticalBufferDirection;   // next vertical (U or D) direction of the snake (as user inputted)
     private char horizontalBufferDirection; // next horizontal (L or R) direction of the snake (as user inputted)
+    private bool singleStepActivated = false;
+    private bool hasMoved = false;
 
 
-    public void SetupSnake(PlayerSettings _playerSettings, PlayerResources _playerResources){
+    public void SetupSnake(PlayerSettings _playerSettings, PlayerResources _playerResources)
+    {
 
         playerSettings = _playerSettings;
         playerResources = _playerResources;
-
         snakeHead = this.transform.GetChild(0).gameObject;
+
+        inputDirections = new Dictionary<KeyCode, Vector2>()
+        {
+            { playerSettings.playerInputs[0], Vector2.up },
+            { playerSettings.playerInputs[1], Vector2.down },
+            { playerSettings.playerInputs[2], Vector2.left },
+            { playerSettings.playerInputs[3], Vector2.right }
+        };
 
         //setup the gui
         playerSettings.playerGUIScript.SetValues(playerSettings.gameHandler_Script, playerSettings.playerNum, playerSettings.playerColour);
@@ -140,7 +156,8 @@ public class Snake_Script : MonoBehaviour
 
         Grow(playerSettings.startingSize - 1);// starting size -1 because it starts as a head segment
 
-        if(playerSettings.ghostModeDuration > 0){//if ghosting is enabled, start the game off ghosted for the ruleset's declared duration
+        if (playerSettings.ghostModeDuration > 0)
+        {//if ghosting is enabled, start the game off ghosted for the ruleset's declared duration
             colourHandler.StartGhostMode(playerSettings.ghostModeDuration);
             // Set the countdown display to show the duration of the ghosting
             playerSettings.playerGUIScript.StartGhostMode(playerSettings.ghostModeDuration);
@@ -159,17 +176,18 @@ public class Snake_Script : MonoBehaviour
 
         // delete all segments of the snake
         storedSegments = 0;
-        
+
         if (playerSettings.doSnakesTurnToFood && score > 0)
         {   //if snake turns into food, spawn food where snake was
             playerSettings.gameHandler_Script.SpawnFood(playerSettings.playerNum, snakeHead.transform.position, EntityType.DeadSnakeFood);
             foreach (GameObject seg in segments)
-            { 
+            {
                 playerSettings.gameHandler_Script.SpawnFood(playerSettings.playerNum, seg.transform.position, EntityType.DeadSnakeFood);
                 Destroy(seg);
             }
         }
-        else{
+        else
+        {
             foreach (GameObject seg in segments)
             {
                 Destroy(seg);
@@ -187,19 +205,38 @@ public class Snake_Script : MonoBehaviour
         // Initialize the current and next direction of the snake to up so it moves up on spawn
         verticalBufferDirection = 'x';
         currentDirection = horizontalBufferDirection = 'u';
+        hasMoved = false;
 
         score = 0;
         UpdateScore();
+    }
 
+    public void Die()
+    {
+        Debug.Log(currentDirection + "DEAD");
+        //stop the game
+        snakeState = SnakeState.Dead;
+
+        // Reset the snake to its starting values
+        ResetSnake();
+
+        //if death penalty is on, set up death timer and change snake colour
+        if (playerSettings.deathPenaltyDuration != 0)
+        {
+            playerSettings.playerGUIScript.StartDeathPenaltyMode(playerSettings.deathPenaltyDuration);
+            deathTimer = playerSettings.deathPenaltyDuration;
+        }
     }
 
     private void Update()
     {
         //Debug.Log(snakeState);
 
-        if(deathTimer != 0){//if death timer is active, tick it down
+        if (deathTimer != 0)
+        {//if death timer is active, tick it down
             deathTimer -= Time.deltaTime;
-            if (deathTimer <= 0){ //death timer over
+            if (deathTimer <= 0)
+            { //death timer over
                 deathTimer = 0;
             }
             return;
@@ -215,55 +252,161 @@ public class Snake_Script : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyDown(playerSettings.playerInputs[0]))
-        {   //pressing up
-            //prevents attempts to buffer direction to current axis - unless theres already a buffer on the other axis
-            if ( (currentDirection != 'u' && currentDirection != 'd') || (horizontalBufferDirection != 'x') )
-            {
-                verticalBufferDirection = 'u';
-            }
-        }
-        if (Input.GetKeyDown(playerSettings.playerInputs[1]))
-        {   //pressing down
-            //prevents attempts to buffer direction to current axis - unless theres already a buffer on the other axis
-            if ( (currentDirection != 'u' && currentDirection != 'd') || (horizontalBufferDirection != 'x') )
-            {
-                verticalBufferDirection = 'd';
-            }
-        }
-        if (Input.GetKeyDown(playerSettings.playerInputs[2]))
-        {   //pressing left
-            //prevents attempts to buffer direction to current axis - unless theres already a buffer on the other axis
-            if ( (currentDirection != 'l' && currentDirection != 'r') || (verticalBufferDirection != 'x') )
-            {
-                horizontalBufferDirection = 'l';
-            }
-        }
-        if (Input.GetKeyDown(playerSettings.playerInputs[3]))
-        {   //pressing right
-            //prevents attempts to buffer direction to current axis - unless theres already a buffer on the other axis
-            if ( (currentDirection != 'l' && currentDirection != 'r') || (verticalBufferDirection != 'x') )
-            {
-                horizontalBufferDirection = 'r';
-            }
+        //if snake isnt dead, you can input buffered controls
+        if (snakeState != SnakeState.Dead)
+        {
+            InputLogic();
         }
     }
 
-    public void Die()
+    private void InputLogic()
     {
+        if (!hasMoved)//prevents player from moving directionally on the first move (always up)
+        {
+            return;
+        }
+        Vector2 directionsTapped = Vector2.zero;
+        Vector2 directionsHeld = Vector2.zero;
 
-        //stop the game
-        snakeState = SnakeState.Dead;
+        // Iterate through the input directions dictionary to determine the tapped and held directions
+        foreach (var kvp in inputDirections)
+        {
+            if (Input.GetKeyDown(kvp.Key))
+            {
+                directionsTapped += kvp.Value;
+            }
+            if (Input.GetKey(kvp.Key))
+            {
+                directionsHeld += kvp.Value;
+            }
+        }
 
-        // Reset the snake to its starting values
-        ResetSnake();
+        // Do not allow buffering the opposite direction
+        bool canBufferVertical = (currentDirection != 'u' && currentDirection != 'd');
+        bool canBufferHorizontal = (currentDirection != 'l' && currentDirection != 'r');
 
-        //if death penalty is on, set up death timer and change snake colour
-        if(playerSettings.deathPenaltyDuration != 0){
-            playerSettings.playerGUIScript.StartDeathPenaltyMode(playerSettings.deathPenaltyDuration);
-            deathTimer = playerSettings.deathPenaltyDuration;
-        }        
+        switch (directionsTapped.y) // vertical direction taps
+        {
+            case 1:
+                // tapped up
+                if (canBufferVertical || (horizontalBufferDirection != 'x'))
+                {
+                    verticalBufferDirection = 'u';
+                }
+                return;
+            case -1:
+                // tapped down
+                if (canBufferVertical || (horizontalBufferDirection != 'x'))
+                {
+                    verticalBufferDirection = 'd';
+                }
+                return;
+        }
+
+        switch (directionsTapped.x) // horizontal direction taps
+        {
+            case 1:
+                // pressing right
+                if (canBufferHorizontal || (verticalBufferDirection != 'x'))
+                {
+                    horizontalBufferDirection = 'r';
+                }
+                return;
+            case -1:
+                // pressing left
+                if (canBufferHorizontal || (verticalBufferDirection != 'x'))
+                {
+                    horizontalBufferDirection = 'l';
+                }
+                return;
+        }
+
+        // Check if both horizontal and vertical directions are held for diagonal movement (staircase)
+        if (directionsHeld.x != 0 && directionsHeld.y != 0)
+        {
+            // Diagonal direction handling
+            if (currentDirection == 'l' || currentDirection == 'r')
+            {
+                verticalBufferDirection = directionsHeld.y > 0 ? 'u' : 'd';
+                horizontalBufferDirection = 'x';
+            }
+            else
+            {
+                horizontalBufferDirection = directionsHeld.x > 0 ? 'r' : 'l';
+                verticalBufferDirection = 'x';
+            }
+        }
+        else
+        {
+            // Check if a direction is held (not both, since it would be handled by the diagonal movement code)
+            if (directionsHeld != Vector2.zero)
+            {
+                // Handle the case when a horizontal direction is held
+                if (directionsHeld.x != 0)
+                {
+                    currentDirection = directionsHeld.x > 0 ? 'r' : 'l';
+                    verticalBufferDirection = 'x';
+                }
+                // Handle the case when a vertical direction is held
+                else if (directionsHeld.y != 0)
+                {
+                    currentDirection = directionsHeld.y > 0 ? 'u' : 'd';
+                    horizontalBufferDirection = 'x';
+                }
+            }
+            else
+            {
+                // Vertical direction taps
+                switch (directionsTapped.y)
+                {
+                    case 1:
+                        if ((currentDirection != 'u' && currentDirection != 'd') || (horizontalBufferDirection != 'x'))
+                        {
+                            verticalBufferDirection = 'u';
+                        }
+                        return;
+                    case -1:
+                        if ((currentDirection != 'u' && currentDirection != 'd') || (horizontalBufferDirection != 'x'))
+                        {
+                            verticalBufferDirection = 'd';
+                        }
+                        return;
+                }
+
+                // Horizontal direction taps
+                switch (directionsTapped.x)
+                {
+                    case 1:
+                        if ((currentDirection != 'l' && currentDirection != 'r') || (verticalBufferDirection != 'x'))
+                        {
+                            horizontalBufferDirection = 'r';
+                        }
+                        return;
+                    case -1:
+                        if ((currentDirection != 'l' && currentDirection != 'r') || (verticalBufferDirection != 'x'))
+                        {
+                            horizontalBufferDirection = 'l';
+                        }
+                        return;
+                }
+            }
+        }
     }
+    private void UseBuffer()
+    {
+        if ((currentDirection == 'u' || currentDirection == 'd') && horizontalBufferDirection != 'x')
+        {
+            currentDirection = horizontalBufferDirection;
+            horizontalBufferDirection = 'x';
+        }
+        else if ((currentDirection == 'l' || currentDirection == 'r') && verticalBufferDirection != 'x')
+        {
+            currentDirection = verticalBufferDirection;
+            verticalBufferDirection = 'x';
+        }
+    }
+
+
 
     public Vector2 TryMoveSnake()
     {//called by game handler
@@ -281,17 +424,11 @@ public class Snake_Script : MonoBehaviour
         }
 
         //2
-        if ((currentDirection == 'u' || currentDirection == 'd') && horizontalBufferDirection != 'x'){
-            //currently moving vertically - and have a horizontal buffered direction
-            currentDirection = horizontalBufferDirection;
-            horizontalBufferDirection = 'x';
-        }
-        else if ((currentDirection == 'l' || currentDirection == 'r') && verticalBufferDirection != 'x'){
-            //currently moving horizontal - and have a vertical buffered direction
-            currentDirection = verticalBufferDirection;
-            verticalBufferDirection = 'x';
-        }
-        
+
+        UseBuffer();//buffer determines which direction the snake should go with advanced logic to allow advanced movement
+
+        hasMoved = true;
+        //use current position and current direction to determine when head will move to
         Vector3 offset = Vector3.zero;
         Vector3 newHeadRotation = Vector3.zero;
         switch (currentDirection)
@@ -324,7 +461,7 @@ public class Snake_Script : MonoBehaviour
         Vector3 targetPos = snakeHead.transform.position + offset;
 
         // if ghosted, cant eat food yet, wont destroy food when running into it
-        bool hungry = snakeState == SnakeState.Ghosted ? false : true; 
+        bool hungry = snakeState == SnakeState.Ghosted ? false : true;
 
         // 3 
         //check if theres anything in the target position
@@ -332,9 +469,12 @@ public class Snake_Script : MonoBehaviour
         {
             case EntityType.NormalFood://if spot was food then eat the food
                 //play sfx
-                if(playerSettings.normalFoodGrowthAmount >= 3){
+                if (playerSettings.normalFoodGrowthAmount >= 3)
+                {
                     playerSettings.gameHandler_Script.PlaySFX(playerResources.popMultipleSFX);
-                }else{
+                }
+                else
+                {
                     playerSettings.gameHandler_Script.PlaySFX(playerResources.popSFX);
                 }
                 EatFood(playerSettings.normalFoodGrowthAmount);
@@ -343,7 +483,7 @@ public class Snake_Script : MonoBehaviour
             case EntityType.DeadSnakeFood://if spot was food then eat the food
                 //play sfx
                 playerSettings.gameHandler_Script.PlaySFX(playerResources.popSFX);
-                
+
                 EatFood(playerSettings.deadSnakeFoodGrowthAmount);
                 goto case EntityType.Empty;//the act as if the target spot was empty
 
@@ -361,7 +501,7 @@ public class Snake_Script : MonoBehaviour
                 colourHandler.StartGoldMode(goldModeDuration);
                 // Set the gui to gold mode for the set duration
                 playerSettings.playerGUIScript.StartGoldMode(goldModeDuration);
-                
+
                 goto case EntityType.Empty;//the act as if the target spot was empty
 
             case EntityType.Wall://if spot was a wall ---> die
@@ -405,7 +545,8 @@ public class Snake_Script : MonoBehaviour
     {
         //0 - grow if able
         //if snake has stored segments, grow one segment, and reflect the change 
-        if(storedSegments > 0){
+        if (storedSegments > 0)
+        {
 
             storedSegments -= 1;
             // Instantiate a new segment prefab 
@@ -439,7 +580,7 @@ public class Snake_Script : MonoBehaviour
             tempPos = segments[i].transform.position;
             segments[i].transform.position = oldPos;
             oldPos = tempPos;
-            
+
         }
 
         //after colouring snake correctly, update its segment's sprites + facing directions
@@ -454,12 +595,12 @@ public class Snake_Script : MonoBehaviour
         //what sprite + angle to use for each segment (straight, curved, or tail)
 
         //direction of the seg ahead of current one (starts on head)
-        Vector2 previousSegmentDir =  Vector2.zero;
+        Vector2 previousSegmentDir = Vector2.zero;
         Vector2 nextSegmentDir = Vector2.zero;
         Vector3 newRotation = Vector3.zero;
         Sprite newSprite = playerResources.segmentSpriteStraight;
         GameObject currentSeg;
-        
+
         //cycle through each segment
         for (int i = 0; i < segments.Count; i++)
         {
@@ -467,47 +608,54 @@ public class Snake_Script : MonoBehaviour
 
             //determining the relative positions of the segments before and after current segment
             // the first segment (uses snake head as previous seg)
-            if(i == 0){
-                previousSegmentDir = snakeHead.transform.position - segments[i].transform.position; 
-                nextSegmentDir = segments[i+1].transform.position - segments[i].transform.position; 
+            if (i == 0)
+            {
+                previousSegmentDir = snakeHead.transform.position - segments[i].transform.position;
+                nextSegmentDir = segments[i + 1].transform.position - segments[i].transform.position;
             }
             //the last segment (only needs previous seg value)
-            else if(i == segments.Count -1){
-                previousSegmentDir = segments[i-1].transform.position - segments[i].transform.position; 
+            else if (i == segments.Count - 1)
+            {
+                previousSegmentDir = segments[i - 1].transform.position - segments[i].transform.position;
             }
-            else{//all the segments between
-                previousSegmentDir = segments[i-1].transform.position - segments[i].transform.position; 
-                nextSegmentDir = segments[i+1].transform.position - segments[i].transform.position; 
+            else
+            {//all the segments between
+                previousSegmentDir = segments[i - 1].transform.position - segments[i].transform.position;
+                nextSegmentDir = segments[i + 1].transform.position - segments[i].transform.position;
             }
-            
+
             //if its not the last segment 
-            if(i != segments.Count - 1){
+            if (i != segments.Count - 1)
+            {
                 //determing if its a horizontal straight segment
-                if(previousSegmentDir.y == 0 && nextSegmentDir.y == 0){
+                if (previousSegmentDir.y == 0 && nextSegmentDir.y == 0)
+                {
                     newSprite = playerResources.segmentSpriteStraight;
                     newRotation = new Vector3(0, 0, 90);
                 }
                 //determing if its a vertical straight segment
-                else if(previousSegmentDir.x == 0 && nextSegmentDir.x == 0){
+                else if (previousSegmentDir.x == 0 && nextSegmentDir.x == 0)
+                {
                     newSprite = playerResources.segmentSpriteStraight;
                     newRotation = new Vector3(0, 0, 0);
                 }
-                else {
+                else
+                {
                     newSprite = playerResources.segmentSpriteCurved;
                     //if its not a straight segment, determine which direction the curve needs to go
-                    
+
                     switch (previousSegmentDir + nextSegmentDir)
                     {
-                        case var value when value == new Vector2(-1,1):     //above + left
+                        case var value when value == new Vector2(-1, 1):     //above + left
                             newRotation = new Vector3(0, 0, 180);
                             break;
                         case var value when value == new Vector2(1, 1):     //above + right
                             newRotation = new Vector3(0, 0, 90);
                             break;
-                        case var value when value == new Vector2(-1,-1):    //below+  left
+                        case var value when value == new Vector2(-1, -1):    //below+  left
                             newRotation = new Vector3(0, 0, 270);
                             break;
-                        case var value when value == new Vector2(1,-1):     //below + right
+                        case var value when value == new Vector2(1, -1):     //below + right
                             newRotation = new Vector3(0, 0, 0);
                             break;
                         default:
@@ -517,7 +665,8 @@ public class Snake_Script : MonoBehaviour
 
             }
             //if its the last segment (tail)
-            else{
+            else
+            {
                 newSprite = playerResources.segmentSpriteTail;
 
                 //using the previous segment's relative position to determine which way to angle tail
@@ -542,9 +691,9 @@ public class Snake_Script : MonoBehaviour
 
             //setting the new sprite and rotation
             currentSeg.GetComponent<SpriteRenderer>().sprite = newSprite;
-            
-            currentSeg.transform.rotation = Quaternion.Euler(newRotation);   
-            
+
+            currentSeg.transform.rotation = Quaternion.Euler(newRotation);
+
         }
     }
 
@@ -568,7 +717,7 @@ public class Snake_Script : MonoBehaviour
 
         // Update the score display
         UpdateScore();
-        
+
     }
 
     public bool CheckForSnakeAtPos(Vector3 pos)
