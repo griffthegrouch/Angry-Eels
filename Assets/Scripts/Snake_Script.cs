@@ -112,6 +112,11 @@ public class Snake_Script : MonoBehaviour
     private char horizontalBufferDirection; // next horizontal (L or R) direction of the snake (as user inputted)
     private bool singleStepActivated = false;
     private bool hasMoved = false;
+    private float turnAroundTimer = 0;
+    private float turnAroundWindow = 0.2f;
+    private Vector2 lastMovedDirection = Vector2.zero;
+    private bool turnAroundWindowStarted;
+
 
 
     public void SetupSnake(PlayerSettings _playerSettings, PlayerResources _playerResources)
@@ -203,8 +208,8 @@ public class Snake_Script : MonoBehaviour
         snakeHead.transform.rotation = Quaternion.Euler(new Vector3(0, 0, 0));
 
         // Initialize the current and next direction of the snake to up so it moves up on spawn
-        verticalBufferDirection = 'x';
-        currentDirection = horizontalBufferDirection = 'u';
+        horizontalBufferDirection = 'x';
+        currentDirection = verticalBufferDirection = 'u';
         hasMoved = false;
 
         score = 0;
@@ -261,13 +266,15 @@ public class Snake_Script : MonoBehaviour
 
     private void InputLogic()
     {
+        if (turnAroundTimer > 0){
+            turnAroundTimer -= Time.deltaTime;
+        }
         if (!hasMoved)//prevents player from moving directionally on the first move (always up)
         {
-            return;
+            //return;
         }
         Vector2 directionsTapped = Vector2.zero;
         Vector2 directionsHeld = Vector2.zero;
-
         // Iterate through the input directions dictionary to determine the tapped and held directions
         foreach (var kvp in inputDirections)
         {
@@ -281,40 +288,67 @@ public class Snake_Script : MonoBehaviour
             }
         }
 
+        // Add a new variable to track if the player has released the original direction
+        bool hasReleasedDirection = true;
+        foreach (var kvp in inputDirections)
+        {
+            if (Input.GetKey(kvp.Key))
+            {
+                hasReleasedDirection = false;
+                break;
+            }
+        }
+
+        // ... (The rest of the code remains the same)
+
+        // Add a check for rule 1: if the player has released the original direction
+        if (hasReleasedDirection)
+        {
+            // Reset both buffer directions
+            verticalBufferDirection = 'x';
+            horizontalBufferDirection = 'x';
+        }
+
         // Do not allow buffering the opposite direction
         bool canBufferVertical = (currentDirection != 'u' && currentDirection != 'd');
         bool canBufferHorizontal = (currentDirection != 'l' && currentDirection != 'r');
 
+        // Modify the vertical direction tap check for rule 2 and to prevent moving in the opposite direction without going adjacent first
         switch (directionsTapped.y) // vertical direction taps
         {
             case 1:
                 // tapped up
-                if (canBufferVertical || (horizontalBufferDirection != 'x'))
+                if (canBufferVertical && currentDirection != 'd' && lastMovedDirection.y != -1)
                 {
+                    //Debug.Log("tapped up");
+                    //Debug.Log("canBufferVertical: " + canBufferVertical);
+                    //Debug.Log("currentDirection: " + currentDirection);
+                    //Debug.Log("lastMovedDirection: " + lastMovedDirection);
                     verticalBufferDirection = 'u';
                 }
                 return;
             case -1:
                 // tapped down
-                if (canBufferVertical || (horizontalBufferDirection != 'x'))
+                if (canBufferVertical && currentDirection != 'u' && lastMovedDirection.y != 1)
                 {
                     verticalBufferDirection = 'd';
                 }
                 return;
         }
 
+        // Modify the horizontal direction tap check for rule 2 and to prevent moving in the opposite direction without going adjacent first
         switch (directionsTapped.x) // horizontal direction taps
         {
             case 1:
                 // pressing right
-                if (canBufferHorizontal || (verticalBufferDirection != 'x'))
+                if (canBufferHorizontal && currentDirection != 'l' && lastMovedDirection.x != -1)
                 {
                     horizontalBufferDirection = 'r';
                 }
                 return;
             case -1:
                 // pressing left
-                if (canBufferHorizontal || (verticalBufferDirection != 'x'))
+                if (canBufferHorizontal && currentDirection != 'r' && lastMovedDirection.x != 1)
                 {
                     horizontalBufferDirection = 'l';
                 }
@@ -356,34 +390,38 @@ public class Snake_Script : MonoBehaviour
             }
             else
             {
-                // Vertical direction taps
-                switch (directionsTapped.y)
+                // Modify the vertical direction tap check for rule 2
+                switch (directionsTapped.y) // vertical direction taps
                 {
                     case 1:
-                        if ((currentDirection != 'u' && currentDirection != 'd') || (horizontalBufferDirection != 'x'))
+                        // tapped up
+                        if (canBufferVertical && currentDirection != 'd')
                         {
                             verticalBufferDirection = 'u';
                         }
                         return;
                     case -1:
-                        if ((currentDirection != 'u' && currentDirection != 'd') || (horizontalBufferDirection != 'x'))
+                        // tapped down
+                        if (canBufferVertical && currentDirection != 'u')
                         {
                             verticalBufferDirection = 'd';
                         }
                         return;
                 }
 
-                // Horizontal direction taps
-                switch (directionsTapped.x)
+                // Modify the horizontal direction tap check for rule 2
+                switch (directionsTapped.x) // horizontal direction taps
                 {
                     case 1:
-                        if ((currentDirection != 'l' && currentDirection != 'r') || (verticalBufferDirection != 'x'))
+                        // pressing right
+                        if (canBufferHorizontal && currentDirection != 'l')
                         {
                             horizontalBufferDirection = 'r';
                         }
                         return;
                     case -1:
-                        if ((currentDirection != 'l' && currentDirection != 'r') || (verticalBufferDirection != 'x'))
+                        // pressing left
+                        if (canBufferHorizontal && currentDirection != 'r')
                         {
                             horizontalBufferDirection = 'l';
                         }
@@ -394,11 +432,12 @@ public class Snake_Script : MonoBehaviour
     }
     private void UseBuffer()
     {
+        //moving up or down and have a sideways input
         if ((currentDirection == 'u' || currentDirection == 'd') && horizontalBufferDirection != 'x')
         {
             currentDirection = horizontalBufferDirection;
             horizontalBufferDirection = 'x';
-        }
+        } //moving sideways and have an up or down input
         else if ((currentDirection == 'l' || currentDirection == 'r') && verticalBufferDirection != 'x')
         {
             currentDirection = verticalBufferDirection;
@@ -406,6 +445,79 @@ public class Snake_Script : MonoBehaviour
         }
     }
 
+    private void UseBuffer1()
+    {       //moving up or down and have a sideways input
+        if ((currentDirection == 'u' || currentDirection == 'd') && horizontalBufferDirection != 'x')
+        {   //if trying to do a 180 turnaround, deny it
+            Debug.Log("moving vertical with sideways input");
+
+            if ((currentDirection == 'u' && horizontalBufferDirection == 'd') || (currentDirection == 'd' && horizontalBufferDirection == 'u'))
+            {
+                    Debug.Log("trying to turnaround");
+
+                //start a time window to allow player to move sideways direction, then use this buffer to complete the turn
+                if (turnAroundTimer > 0)
+                {
+                        Debug.Log("turnaround window open");
+
+                    //turnaround window is open
+                    return;
+                }
+                else
+                {
+                    // if turnaround window has ended
+                    if (turnAroundWindowStarted == true)
+                    {
+                        //turnAroundWindow expired, remove 180 turnaround attempt
+                        horizontalBufferDirection = 'x';
+                        return;
+                    }
+                    else
+                    {
+                        //turnaround window starts
+                        turnAroundTimer = turnAroundWindow;
+                    }
+                }
+            }
+            else
+            {
+                Debug.Log("not trying to turnaround");
+                Debug.Log("currentDirection: " + currentDirection);
+                Debug.Log("horizontalBufferDirection: " + horizontalBufferDirection);
+                currentDirection = horizontalBufferDirection;
+                horizontalBufferDirection = 'x';
+            }
+        }   //moving sideways and have an up or down input
+        else if ((currentDirection == 'l' || currentDirection == 'r') && verticalBufferDirection != 'x')
+        {
+            //start a time window to allow player to move sideways direction, then use this buffer to complete the turn
+            if (turnAroundTimer > 0)
+            {
+                //turnaround window is open
+                return;
+            }
+            else
+            {
+                // if turnaround window has ended
+                if (turnAroundWindowStarted == true)
+                {
+                    //turnAroundWindow expired, remove 180 turnaround attempt
+                    verticalBufferDirection = 'x';
+                    return;
+                }
+                else
+                {
+                    //turnaround window starts
+                    turnAroundTimer = turnAroundWindow;
+                }
+            }
+        }
+        else
+        {
+            currentDirection = verticalBufferDirection;
+            verticalBufferDirection = 'x';
+        }
+    }
 
 
     public Vector2 TryMoveSnake()
@@ -434,29 +546,30 @@ public class Snake_Script : MonoBehaviour
         switch (currentDirection)
         {
             case 'u':
-                offset = new Vector3(0, 1, 0);
+                offset = Vector2.up;
                 newHeadRotation = new Vector3(0, 0, 0);
                 break;
 
             case 'd':
-                offset = new Vector3(0, -1, 0);
+                offset = Vector2.down;
                 newHeadRotation = new Vector3(0, 0, 180);
                 break;
 
             case 'l':
-                offset = new Vector3(-1, 0, 0);
+                offset = Vector2.left;
                 newHeadRotation = new Vector3(0, 0, 90);
                 break;
 
             case 'r':
-                offset = new Vector3(1, 0, 0);
+                offset = Vector2.right;
                 newHeadRotation = new Vector3(0, 0, 270);
                 break;
 
             default:
                 break;
         }
-
+        lastMovedDirection = offset;
+        //Debug.Log("lastMovedDirection: " + lastMovedDirection);
         //setting the new target position
         Vector3 targetPos = snakeHead.transform.position + offset;
 
