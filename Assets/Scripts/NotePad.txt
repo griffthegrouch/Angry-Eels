@@ -36,16 +36,25 @@
             and also able to customize further if desired
 
     - gameplay:
-        - advanced input system that allows the player to buffer vertical and horizontal inputs,
-            allowing for much tighter controls
-        - advanced gameplay loop that allows to check if eels collide theyll 
-            both die instead of the first one trumping the latter
+        - advanced input system that allows the player to make difficult movements easily
+            - buffers inputs so that the player does not need to be precise
+            - can hold a direction to continue in that direction
+            - while holding a movement can tap a sideways direction to move "one-step" 
+                that direction before continuing the original direction
+            - can hold two directions together to move in a "staircase" path automatically
+            - can hold backwards then tap a side direction to automaticall u-turn
+
+        - advanced game-handler movement loop that allows every snake to move in sync, while:
+            - checking if eels collide (after moving them all)so theyll both die instead of the first one trumping the latter
+            - eels cant collide with it's own tail (or tail of other eels, which you can in original snake game)
+
         - "ghosting" the eels on spawn for a set amount of time,
             to solve the problem of the player being trapped at spawn with an opstacle killing them on spawn
+            ghosted eels cant harm other players or eat food
        
 
     - visuals and sounds:
-        - in-game display for each player that displays information regarding thier score and
+        - in-game display for each player that displays information regarding their score and
             indicators + timers for players to see the remaining duration and current status of their eel
         - visually appealing menu that allows user-friendly navigation of game information,
             and simple controls for customization of the game settings
@@ -107,7 +116,6 @@
 
     WHATS LEFT  BEFORE PUBLISHING
 
-    - make it so ghosts cant kill snakes
 
     - add save highscore button
     
@@ -118,9 +126,7 @@
 
     - update movement
     movement
-        - add the ability to hold one direction then tap another to move one spot that direction then continue moving 
-        - add the ability to hold diagonal direction and move the snake in a staircase pattern
-        - add the ability to (chase the tail) where you wont collide with a snake's tail if its moving
+
     - add the option to use original snake controls and show the contrast between the new control version
     - add button on home screen specifically to test new controls vs original snake game controls
 

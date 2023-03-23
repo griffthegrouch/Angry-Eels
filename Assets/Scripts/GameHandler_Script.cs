@@ -466,14 +466,14 @@ public class GameHandler_Script : MonoBehaviour
         if (playerNum != -1)//a snake calling method
         {
             // check if bumping into self
-            if (snakeScripts[playerNum].CheckForSnakeAtPos(pos))
+            if (snakeScripts[playerNum].CheckForSnakeAtPos(pos, false))
             {
                 return EntityType.Self;
             }
             // check if bumping into other snakes
             for (int i = 0; i < options.numPlayers; i++)
             {
-                if (i != playerNum && snakeScripts[i].CheckForSnakeAtPos(pos))
+                if (i != playerNum && snakeScripts[i].CheckForSnakeAtPos(pos, false))
                 {
                     if (snakeScripts[i].snakeState == SnakeState.Ghosted)
                     {
@@ -492,7 +492,7 @@ public class GameHandler_Script : MonoBehaviour
             // check if position contains any snakes
             foreach (Snake_Script snake in snakeScripts)
             {
-                if (snake.CheckForSnakeAtPos(pos))
+                if (snake.CheckForSnakeAtPos(pos, true))
                 {
                     return EntityType.Snake;
                 }

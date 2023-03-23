@@ -8,8 +8,19 @@ public enum SnakeState
     Dead,
     Golden,
     Ghosted
-
 }
+
+public enum MoveMentStyle
+{
+    None,
+    Automatic,
+    Tap,
+    Hold,
+    StairCase,
+    OneStep,
+    UTurn
+}
+
 
 public class PlayerSettings
 {
@@ -106,16 +117,12 @@ public class Snake_Script : MonoBehaviour
 
 
     //vars for snake movement
-    private Dictionary<KeyCode, Vector2> inputDirections;
+     new Dictionary<KeyCode, Vector2> inputDirections;
     private char currentDirection;   // current direction of the snake 
     private char verticalBufferDirection;   // next vertical (U or D) direction of the snake (as user inputted)
     private char horizontalBufferDirection; // next horizontal (L or R) direction of the snake (as user inputted)
-    private bool singleStepActivated = false;
-    private bool hasMoved = false;
-    private float turnAroundTimer = 0;
-    private float turnAroundWindow = 0.2f;
-    private Vector2 lastMovedDirection = Vector2.zero;
-    private bool turnAroundWindowStarted;
+    private MoveMentStyle moveMentStyle = MoveMentStyle.None;
+
 
 
 
@@ -210,7 +217,7 @@ public class Snake_Script : MonoBehaviour
         // Initialize the current and next direction of the snake to up so it moves up on spawn
         horizontalBufferDirection = 'x';
         currentDirection = verticalBufferDirection = 'u';
-        hasMoved = false;
+        moveMentStyle = MoveMentStyle.None;
 
         score = 0;
         UpdateScore();
@@ -218,7 +225,6 @@ public class Snake_Script : MonoBehaviour
 
     public void Die()
     {
-        Debug.Log(currentDirection + "DEAD");
         //stop the game
         snakeState = SnakeState.Dead;
 
@@ -266,12 +272,9 @@ public class Snake_Script : MonoBehaviour
 
     private void InputLogic()
     {
-        if (turnAroundTimer > 0){
-            turnAroundTimer -= Time.deltaTime;
-        }
-        if (!hasMoved)//prevents player from moving directionally on the first move (always up)
-        {
-            //return;
+        // if snake is waiting to do a one-spot movement, stop buffer from overwriting it.
+        if((moveMentStyle == MoveMentStyle.Tap) || (moveMentStyle == MoveMentStyle.OneStep) || (moveMentStyle == MoveMentStyle.UTurn)){
+            return;
         }
         Vector2 directionsTapped = Vector2.zero;
         Vector2 directionsHeld = Vector2.zero;
@@ -288,7 +291,7 @@ public class Snake_Script : MonoBehaviour
             }
         }
 
-        // Add a new variable to track if the player has released the original direction
+        // var to track if the player has released the original direction
         bool hasReleasedDirection = true;
         foreach (var kvp in inputDirections)
         {
@@ -298,138 +301,135 @@ public class Snake_Script : MonoBehaviour
                 break;
             }
         }
-
-        // ... (The rest of the code remains the same)
-
-        // Add a check for rule 1: if the player has released the original direction
         if (hasReleasedDirection)
         {
-            // Reset both buffer directions
+            // if has released a direction, reset both buffer directions (for held directions smoothly)
             verticalBufferDirection = 'x';
             horizontalBufferDirection = 'x';
         }
 
-        // Do not allow buffering the opposite direction
-        bool canBufferVertical = (currentDirection != 'u' && currentDirection != 'd');
-        bool canBufferHorizontal = (currentDirection != 'l' && currentDirection != 'r');
+        ////////////////////////////////////////////////// Holding (Holding only 1 direction)
+        // If 1 direction is held
+        if ((directionsHeld.x != 0 && directionsHeld.y == 0) || (directionsHeld.y != 0 && directionsHeld.x == 0))
+        {
+            
+            if (directionsHeld != Vector2.zero)
+            {
+                // Handle the case when a horizontal direction is held
+                if (directionsHeld.x != 0)
+                {
+                    moveMentStyle = MoveMentStyle.Hold;
+                    horizontalBufferDirection = directionsHeld.x > 0 ? 'r' : 'l';
+                    verticalBufferDirection = 'x';
+                }
+                // Handle the case when a vertical direction is held
+                else if (directionsHeld.y != 0)
+                {
+                    moveMentStyle = MoveMentStyle.Hold;
+                    verticalBufferDirection = directionsHeld.y > 0 ? 'u' : 'd';
+                    horizontalBufferDirection = 'x';
+                }
+            }
+        }
+        // If 2 directions are held
+        ////////////////////////////////////////////////// Staircase (holding 2 directions)
+        else if (directionsHeld.x != 0 && directionsHeld.y != 0)
+        {
+            // Diagonal direction handling
+            if (currentDirection == 'l' || currentDirection == 'r')
+            {
+                moveMentStyle = MoveMentStyle.StairCase;
+                verticalBufferDirection = directionsHeld.y > 0 ? 'u' : 'd';
+                horizontalBufferDirection = 'x';
+            }
+            else
+            {
+                moveMentStyle = MoveMentStyle.StairCase;
+                horizontalBufferDirection = directionsHeld.x > 0 ? 'r' : 'l';
+                verticalBufferDirection = 'x';
+            }
+        }
 
-        // Modify the vertical direction tap check for rule 2 and to prevent moving in the opposite direction without going adjacent first
+        ////////////////////////////////////////////////// Taps
+        // prevent moving in the opposite direction without going adjacent first
         switch (directionsTapped.y) // vertical direction taps
         {
             case 1:
                 // tapped up
-                if (canBufferVertical && currentDirection != 'd' && lastMovedDirection.y != -1)
+                if (currentDirection != 'd')
                 {
-                    //Debug.Log("tapped up");
-                    //Debug.Log("canBufferVertical: " + canBufferVertical);
-                    //Debug.Log("currentDirection: " + currentDirection);
-                    //Debug.Log("lastMovedDirection: " + lastMovedDirection);
+                    //checking if U-turned (holding the opposite direction from current + tapping sideways)
+                    if((directionsHeld.x == 1 && currentDirection == 'l') || 
+                        (directionsHeld.x == -1 && currentDirection == 'r'))
+                    {
+                        moveMentStyle = MoveMentStyle.UTurn;
+                    }
+                    else{//checking if tapped or one-stepped
+                        moveMentStyle = moveMentStyle == MoveMentStyle.StairCase ? MoveMentStyle.OneStep : MoveMentStyle.Tap;
+                    }
                     verticalBufferDirection = 'u';
                 }
-                return;
+                break;
             case -1:
                 // tapped down
-                if (canBufferVertical && currentDirection != 'u' && lastMovedDirection.y != 1)
+                if (currentDirection != 'u')
                 {
+                    //checking if U-turned (holding the opposite direction from current + tapping sideways)
+                    if((directionsHeld.x == 1 && currentDirection == 'l') || 
+                        (directionsHeld.x == -1 && currentDirection == 'r'))
+                    {
+                        moveMentStyle = MoveMentStyle.UTurn;
+                    }
+                    else{//checking if tapped or one-stepped
+                        moveMentStyle = moveMentStyle == MoveMentStyle.StairCase ? MoveMentStyle.OneStep : MoveMentStyle.Tap;
+                    }
                     verticalBufferDirection = 'd';
                 }
-                return;
+                break;
         }
 
         // Modify the horizontal direction tap check for rule 2 and to prevent moving in the opposite direction without going adjacent first
         switch (directionsTapped.x) // horizontal direction taps
         {
             case 1:
-                // pressing right
-                if (canBufferHorizontal && currentDirection != 'l' && lastMovedDirection.x != -1)
+                // tapped right
+                if (currentDirection != 'l')
                 {
+                    //checking if U-turned (holding the opposite direction from current + tapping sideways)
+                    if((directionsHeld.y == -1 && currentDirection == 'u') || 
+                        (directionsHeld.y == 1 && currentDirection == 'd'))
+                    {
+                        moveMentStyle = MoveMentStyle.UTurn;
+                    }
+                    else{//checking if tapped or one-stepped
+                        moveMentStyle = moveMentStyle == MoveMentStyle.StairCase ? MoveMentStyle.OneStep : MoveMentStyle.Tap;
+
+                    }
                     horizontalBufferDirection = 'r';
                 }
-                return;
+                break;
             case -1:
-                // pressing left
-                if (canBufferHorizontal && currentDirection != 'r' && lastMovedDirection.x != 1)
+                // tapped left
+                if (currentDirection != 'r')
                 {
+                    //checking if U-turned (holding the opposite direction from current + tapping sideways)
+                    if((directionsHeld.y == -1 && currentDirection == 'u') || 
+                        (directionsHeld.y == 1 && currentDirection == 'd'))
+                    {
+                        moveMentStyle = MoveMentStyle.UTurn;
+                    }
+                    else{//checking if tapped or one-stepped
+                        moveMentStyle = moveMentStyle == MoveMentStyle.StairCase ? MoveMentStyle.OneStep : MoveMentStyle.Tap;
+
+                    }
                     horizontalBufferDirection = 'l';
                 }
-                return;
+                break;
         }
-
-        // Check if both horizontal and vertical directions are held for diagonal movement (staircase)
-        if (directionsHeld.x != 0 && directionsHeld.y != 0)
-        {
-            // Diagonal direction handling
-            if (currentDirection == 'l' || currentDirection == 'r')
-            {
-                verticalBufferDirection = directionsHeld.y > 0 ? 'u' : 'd';
-                horizontalBufferDirection = 'x';
-            }
-            else
-            {
-                horizontalBufferDirection = directionsHeld.x > 0 ? 'r' : 'l';
-                verticalBufferDirection = 'x';
-            }
-        }
-        else
-        {
-            // Check if a direction is held (not both, since it would be handled by the diagonal movement code)
-            if (directionsHeld != Vector2.zero)
-            {
-                // Handle the case when a horizontal direction is held
-                if (directionsHeld.x != 0)
-                {
-                    currentDirection = directionsHeld.x > 0 ? 'r' : 'l';
-                    verticalBufferDirection = 'x';
-                }
-                // Handle the case when a vertical direction is held
-                else if (directionsHeld.y != 0)
-                {
-                    currentDirection = directionsHeld.y > 0 ? 'u' : 'd';
-                    horizontalBufferDirection = 'x';
-                }
-            }
-            else
-            {
-                // Modify the vertical direction tap check for rule 2
-                switch (directionsTapped.y) // vertical direction taps
-                {
-                    case 1:
-                        // tapped up
-                        if (canBufferVertical && currentDirection != 'd')
-                        {
-                            verticalBufferDirection = 'u';
-                        }
-                        return;
-                    case -1:
-                        // tapped down
-                        if (canBufferVertical && currentDirection != 'u')
-                        {
-                            verticalBufferDirection = 'd';
-                        }
-                        return;
-                }
-
-                // Modify the horizontal direction tap check for rule 2
-                switch (directionsTapped.x) // horizontal direction taps
-                {
-                    case 1:
-                        // pressing right
-                        if (canBufferHorizontal && currentDirection != 'l')
-                        {
-                            horizontalBufferDirection = 'r';
-                        }
-                        return;
-                    case -1:
-                        // pressing left
-                        if (canBufferHorizontal && currentDirection != 'r')
-                        {
-                            horizontalBufferDirection = 'l';
-                        }
-                        return;
-                }
-            }
-        }
+        Debug.Log("moveMentStyle" + moveMentStyle);
     }
+
+
     private void UseBuffer()
     {
         //moving up or down and have a sideways input
@@ -443,91 +443,19 @@ public class Snake_Script : MonoBehaviour
             currentDirection = verticalBufferDirection;
             verticalBufferDirection = 'x';
         }
+        moveMentStyle = MoveMentStyle.Automatic;
     }
 
-    private void UseBuffer1()
-    {       //moving up or down and have a sideways input
-        if ((currentDirection == 'u' || currentDirection == 'd') && horizontalBufferDirection != 'x')
-        {   //if trying to do a 180 turnaround, deny it
-            Debug.Log("moving vertical with sideways input");
-
-            if ((currentDirection == 'u' && horizontalBufferDirection == 'd') || (currentDirection == 'd' && horizontalBufferDirection == 'u'))
-            {
-                    Debug.Log("trying to turnaround");
-
-                //start a time window to allow player to move sideways direction, then use this buffer to complete the turn
-                if (turnAroundTimer > 0)
-                {
-                        Debug.Log("turnaround window open");
-
-                    //turnaround window is open
-                    return;
-                }
-                else
-                {
-                    // if turnaround window has ended
-                    if (turnAroundWindowStarted == true)
-                    {
-                        //turnAroundWindow expired, remove 180 turnaround attempt
-                        horizontalBufferDirection = 'x';
-                        return;
-                    }
-                    else
-                    {
-                        //turnaround window starts
-                        turnAroundTimer = turnAroundWindow;
-                    }
-                }
-            }
-            else
-            {
-                Debug.Log("not trying to turnaround");
-                Debug.Log("currentDirection: " + currentDirection);
-                Debug.Log("horizontalBufferDirection: " + horizontalBufferDirection);
-                currentDirection = horizontalBufferDirection;
-                horizontalBufferDirection = 'x';
-            }
-        }   //moving sideways and have an up or down input
-        else if ((currentDirection == 'l' || currentDirection == 'r') && verticalBufferDirection != 'x')
-        {
-            //start a time window to allow player to move sideways direction, then use this buffer to complete the turn
-            if (turnAroundTimer > 0)
-            {
-                //turnaround window is open
-                return;
-            }
-            else
-            {
-                // if turnaround window has ended
-                if (turnAroundWindowStarted == true)
-                {
-                    //turnAroundWindow expired, remove 180 turnaround attempt
-                    verticalBufferDirection = 'x';
-                    return;
-                }
-                else
-                {
-                    //turnaround window starts
-                    turnAroundTimer = turnAroundWindow;
-                }
-            }
-        }
-        else
-        {
-            currentDirection = verticalBufferDirection;
-            verticalBufferDirection = 'x';
-        }
-    }
 
 
     public Vector2 TryMoveSnake()
-    {//called by game handler
+    {//called by game handler, returns the snake's target position
         //1 - checks if able to move at all
         //2 - determine the target spot
         //3 - checks if anything is occupying target spot
         //    + switch statement to respond to what is in target spot
 
-        // returns the target position
+        
 
         //1
         if (snakeState == SnakeState.Dead)//if snake is dead, it cant move, exit method
@@ -536,10 +464,9 @@ public class Snake_Script : MonoBehaviour
         }
 
         //2
+        //buffer determines which direction the snake should go with moves in a queue
+        UseBuffer();
 
-        UseBuffer();//buffer determines which direction the snake should go with advanced logic to allow advanced movement
-
-        hasMoved = true;
         //use current position and current direction to determine when head will move to
         Vector3 offset = Vector3.zero;
         Vector3 newHeadRotation = Vector3.zero;
@@ -568,12 +495,11 @@ public class Snake_Script : MonoBehaviour
             default:
                 break;
         }
-        lastMovedDirection = offset;
-        //Debug.Log("lastMovedDirection: " + lastMovedDirection);
+
         //setting the new target position
         Vector3 targetPos = snakeHead.transform.position + offset;
 
-        // if ghosted, cant eat food yet, wont destroy food when running into it
+        // if ghosted, cant eat food so it wont destroy food when running into it
         bool hungry = snakeState == SnakeState.Ghosted ? false : true;
 
         // 3 
@@ -833,14 +759,19 @@ public class Snake_Script : MonoBehaviour
 
     }
 
-    public bool CheckForSnakeAtPos(Vector3 pos)
-    {
+    public bool CheckForSnakeAtPos(Vector3 pos, bool includeLastSeg)
+    {   //when calling from other snakes, dont include the check on the last segment, 
+        //      so snake cant collide with it's own tail (or others)
         if (pos == snakeHead.transform.position)
         {
             return true;
         }
         foreach (GameObject seg in segments)
         {
+            //if not checking last segment
+            if((segments.IndexOf(seg) == segments.Count-1) && !includeLastSeg){
+                return false;
+            }
             if (pos == seg.transform.position)
             {
                 return true;
