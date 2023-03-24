@@ -1,5 +1,5 @@
 # SimpleSnake
- Angry Eels is a modern take on the classic game "Snake" developed by Griffin Atkinson. With customizable game rules, advanced gameplay features, and visually appealing graphics and sounds, Angry Eels takes the classic gameplay to the next level.
+ Angry Eels is a modern take on the classic game "Snake" developed in the Unity Game Engine by Griffin Atkinson. With customizable game rules, advanced gameplay features, and visually appealing graphics and sounds, Angry Eels takes the classic gameplay to the next level.
 
 ## Original Game
 The player controls a snake that moves on a grid in 4 directions, with the objective of collecting food that grows the snake one segment. If the snake hits itself or a wall, it dies and the game is over. The objective of the game is to compete to grow the snake as large as possible for a high score.
@@ -48,6 +48,11 @@ Local multiplayer mode for up to 4 players on the same or different keyboards, w
 
 # Development
 Creating Angry Eels was a fun and challenging experience. While making it into an entire game with all the bells and whistles was enjoyable, the most fun I had creating the game was developing the logic for adding tight controls and advanced movement options. It was quite a challenge, but I was thrilled with the end result. With Angry Eels, players can enjoy a classic game with modern features and a unique spin that makes it stand out from other snake games.
+
+# Credits
+All the code was written by Griffin Atkinson
+All the game art, music, and sound effects were sourced from free game assets websites and free Unity asset content packs
+### Links
 
 
 # Future Plans
