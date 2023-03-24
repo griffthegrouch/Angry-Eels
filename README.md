@@ -12,7 +12,8 @@ Advanced input+movement system that allows the player to make difficult movement
 - Can hold two directions together to move in a "staircase" path automatically
 - Can hold backwards then tap a side direction to automatically u-turn
 
-### Multiplayer! Local multiplayer mode for up to 4 players on the same or different keyboards, with different game modes including race to a certain number of points and endless play for high scores
+### Multiplayer 
+Local multiplayer mode for up to 4 players on the same or different keyboards, with different game modes including race to a certain number of points and endless play for high scores
 
 ### Advanced game-handler that allows quality-of-life enhancements:
 - Moves eels in sync while checking if eels collide (after moving them all) so they'll both die instead of the first one trumping the latter
