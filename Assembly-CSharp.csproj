@@ -45,6 +45,7 @@
      <Compile Include="Assets\Scripts\Menu_Script.cs" />
      <Compile Include="Assets\Scripts\PauseMenu_Script.cs" />
      <Compile Include="Assets\Scripts\PlayerGUI_Script.cs" />
+     <Compile Include="Assets\Scripts\RetroSnake_Script.cs" />
      <Compile Include="Assets\Scripts\SnakeColourHandler_Script.cs" />
      <Compile Include="Assets\Scripts\Snake_Script.cs" />
      <Compile Include="Assets\Scripts\WinScreen_Script.cs" />

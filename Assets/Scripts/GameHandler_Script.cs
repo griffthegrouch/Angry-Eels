@@ -9,6 +9,7 @@ using System.Linq;
 // Enum for the active screen
 public enum ActiveScreen
 {
+    About,
     Title,
     MainMenu,
     AdvancedOptions,
@@ -18,7 +19,6 @@ public enum ActiveScreen
     HighScore,
 
     //not yet implemented
-    About,
     TechDemo,
     RetroGame
 }
