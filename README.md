@@ -23,7 +23,7 @@ Local multiplayer mode for up to 4 players on the same or different keyboards, w
 
 ### Different varieties of food and spawning modes, fun statuses for the eels, optional death penalty for players
 
-###Gamemode preset feature with multiple "rule sets" for players to choose from and customize further if desired
+### Gamemode preset feature with multiple "rule sets" for players to choose from and customize further if desired
 
 ### Customizable game rules with control over every aspect of gameplay including:
 - Speed
