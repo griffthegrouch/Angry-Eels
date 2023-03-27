@@ -97,6 +97,9 @@ public class GameHandler_Script : MonoBehaviour
     //var keeps track of which screen is currently active (or shown on camera) - defaults to the title screen
     public ActiveScreen activeScreen { get; set; } = ActiveScreen.Title;
 
+    public int currentLeader { get; set; }
+    public int currentHighscore { get; set; }
+
     // scripts for the other screens
     private Menu_Script menuScript;
     public PauseMenu_Script pauseScreenScript { get; set; }
@@ -317,6 +320,10 @@ public class GameHandler_Script : MonoBehaviour
     //called by player indicators to communicate their current scores
     public void UpdateScore(int playerNum, int score)
     {
+        if(score > currentHighscore){
+            currentLeader = playerNum;
+            currentHighscore = score;
+        }
 
         if (options.gameMode == GameMode.Points && score >= options.goalPoints)
         {

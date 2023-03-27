@@ -1,19 +1,20 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PauseMenu_Script : MonoBehaviour
 {
     // A reference to the game handler script
     private GameHandler_Script gameHandlerScript;
 
-
     // The menu screen game object
     private GameObject pauseScreen;
     private Animator pauseTextAnimator;
-
     // The pause prompt GameObject
     private GameObject pausePrompt;
+
+    private Text scoreDisplayText;
 
     // Audio source for pause screen
     private AudioSource pauseScreenAudio;
@@ -38,6 +39,8 @@ public class PauseMenu_Script : MonoBehaviour
 
         //grab the pause button
         pausePrompt = GameObject.Find("PausePrompt");
+
+        scoreDisplayText = GameObject.Find("ScoreDisplayText").GetComponent<Text>();
 
         //hide the pause screen by default
         Close();
@@ -112,9 +115,13 @@ public class PauseMenu_Script : MonoBehaviour
         //gameHandlerScript.
     }
 
+    public void DisplayScore(){
+        int leader = gameHandlerScript.currentLeader;
+        int leaderScore = gameHandlerScript.currentHighscore;
 
-
-
+        string scoreText = "Player " + leader + " is in the lead with " + leaderScore + " points!";
+        scoreDisplayText.text = scoreText;
+    }
 
 
 
@@ -124,6 +131,9 @@ public class PauseMenu_Script : MonoBehaviour
         pauseScreenAudio.Play(0);
 
         HidePrompt();
+
+        //display score
+        DisplayScore();
 
         Open();
         gameHandlerScript.Pause();

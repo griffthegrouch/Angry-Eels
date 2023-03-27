@@ -48,8 +48,8 @@ public class HighScoreManager_Script : MonoBehaviour
         highScoreScreen.SetActive(false);
     }
 
-    public int IsThisHighscore(RuleSet ruleSet, int score)//call to ask if the score is a highscore for given ruleset, returns the number the new score would achieve
-    {
+    //call to ask if the score is a highscore for given ruleset, returns the position the new score would achieve, returns -1 if its not a highscore  
+    public int IsThisHighscore(RuleSet ruleSet, int score) {
         return 1;
     }
 
