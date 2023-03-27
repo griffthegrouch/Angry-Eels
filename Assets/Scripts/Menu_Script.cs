@@ -6,10 +6,13 @@ using UnityEngine.UI;
 
 public enum RuleSet
 {
+    Demo,
     Custom,
     Classic,
     Casual,
-    Wild
+    Wild,
+    Impossible
+
 }
 public class Menu_Script : MonoBehaviour
 {
@@ -33,15 +36,23 @@ public class Menu_Script : MonoBehaviour
         ) },
         { "Casual", new Options(
             RuleSet.Casual,
-            0.1f, 5, 3f, 3f,
+            0.15f, 5, 3f, 3f,
             3, 15, 25, true
         ) },
         { "Wild", new Options(
             RuleSet.Wild,
-            0.05f, 3, 2f, 5f,
+            0.05f, 3, 2f, 4f,
             5, 15, 50, true
+        ) },
+        { "Impossible", new Options(
+            RuleSet.Impossible,
+            0.025f, 10, .5f, 0f,
+            10, 5, 30, false
         ) }
     };
+
+
+
     // The currently selected preset index - defaults to classic mode
     private int selectedPreset = 1;
 
@@ -58,6 +69,7 @@ public class Menu_Script : MonoBehaviour
         { "Pink", Color.magenta}
     };
     private GameHandler_Script gameHandlerScript;// A reference to the game handler script
+    private DemoHandler_Script demoHandlerScript;// A reference to the demo handler script
     private Transform menuParent;//the parent object to the menus - used to move them all together
     private GameObject titleScreen;//the title screen object
     private GameObject mainMenuScreen;// The menu screen object
@@ -73,6 +85,7 @@ public class Menu_Script : MonoBehaviour
     {
         // Get a reference to the game handler script
         gameHandlerScript = GameObject.Find("GameHandler").GetComponent<GameHandler_Script>();
+        demoHandlerScript = GameObject.Find("GameHandler").GetComponent<DemoHandler_Script>();
 
         //grab the menu parent
         menuParent = GameObject.Find("MenuParent").transform;
@@ -309,8 +322,36 @@ public class Menu_Script : MonoBehaviour
         menuParent.transform.localPosition = endPos;
     }
 
-
     //////////////////////////////////////////////////////// about screen buttons + methods
+    public void AboutExitGameBtn()
+    {
+        if (gameHandlerScript.activeScreen != ActiveScreen.About)
+        {
+            Debug.Log("trying to press a button thats currently inactive");
+            return;
+        }
+        gameHandlerScript.ExitGame();
+    }
+    public void AboutStartTutorialBtn()
+    {
+        if (gameHandlerScript.activeScreen != ActiveScreen.About)
+        {
+            Debug.Log("trying to press a button thats currently inactive");
+            return;
+        }
+        demoHandlerScript.StartTutorial();
+        Close();
+    }
+    public void AboutStartComparisonBtn()
+    {
+        if (gameHandlerScript.activeScreen != ActiveScreen.About)
+        {
+            Debug.Log("trying to press a button thats currently inactive");
+            return;
+        }
+        demoHandlerScript.StartComparison();
+        Close();
+    }
     public void AboutStartRetroSnakeBtn()
     {
         if (gameHandlerScript.activeScreen != ActiveScreen.About)
@@ -318,6 +359,18 @@ public class Menu_Script : MonoBehaviour
             Debug.Log("trying to press a button thats currently inactive");
             return;
         }
+        demoHandlerScript.StartRetroSnake();
+        Close();
+    }
+    public void AboutBackBtn()
+    {
+        if (gameHandlerScript.activeScreen != ActiveScreen.About)
+        {
+            Debug.Log("trying to press a button thats currently inactive");
+            return;
+        }
+        gameHandlerScript.activeScreen = ActiveScreen.Title;
+        StartCoroutine(TransitionMenuParent(new Vector2(0, -500), new Vector2(0, 0), .75f));
     }
 
 

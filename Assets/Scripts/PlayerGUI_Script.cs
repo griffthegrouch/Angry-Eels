@@ -34,6 +34,8 @@ public class PlayerGUI_Script : MonoBehaviour
     private int score; // The player's current score
     private int highscore; // The player's highscore
 
+    public bool demoMode { get; set; } = false; //is the gui being run in demo mode
+
     // Start is called before the first frame update
     void Start()
     {
@@ -204,8 +206,13 @@ public class PlayerGUI_Script : MonoBehaviour
             highscore = score;
             highscoreText.text = highscore.ToString();
         }
-        // Update the score in the GameHandler_Script
-        gameHandlerScript.UpdateScore(playerNum, score);
+
+        //if the GUI is being used in non-demo mode, update the gamehandler with score
+        if (!demoMode)
+        {
+            // Update the score in the GameHandler_Script
+            gameHandlerScript.UpdateScore(playerNum, score);
+        }
     }
 
     // Update the size of the charge bar in the timer to show how much time is left
@@ -215,7 +222,7 @@ public class PlayerGUI_Script : MonoBehaviour
         float percentValue = value / maxTimerValue;
         // Calculate the x scale of the charge bar
         float xScale = percentValue * 1; // 1 is the maximum size of the charge bar
-        
+
         // Set the new scale of the charge bar
         chargeBar.transform.localScale = new Vector3(xScale, 1, 0);
     }

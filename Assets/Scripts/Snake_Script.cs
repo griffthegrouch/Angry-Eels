@@ -117,7 +117,7 @@ public class Snake_Script : MonoBehaviour
 
 
     //vars for snake movement
-     new Dictionary<KeyCode, Vector2> inputDirections;
+    private Dictionary<KeyCode, Vector2> inputDirections;
     private char currentDirection;   // current direction of the snake 
     private char verticalBufferDirection;   // next vertical (U or D) direction of the snake (as user inputted)
     private char horizontalBufferDirection; // next horizontal (L or R) direction of the snake (as user inputted)
@@ -426,7 +426,7 @@ public class Snake_Script : MonoBehaviour
                 }
                 break;
         }
-        Debug.Log("moveMentStyle" + moveMentStyle);
+        //Debug.Log("moveMentStyle" + moveMentStyle);
     }
 
 
@@ -592,7 +592,7 @@ public class Snake_Script : MonoBehaviour
             GameObject newSegment = Instantiate(playerResources.segmentPrefab, snakeHead.transform.position, Quaternion.identity, transform);
 
             //set the colour of it
-            colourHandler.AddRenderer(newSegment.GetComponent<SpriteRenderer>());
+            colourHandler.AddRenderer(newSegment.transform.GetChild(0).GetComponent<SpriteRenderer>());
 
             // Add the new segment to the list of segments
             segments.Add(newSegment);
@@ -729,7 +729,7 @@ public class Snake_Script : MonoBehaviour
             }
 
             //setting the new sprite and rotation
-            currentSeg.GetComponent<SpriteRenderer>().sprite = newSprite;
+            currentSeg.transform.GetChild(0).GetComponent<SpriteRenderer>().sprite = newSprite;
 
             currentSeg.transform.rotation = Quaternion.Euler(newRotation);
 

@@ -19,7 +19,7 @@ public enum ActiveScreen
     HighScore,
 
     //not yet implemented
-    TechDemo,
+    Demo,
     RetroGame
 }
 // Enum for the game mode
@@ -99,7 +99,7 @@ public class GameHandler_Script : MonoBehaviour
 
     // scripts for the other screens
     private Menu_Script menuScript;
-    private PauseMenu_Script pauseScreenScript;
+    public PauseMenu_Script pauseScreenScript { get; set; }
     private WinScreen_Script winScreenScript;
     private HighScoreManager_Script highScoreManagerScript;
 
@@ -118,7 +118,7 @@ public class GameHandler_Script : MonoBehaviour
     public KeyCode[,] activePlayerInputs { get; set; }
 
     // Array for all the wall blocks in the game
-    private GameObject[] wallArr;
+    public GameObject[] wallArr { get; set; }
 
     // List for all the food in the game
     private List<GameObject> foodList = new List<GameObject>();
@@ -132,20 +132,20 @@ public class GameHandler_Script : MonoBehaviour
     private Snake_Script[] snakeScripts;
 
     // Arrays for all the score displays + their scripts
-    private GameObject[] playerGUIs;
+    public GameObject[] playerGUIs { get; set; }
     // always contains all 4 displays
-    private PlayerGUI_Script[] playerGUIScripts;
+    public PlayerGUI_Script[] playerGUIScripts { get; set; }
 
 
     /////////////////////////// prefabs + resources
 
     // Prefab for the snake
-    private GameObject snakePrefab;
+    public GameObject snakePrefab { get; set; }
     // Prefab for the food
-    private GameObject foodPrefab;
+    public GameObject foodPrefab { get; set; }
 
     // Player Resources
-    private PlayerResources playerResources;
+    public PlayerResources playerResources { get; set; }
 
     // Audio source for game handler
     private AudioSource gameHandlerAudio;
@@ -380,14 +380,15 @@ public class GameHandler_Script : MonoBehaviour
 
                 // Initialize/spawn player
                 InitializePlayer(i);
+
+                // Initialize the food
+                SpawnFood(-1, default, EntityType.NormalFood);
+
+                //calls Movesnake every user-set time increment to move the snakes
+                InvokeRepeating("MoveSnakes", 0, options.snakeSpeed);
             }
         }
 
-        // Initialize the food
-        SpawnFood(-1, default, EntityType.NormalFood);
-
-        //calls Movesnake every user-set time increment to move the snakes
-        InvokeRepeating("MoveSnakes", 0, options.snakeSpeed);
     }
 
     // Initialize a player/snake

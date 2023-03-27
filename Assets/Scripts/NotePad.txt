@@ -36,7 +36,7 @@
             and also able to customize further if desired
 
     - gameplay:
-        - advanced input system that allows the player to make difficult movements easily
+       - advanced input system that allows the player to make difficult movements easily
             - buffers inputs so that the player does not need to be precise
             - can hold a direction to continue in that direction
             - while holding a movement can tap a sideways direction to move "one-step" 
@@ -54,7 +54,7 @@
        
 
     - visuals and sounds:
-        - in-game display for each player that displays information regarding their score and
+        - in-game display for each player that displays information regarding thier score and
             indicators + timers for players to see the remaining duration and current status of their eel
         - visually appealing menu that allows user-friendly navigation of game information,
             and simple controls for customization of the game settings
@@ -119,29 +119,32 @@
 
     - add save highscore button
     
-    - make the about screen (dev info, idea behind it, retro vs new snake comparison demo mode)
 
     - add a couple better sounds (death sound from worms, splashing, victory sound / music)
 
 
-    - update movement
     movement
 
-    - add the option to use original snake controls and show the contrast between the new control version
-    - add button on home screen specifically to test new controls vs original snake game controls
-
-    - add a button on home screen to jump in and play retro snake game
     - add a quick play random button
 
 
 ***********************************************************************************************
-    Ideas
+    Ideas / Future Plans
 ***********************************************************************************************
 
+    add computer players
+
+    add animation for eels to open their mouths when they get close to food and eat when they get food
+
+    add controller support
+
+    add a big update to the types of food
     powerup to eat other snakes that  "cuts" them off where you intersect them, turning them into food
     make bigger fish that can appear that can be eated in piece "leaving bones in the middle"
     "live" food / fish that can move slowly
+
     make number of lives
+
     make random obstacle maker, and preset stages to choose from.
 
     make different levels 
@@ -150,8 +153,10 @@
         - warp pipes to other side of level
 
     add powerups (speed, grow a lot, untargettable)
+
     make options for food (multiple random spawning, single one that grows you then moves, toggle for dead snakes becoming food )
-    golden food that moves/bounces around
+
+    golden food that moves/bounces around?
    
 
 
@@ -170,4 +175,13 @@
 
     ghost icon
         https://www.vecteezy.com/vector-art/8358647-ghost-in-cute-kawaii-cartoon-style-vector-flat-design-illustration-simple-modern-shape-for-halloween-asset-or-icon-element-editable
+    
+    snake + eel icon
+        https://www.clipartmax.com/
 
+
+
+
+
+
+        
