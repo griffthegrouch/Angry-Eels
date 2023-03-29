@@ -557,7 +557,7 @@ public class GameHandler_Script : MonoBehaviour
         //if attempting to spawn at a specific position
         else if (CheckPos(playerNum, pos, false) != EntityType.Self)
         {
-            Debug.Log("cant spawn here, pos: " + pos);
+            Debug.Log("cant spawn food here, pos: " + pos);
             // if trying to spawn food on an existing food, don't
             return;
         }

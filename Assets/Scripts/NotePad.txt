@@ -116,6 +116,8 @@
 
     WHATS LEFT  BEFORE PUBLISHING    
 
+    build errors- something to do with big font generated on tiny area crashes game
+
     - add a couple better sounds (death sound from worms, splashing, victory sound / music)
 
     movement

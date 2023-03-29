@@ -77,6 +77,7 @@ public class Menu_Script : MonoBehaviour
        
         //move screens into position on game load
         menuParent.localPosition = Vector2.zero;
+        advancedOptionsScreen.transform.localPosition = new Vector3(0,-500, -10);
 
         //grab all the menu screen's changing objects 
         MenuScreenObjects = new Dictionary<string, GameObject>
