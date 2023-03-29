@@ -5,27 +5,30 @@ using UnityEngine.UI;
 
 public class WinScreen_Script : MonoBehaviour
 {// A reference to the game handler script
-    private GameHandler_Script gameHandlerScript;
+    public GameHandler_Script gameHandlerScript;
     
     // The win screen game object
-    private GameObject winScreen;
+    public GameObject winScreen;
 
     //the animator for the "winner" title
-    private Animator winnerTextAnimator;
+    public Animator winnerTextAnimator;
+
+    //the save btn
+    public GameObject saveBtn;
 
     //the text for the title
-    private Text titleText;
+    public Text titleText;
 
     //the text for the message displaying which player won and how many points
-    private Text winnerNameText;
+    public Text winnerNameText;
 
     //the entering player name
-    private InputField nameInput;
+    public InputField nameInput;
 
-    private HighScoreManager_Script highScoreManagerScript;
+    public HighScoreManager_Script highScoreManagerScript;
 
 
-    int score;
+    private int score;
 
     // Start is called before the first frame update
     void Start()
@@ -33,54 +36,56 @@ public class WinScreen_Script : MonoBehaviour
         //move screen into position on game load
         transform.localPosition = Vector2.zero;
 
-        // Get a reference to the game handler script
-        gameHandlerScript = GameObject.Find("GameHandler").GetComponent<GameHandler_Script>();
-
-        // Get a reference to the highscore manager
-        highScoreManagerScript = GameObject.Find("HighScoreMenu").GetComponent<HighScoreManager_Script>();
-
-        //grab the main menu screen
-        winScreen = GameObject.Find("WinScreen");
-
-        //grab the title animator
-        winnerTextAnimator = GameObject.Find("WinnerTitleText").GetComponent<Animator>();
-
-        //grab the screen title text
-        titleText = GameObject.Find("WinnerTitleText").GetComponent<Text>();
-
-        //grab the winner name text
-        winnerNameText = GameObject.Find("WinnerName").GetComponentInChildren<Text>();
-
-        nameInput = GameObject.Find("NameEntry").GetComponent<InputField>();
-
         //hide the pause screen by default
         Close();
     }
 
-    public void GameWon(int playerNum, int _score){
+    public void OpenGameWon(int playerNum, int _score){
+        titleText.text = "Winner!";
         score = _score;
         winnerNameText.text =  "Player " + playerNum + " with " + score + " points";
         Open();
     }
 
+    public void OpenSaveScore(int playerNum, int _score){
+        bool b = highScoreManagerScript.IsThisAHighscore(gameHandlerScript.options.ruleSet, _score);
+        titleText.text = b ? "New Highscore!" : "Not very impressive...";
+        score = _score;
+        winnerNameText.text =  "Player " + playerNum + " with " + score + " points";
+        Open();
+    }
+
+
+
     public void Open()
     {        
         winScreen.SetActive(true);
         winnerTextAnimator.SetBool("screenOpen", true);
+        LockSaveBtn();
     }
 
     public void Close()
     {
         winnerTextAnimator.SetBool("screenOpen", false);
         winScreen.SetActive(false);
+        LockSaveBtn();
+        
     }
 
+    public void LockSaveBtn(){
+       nameInput.text = "";
+       saveBtn.SetActive(false);
+    }
+    public void UnlockSaveBtn(){
+       saveBtn.SetActive(true);
+    }
     public void SaveBtn(){
         if(gameHandlerScript.activeScreen != ActiveScreen.WinMenu){
             Debug.Log("trying to press a button thats currently inactive");
             return;
         } 
         highScoreManagerScript.SaveHighScore(nameInput.text, score, gameHandlerScript.options.ruleSet);
+        Close();
         highScoreManagerScript.Open();
     }
 
@@ -101,7 +106,7 @@ public class WinScreen_Script : MonoBehaviour
             return;
         } 
         Close();
-        gameHandlerScript.ReturnToTitle();   
+        gameHandlerScript.OpenMenuScreen(ActiveScreen.MainMenu);   
     }
 
     public void ExitGameBtn()

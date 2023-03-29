@@ -9,6 +9,7 @@ using System.Linq;
 // Enum for the active screen
 public enum ActiveScreen
 {
+    About,
     Title,
     MainMenu,
     AdvancedOptions,
@@ -18,8 +19,7 @@ public enum ActiveScreen
     HighScore,
 
     //not yet implemented
-    About,
-    TechDemo,
+    Demo,
     RetroGame
 }
 // Enum for the game mode
@@ -97,11 +97,14 @@ public class GameHandler_Script : MonoBehaviour
     //var keeps track of which screen is currently active (or shown on camera) - defaults to the title screen
     public ActiveScreen activeScreen { get; set; } = ActiveScreen.Title;
 
+    public int currentLeader { get; set; }
+    public int currentHighscore { get; set; }
+
     // scripts for the other screens
-    private Menu_Script menuScript;
-    private PauseMenu_Script pauseScreenScript;
-    private WinScreen_Script winScreenScript;
-    private HighScoreManager_Script highScoreManagerScript;
+    public Menu_Script menuScript;
+    public PauseMenu_Script pauseScreenScript;//{ get; set; }
+    public WinScreen_Script winScreenScript;
+    public HighScoreManager_Script highScoreManagerScript;
 
 
     // All options for the game - set in the menu screen, then passed over on game start
@@ -118,7 +121,7 @@ public class GameHandler_Script : MonoBehaviour
     public KeyCode[,] activePlayerInputs { get; set; }
 
     // Array for all the wall blocks in the game
-    private GameObject[] wallArr;
+    public GameObject[] wallArr { get; set; }
 
     // List for all the food in the game
     private List<GameObject> foodList = new List<GameObject>();
@@ -132,26 +135,26 @@ public class GameHandler_Script : MonoBehaviour
     private Snake_Script[] snakeScripts;
 
     // Arrays for all the score displays + their scripts
-    private GameObject[] playerGUIs;
+    public GameObject[] playerGUIs;
     // always contains all 4 displays
-    private PlayerGUI_Script[] playerGUIScripts;
+    public PlayerGUI_Script[] playerGUIScripts { get; set; }
 
 
     /////////////////////////// prefabs + resources
 
     // Prefab for the snake
-    private GameObject snakePrefab;
+    public GameObject snakePrefab { get; set; }
     // Prefab for the food
-    private GameObject foodPrefab;
+    public GameObject foodPrefab { get; set; }
 
     // Player Resources
-    private PlayerResources playerResources;
+    public PlayerResources playerResources { get; set; }
 
     // Audio source for game handler
-    private AudioSource gameHandlerAudio;
+    public AudioSource gameHandlerAudio;
 
     // Audio source for sound effects
-    private AudioSource SFXAudio;
+    public AudioSource SFXAudio;
 
     //all music clips
     private AudioClip gameMusic;
@@ -172,22 +175,8 @@ public class GameHandler_Script : MonoBehaviour
 
         foodPrefab = Resources.Load("Prefabs/Food") as GameObject;
 
-        //grab all player displays
-        playerGUIs = GameObject.FindGameObjectsWithTag("PlayerGUI");
-
-        // grab scripts
-        menuScript = GameObject.Find("MainMenu").GetComponent<Menu_Script>();
-        pauseScreenScript = GameObject.Find("PauseMenu").GetComponent<PauseMenu_Script>();
-        winScreenScript = GameObject.Find("WinMenu").GetComponent<WinScreen_Script>();
-        highScoreManagerScript = GameObject.Find("HighScoreMenu").GetComponent<HighScoreManager_Script>();
-
         // grab all existing walls
         wallArr = GameObject.FindGameObjectsWithTag("wall");
-
-        //grab audio player
-        gameHandlerAudio = GetComponents<AudioSource>()[0];
-
-        SFXAudio = GetComponents<AudioSource>()[1];
 
         //grab sound fx + music
         gameMusic = Resources.Load("Audio/GameMusic") as AudioClip;
@@ -217,7 +206,7 @@ public class GameHandler_Script : MonoBehaviour
     public void Pause()
     {//game paused - called from pause menu
         //play sfx
-        PlaySFX(pauseSFX);
+        //PlaySFX(pauseSFX);
 
         //switch music playing
         gameHandlerAudio.Pause();
@@ -229,7 +218,7 @@ public class GameHandler_Script : MonoBehaviour
     public void UnPause()
     {//game unpaused - called from pause menu
         //play sfx
-        PlaySFX(unPauseSFX);
+        //PlaySFX(unPauseSFX);
 
         //switch music playing
         gameHandlerAudio.Play(0);
@@ -257,7 +246,7 @@ public class GameHandler_Script : MonoBehaviour
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else
-            Application.Quit();
+        Application.Quit();
 #endif
     }
 
@@ -272,12 +261,26 @@ public class GameHandler_Script : MonoBehaviour
     public void LeaveGameReturnHome()
     {
         EndGame();
-        menuScript.Open(ActiveScreen.MainMenu);
+        Time.timeScale = 1;
+        OpenMenuScreen(ActiveScreen.MainMenu);
     }
 
-    public void ReturnToTitle()
+    public void OpenMenuScreen(ActiveScreen screen)
     {
-        menuScript.Open(ActiveScreen.Title);
+        activeScreen = screen;
+        menuScript.Open(screen);
+    }
+
+    public void OpenSaveScoreScreen()
+    {
+        EndGame();
+        activeScreen = ActiveScreen.WinMenu;
+        winScreenScript.OpenSaveScore(currentLeader, currentHighscore);
+    }
+    public void OpenWinScreen()
+    {
+        activeScreen = ActiveScreen.WinMenu;
+        winScreenScript.OpenGameWon(currentLeader, currentHighscore);
     }
 
     public void OpenHighScoreScreen()
@@ -286,10 +289,7 @@ public class GameHandler_Script : MonoBehaviour
         highScoreManagerScript.Open();
     }
 
-    public void OpenSaveScoreScreen()
-    {
 
-    }
 
     public void EndGame()
     {
@@ -317,12 +317,17 @@ public class GameHandler_Script : MonoBehaviour
     //called by player indicators to communicate their current scores
     public void UpdateScore(int playerNum, int score)
     {
+        if (score > currentHighscore)
+        {
+            currentLeader = playerNum;
+            currentHighscore = score;
+        }
 
         if (options.gameMode == GameMode.Points && score >= options.goalPoints)
         {
             EndGame();
-            winScreenScript.GameWon(playerNum, score);
-            OpenSaveScoreScreen();
+            winScreenScript.OpenGameWon(playerNum, score);
+            OpenWinScreen();
         }
 
     }
@@ -357,7 +362,6 @@ public class GameHandler_Script : MonoBehaviour
                 {   //loop through all 4 inputs and map them to the active player's controls
                     activePlayerInputs[activePlayerCounter - 1, j] = playerInputs[i, j];
                 }
-
             }
             if (i < options.numPlayers)
             {
@@ -382,11 +386,10 @@ public class GameHandler_Script : MonoBehaviour
                 InitializePlayer(i);
             }
         }
-
         // Initialize the food
         SpawnFood(-1, default, EntityType.NormalFood);
 
-        //calls Movesnake every user-set time increment to move the snakes
+        // calls Movesnake every user-set time increment to move the snakes
         InvokeRepeating("MoveSnakes", 0, options.snakeSpeed);
     }
 
@@ -414,52 +417,38 @@ public class GameHandler_Script : MonoBehaviour
 
         //adding new snake script to local snakescripts arr
         snakeScripts[playerIndex] = newSnakeScript;
-
     }
 
     private void MoveSnakes()
     {
-        // loop through all snakes and attempt to move them one space
-
-        // store each snake's new position to determine if they collided head-on
-        List<Vector2> newPositions = new List<Vector2>();
-        List<int> crashedSnakes = new List<int>();
-
-        foreach (Snake_Script snakeScript in snakeScripts)//checking if snakes collide
+        // Move all non-ghosted snakes one space
+        foreach (Snake_Script snakeScript in snakeScripts)
         {
-            if (snakeScript.snakeState == SnakeState.Ghosted)
+            if (snakeScript.snakeState != SnakeState.Ghosted)
             {
-                // snakes cant crash into ghosted snakes, take it out of collision with snakes check
-                snakeScript.TryMoveSnake();
+                Vector2 newPosition = snakeScript.TryMoveSnake();
+                // Check if snake collided with another snake
+                foreach (Snake_Script otherSnake in snakeScripts)
+                {
+                    if (otherSnake.snakeState != SnakeState.Ghosted && snakeScript != otherSnake)
+                    {
+                        if (otherSnake.CheckForSnakeAtPos(newPosition, false))
+                        {
+                            // Both snakes collided, kill them
+                            snakeScript.Die();
+                            otherSnake.Die();
+                            return;
+                        }
+                    }
+                }
             }
             else
             {
-                newPositions.Add(snakeScript.TryMoveSnake());
-            }
-
-        }
-
-        if (options.numPlayers > 1)
-        {
-            //some cool Linq to determine if any of the snake's new positions are duplicates 
-            var duplicatePositions = newPositions
-                .Select((value, index) => new { value, index }) // add the index to each value
-                .GroupBy(x => x.value) // group by value
-                .Where(g => g.Count() > 1); // select only groups with more than one element
-
-            foreach (var group in duplicatePositions)
-            {
-                var groupList = group.ToList();
-                // store the indices of the original and duplicate
-                for (int i = 0; i < groupList.Count; i++)
-                {
-                    crashedSnakes.Add(groupList[i].index);
-                    snakeScripts[groupList[i].index].Die();
-                }
+                snakeScript.TryMoveSnake();
             }
         }
-
     }
+
 
     public EntityType CheckPos(int playerNum, Vector3 pos, bool destroyFood)
     {
@@ -477,11 +466,11 @@ public class GameHandler_Script : MonoBehaviour
                 {
                     if (snakeScripts[i].snakeState == SnakeState.Ghosted)
                     {
-                        return EntityType.Empty;//if snake in location is ghosted, return empty
+                        return EntityType.Empty; //if snake in location is ghosted, return empty
                     }
                     else
                     {
-                        return EntityType.Snake;//if snake in location isnt ghosted, return snake
+                        return EntityType.Snake; //if snake in location isnt ghosted, return snake
                     }
 
                 }
@@ -568,7 +557,7 @@ public class GameHandler_Script : MonoBehaviour
         //if attempting to spawn at a specific position
         else if (CheckPos(playerNum, pos, false) != EntityType.Self)
         {
-            Debug.Log("cant spawn here, pos: " + pos);
+            Debug.Log("cant spawn food here, pos: " + pos);
             // if trying to spawn food on an existing food, don't
             return;
         }

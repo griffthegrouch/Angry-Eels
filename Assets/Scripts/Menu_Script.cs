@@ -6,17 +6,19 @@ using UnityEngine.UI;
 
 public enum RuleSet
 {
+    Demo,
     Custom,
     Classic,
     Casual,
     Wild
+
 }
 public class Menu_Script : MonoBehaviour
 {
     private GameMode gameMode = GameMode.Endless;// The currently selected game mode - defaulted to endless
     private int goalPoints = 0; // The goal points for the "First to" game mode - defaulted to 0
     private int numPlayers = 1; // The number of players in the game - defaulted to 1
-    private bool[] activePlayers = {true,false,false,false}; //which players are in the game - defaults to just player 1
+    private bool[] activePlayers = { true, false, false, false }; //which players are in the game - defaults to just player 1
     private Options options = new Options();    // The values for all options
 
     // The names and values for the preset options
@@ -28,20 +30,23 @@ public class Menu_Script : MonoBehaviour
         { "Custom", new Options() },
         { "Classic", new Options(
             RuleSet.Classic,
-            0.12f, 3, 2f, 0f, 
+            0.12f, 3, 1.2f, 0f,
             1, 30, 20, false
         ) },
         { "Casual", new Options(
-            RuleSet.Casual, 
-            0.1f, 5, 3f, 3f, 
+            RuleSet.Casual,
+            0.15f, 5, 3f, 3f,
             3, 15, 25, true
         ) },
         { "Wild", new Options(
-            RuleSet.Wild, 
-            0.05f, 3, 2f, 5f, 
+            RuleSet.Wild,
+            0.06f, 3, 2f, 4f,
             5, 15, 50, true
-        ) }
+        )}
     };
+
+
+
     // The currently selected preset index - defaults to classic mode
     private int selectedPreset = 1;
 
@@ -57,38 +62,22 @@ public class Menu_Script : MonoBehaviour
         { "Teal", Color.Lerp(Color.green, Color.black, .2f) + Color.blue},
         { "Pink", Color.magenta}
     };
-    private GameHandler_Script gameHandlerScript;// A reference to the game handler script
-    private Transform menuParent;//the parent object to the menus - used to move them all together
-    private GameObject titleScreen;//the title screen object
-    private GameObject mainMenuScreen;// The menu screen object
-    private GameObject advancedOptionsScreen;// The advanced options screen object
+    public GameHandler_Script gameHandlerScript;// A reference to the game handler script
+    public DemoHandler_Script demoHandlerScript;// A reference to the demo handler script
+    public Transform menuParent;//the parent object to the menus - used to move them all together
+    public GameObject advancedOptionsScreen;// The advanced options screen object
+    public GameObject[] playerIndicators;// The player indicators game objects
 
-    private GameObject[] playerIndicators;// The player indicators game objects
-
-    private int[] playerColoursInts = new int[]{0,1,2,3};   //the default eel colours (defaults to 1,2,3,4)
+    private int[] playerColoursInts = new int[] { 0, 1, 2, 3 };   //the default eel colours (defaults to 1,2,3,4)
     //all the gameobjects (buttons and text displays) on the menu screens that have changing displays
     Dictionary<string, GameObject> MenuScreenObjects;
 
     void Start()    // Start is called before the first frame update
     {
-        // Get a reference to the game handler script
-        gameHandlerScript = GameObject.Find("GameHandler").GetComponent<GameHandler_Script>();
-
-        //grab the menu parent
-        menuParent = GameObject.Find("MenuParent").transform;
-        //grab the title menu screen
-        titleScreen = GameObject.Find("TitleScreen");
-        //grab the main menu screen
-        mainMenuScreen = GameObject.Find("MainMenuScreen");
-        //grab the advanced options menu screen
-        advancedOptionsScreen = GameObject.Find("AdvancedOptionsScreen (1)");
-
+       
         //move screens into position on game load
         menuParent.localPosition = Vector2.zero;
-        titleScreen.transform.localPosition = Vector2.zero;
-        mainMenuScreen.transform.localPosition = new Vector2(0, -500);
-        advancedOptionsScreen.transform.localPosition = new Vector2(0, -500);
-
+        advancedOptionsScreen.transform.localPosition = new Vector3(0,-500, -10);
 
         //grab all the menu screen's changing objects 
         MenuScreenObjects = new Dictionary<string, GameObject>
@@ -129,7 +118,7 @@ public class Menu_Script : MonoBehaviour
         MenuScreenObjects["P2ColourDropdown"].GetComponent<Dropdown>().ClearOptions();
         MenuScreenObjects["P3ColourDropdown"].GetComponent<Dropdown>().ClearOptions();
         MenuScreenObjects["P4ColourDropdown"].GetComponent<Dropdown>().ClearOptions();
-        
+
         List<string> colourNames = new List<string>(SnakeColoursDictionary.Keys);
         MenuScreenObjects["P1ColourDropdown"].GetComponent<Dropdown>().AddOptions(colourNames);
         MenuScreenObjects["P2ColourDropdown"].GetComponent<Dropdown>().AddOptions(colourNames);
@@ -143,7 +132,7 @@ public class Menu_Script : MonoBehaviour
 
         //setup player indicators
         ResetPlayers();
-        
+
         //setup the preset selector and display the default values
         DisplayPreset(selectedPreset);
         //lock the controls if displaying a preset (not custom)
@@ -170,8 +159,8 @@ public class Menu_Script : MonoBehaviour
         playerColoursInts[3] = MenuScreenObjects["P4ColourDropdown"].GetComponent<Dropdown>().value;
         Color[] playerColours = new Color[numPlayers];
         for (int i = 0; i < numPlayers; i++)
-        {   playerColours[i] = SnakeColoursDictionary.ElementAt(playerColoursInts[i]).Value;    }
-        
+        { playerColours[i] = SnakeColoursDictionary.ElementAt(playerColoursInts[i]).Value; }
+
         //setting the player colours
         options.playerColours = playerColours;
 
@@ -191,26 +180,27 @@ public class Menu_Script : MonoBehaviour
     //called every frame
     void Update()
     {
-        if(gameHandlerScript.activeScreen == ActiveScreen.MainMenu){
+        if (gameHandlerScript.activeScreen == ActiveScreen.MainMenu)
+        {
             //if a player presses a key while on menu screen
             for (int i = 0; i < 4; i++)
             {
-                if (Input.GetKeyDown(gameHandlerScript.playerInputs[i,0]) ||Input.GetKeyDown(gameHandlerScript.playerInputs[i,1]) ||Input.GetKeyDown(gameHandlerScript.playerInputs[i,2]) ||Input.GetKeyDown(gameHandlerScript.playerInputs[i,3]) )
+                if (Input.GetKeyDown(gameHandlerScript.playerInputs[i, 0]) || Input.GetKeyDown(gameHandlerScript.playerInputs[i, 1]) || Input.GetKeyDown(gameHandlerScript.playerInputs[i, 2]) || Input.GetKeyDown(gameHandlerScript.playerInputs[i, 3]))
                 {
                     //if player isnt active - add them
-                    if(activePlayers[i] == false)
+                    if (activePlayers[i] == false)
                     {
                         AddPlayer(i);
                     }
                     else
                     {   //if a player is active and presses up button 
-                        if (Input.GetKeyDown(gameHandlerScript.playerInputs[i,0]))
+                        if (Input.GetKeyDown(gameHandlerScript.playerInputs[i, 0]))
                         {
                             //cycle their player colour positively one increment
                             IncrementPlayerColour(i, 1);
                         }
                         //if a player is active and presses down button
-                        if (Input.GetKeyDown(gameHandlerScript.playerInputs[i,1]))
+                        if (Input.GetKeyDown(gameHandlerScript.playerInputs[i, 1]))
                         {   //cycle their player colour negatively one increment
                             IncrementPlayerColour(i, -1);
                         }
@@ -223,21 +213,26 @@ public class Menu_Script : MonoBehaviour
             //Debug.Log("trying to press a button thats currently inactive");
         }
     }
-    public void Open(ActiveScreen screen){// Open the menu screens, able to open to a specific screen   
+    public void Open(ActiveScreen screen)
+    {// Open the menu screens, able to open to a specific screen   
         switch (screen)
         {
+            case ActiveScreen.About:
+                gameHandlerScript.activeScreen = ActiveScreen.About;
+                menuParent.localPosition = new Vector2(0, -500);
+                break;
             case ActiveScreen.Title:
                 gameHandlerScript.activeScreen = ActiveScreen.Title;
                 menuParent.localPosition = Vector2.zero;
                 break;
             case ActiveScreen.MainMenu:
                 gameHandlerScript.activeScreen = ActiveScreen.MainMenu;
-                menuParent.localPosition = new Vector2(0,500);
+                menuParent.localPosition = new Vector2(0, 500);
                 break;
             case ActiveScreen.AdvancedOptions:
                 gameHandlerScript.activeScreen = ActiveScreen.AdvancedOptions;
                 ShowAdvancedOptions();
-                menuParent.localPosition = new Vector2(0,500);
+                menuParent.localPosition = new Vector2(0, 500);
                 break;
             default:
                 Debug.LogError("opened menu but didnt set active screen to a valid menu screen");
@@ -249,9 +244,11 @@ public class Menu_Script : MonoBehaviour
     {
         // Close the menu screens
         menuParent.gameObject.SetActive(false);
+        menuParent.localPosition = Vector2.zero;
     }
 
-    public void IncrementPlayerColour(int pNum, int i){
+    public void IncrementPlayerColour(int pNum, int i)
+    {
         //called to cycle player colours in menu display, also changing the advanced options menu values 
 
         //setup a couple useful vars
@@ -264,44 +261,33 @@ public class Menu_Script : MonoBehaviour
         };
         int newColourVal = playerColoursInts[pNum] += i;
         //if value is outside of range, subtract or add total number of colours until it is
-        while (newColourVal < 0 || newColourVal > totalColours-1)
+        while (newColourVal < 0 || newColourVal > totalColours - 1)
         {
-            if(newColourVal > totalColours-1){
+            if (newColourVal > totalColours - 1)
+            {
                 //if player colour is bigger than max value, rollover from min value
                 newColourVal -= totalColours;
-            }else if (newColourVal < 0){
+            }
+            else if (newColourVal < 0)
+            {
                 //if player colour is smaller than min value, rollover from max value
                 newColourVal += totalColours;
             }
         }
 
         //save new colour val
-        playerColoursInts[pNum] = newColourVal;        
+        playerColoursInts[pNum] = newColourVal;
         //set the player indicator to the correct colour
         playerIndicators[pNum].transform.GetChild(2).GetChild(1).GetComponent<Image>().color = SnakeColoursDictionary.ElementAt(playerColoursInts[pNum]).Value;
         //update advanced options screen colour selectors
         dropdowns[pNum].value = newColourVal;
     }
 
-    //////////////////////////////////////////////////////// title screen buttons + methods
-
-    public void TitleStartBtn()    // btn press to go to main
-    {
-        if(gameHandlerScript.activeScreen == ActiveScreen.Title){
-            gameHandlerScript.activeScreen = ActiveScreen.MainMenu;
-            ResetPlayers();
-            StartCoroutine(TransitionMenuParent(new Vector2(0,0), new Vector2(0,500), .75f));
-        }
-        else
-        {
-            Debug.Log("trying to press a button thats currently inactive");
-        }
-    }
-
+    //moves the position of "all the menus" so it looks like the camera does a smooth transition between them
     private IEnumerator TransitionMenuParent(Vector2 startPos, Vector2 endPos, float duration)
     {
         float elapsedTime = 0f;
-        
+
         while (elapsedTime < duration)
         {
             elapsedTime += Time.deltaTime;
@@ -312,39 +298,114 @@ public class Menu_Script : MonoBehaviour
         menuParent.transform.localPosition = endPos;
     }
 
-    public void TitleViewHighScoresBtn(){
-        if(gameHandlerScript.activeScreen == ActiveScreen.Title){
-        
-        }
-        else
+    //////////////////////////////////////////////////////// about screen buttons + methods
+    public void AboutExitGameBtn()
+    {
+        if (gameHandlerScript.activeScreen != ActiveScreen.About)
         {
             Debug.Log("trying to press a button thats currently inactive");
+            return;
         }
+        gameHandlerScript.ExitGame();
     }
-    public void TitleAboutBtn(){
-        if(gameHandlerScript.activeScreen == ActiveScreen.Title){
-        
-        }
-        else
+    public void AboutStartTutorialBtn()
+    {
+        if (gameHandlerScript.activeScreen != ActiveScreen.About)
         {
             Debug.Log("trying to press a button thats currently inactive");
+            return;
         }
+        demoHandlerScript.StartTutorial();
+        Close();
+    }
+    public void AboutStartComparisonBtn()
+    {
+        if (gameHandlerScript.activeScreen != ActiveScreen.About)
+        {
+            Debug.Log("trying to press a button thats currently inactive");
+            return;
+        }
+        demoHandlerScript.StartComparison();
+        Close();
+    }
+    public void AboutStartRetroSnakeBtn()
+    {
+        if (gameHandlerScript.activeScreen != ActiveScreen.About)
+        {
+            Debug.Log("trying to press a button thats currently inactive");
+            return;
+        }
+        demoHandlerScript.StartRetroSnake();
+        Close();
+    }
+    public void AboutBackBtn()
+    {
+        if (gameHandlerScript.activeScreen != ActiveScreen.About)
+        {
+            Debug.Log("trying to press a button thats currently inactive");
+            return;
+        }
+        gameHandlerScript.activeScreen = ActiveScreen.Title;
+        StartCoroutine(TransitionMenuParent(new Vector2(0, -500), new Vector2(0, 0), .75f));
     }
 
-    public void TitleExitGameBtn(){
-        if(gameHandlerScript.activeScreen == ActiveScreen.Title){
-            gameHandlerScript.ExitGame();
-        }
-        else
+
+
+    //////////////////////////////////////////////////////// title screen buttons + methods
+
+    public void TitleStartBtn()    // btn press to go to main
+    {
+        if (gameHandlerScript.activeScreen != ActiveScreen.Title)
         {
             Debug.Log("trying to press a button thats currently inactive");
+            return;
         }
+        gameHandlerScript.activeScreen = ActiveScreen.MainMenu;
+        ResetPlayers();
+        StartCoroutine(TransitionMenuParent(new Vector2(0, 0), new Vector2(0, 500), .75f));
+
     }
-    
+
+
+
+    public void TitleViewHighScoresBtn()
+    {
+        if (gameHandlerScript.activeScreen != ActiveScreen.Title)
+        {
+            Debug.Log("trying to press a button thats currently inactive");
+            return;
+        }
+        gameHandlerScript.OpenHighScoreScreen();
+    }
+    public void TitleAboutBtn()
+    {
+        if (gameHandlerScript.activeScreen != ActiveScreen.Title)
+        {
+            Debug.Log("trying to press a button thats currently inactive");
+            return;
+        }
+        gameHandlerScript.activeScreen = ActiveScreen.About;
+        StartCoroutine(TransitionMenuParent(new Vector2(0, 0), new Vector2(0, -500), .75f));
+    }
+
+    public void TitleExitGameBtn()
+    {
+        if (gameHandlerScript.activeScreen != ActiveScreen.Title)
+        {
+            Debug.Log("trying to press a button thats currently inactive");
+            return;
+        }
+        gameHandlerScript.ExitGame();
+
+    }
+
+
 
     //////////////////////////////////////////////////////// main menu screen buttons + methods
-    void AddPlayer(int pNum){ //sets a player (called by index) as active and shows their indicator
-        if(activePlayers[pNum] == false){
+    void AddPlayer(int pNum)
+    { //sets a player (called by index) as active and shows their indicator
+        if (activePlayers[pNum] == false)
+        {
             activePlayers[pNum] = true; //set the player to be active
             playerIndicators[pNum].transform.GetChild(1).gameObject.SetActive(false);  //hide the presskey prompt
             playerIndicators[pNum].transform.GetChild(2).gameObject.SetActive(true);   //show the player indicator
@@ -353,7 +414,8 @@ public class Menu_Script : MonoBehaviour
         }
     }
 
-    void ResetPlayers(){//loops through all players and indicators and resets them - keeps player one active
+    void ResetPlayers()
+    {//loops through all players and indicators and resets them - keeps player one active
         numPlayers = 1;
         for (int i = 1; i < 4; i++)
         {
@@ -365,182 +427,184 @@ public class Menu_Script : MonoBehaviour
 
     }
 
-    public void MainMenuBackBtn(){
-        if(gameHandlerScript.activeScreen == ActiveScreen.MainMenu){
-            gameHandlerScript.activeScreen = ActiveScreen.Title;
-            StartCoroutine(TransitionMenuParent(new Vector2(0,500), new Vector2(0,0), .75f));
-        }
-        else
+    public void MainMenuBackBtn()
+    {
+        if (gameHandlerScript.activeScreen != ActiveScreen.MainMenu)
         {
             Debug.Log("trying to press a button thats currently inactive");
+            return;
         }
+        gameHandlerScript.activeScreen = ActiveScreen.Title;
+        StartCoroutine(TransitionMenuParent(new Vector2(0, 500), new Vector2(0, 0), .75f));
+
     }
 
     public void MainMenuGamemodeIncreaseBtn()    // btn press to increase target goal points
     {
-        if(gameHandlerScript.activeScreen == ActiveScreen.MainMenu){
-            goalPoints += 10;
-            UpdateGameMode(GameMode.Points);
-        }
-        else
+        if (gameHandlerScript.activeScreen != ActiveScreen.MainMenu)
         {
             Debug.Log("trying to press a button thats currently inactive");
+            return;
         }
+        goalPoints += 10;
+        UpdateGameMode(GameMode.Points);
+
     }
     public void MainMenuGamemodeDecreaseBtn()   // btn press to decrease target goal points
     {
-        if(gameHandlerScript.activeScreen == ActiveScreen.MainMenu){
-            if (goalPoints >= 10)//if goalpoints exist, decrease them by 10 and display the value
-            {
-                goalPoints -= 10;
-                UpdateGameMode(GameMode.Points);
-            }
-            if(goalPoints <= 0){
-                UpdateGameMode(GameMode.Endless);//if points hit 0 or negative, switch to endless gamemode
-            }
-        }
-        else
+        if (gameHandlerScript.activeScreen != ActiveScreen.MainMenu)
         {
             Debug.Log("trying to press a button thats currently inactive");
+            return;
         }
+        if (goalPoints >= 10)//if goalpoints exist, decrease them by 10 and display the value
+        {
+            goalPoints -= 10;
+            UpdateGameMode(GameMode.Points);
+        }
+        if (goalPoints <= 0)
+        {
+            UpdateGameMode(GameMode.Endless);//if points hit 0 or negative, switch to endless gamemode
+        }
+
     }
-    public void UpdateGameMode(GameMode gm){ //called to update the gamemode + display (endless or # points)
-        if(gm == GameMode.Endless){
-            if (gameMode != GameMode.Endless) { gameMode = GameMode.Endless;}//set gamemode
+    public void UpdateGameMode(GameMode gm)
+    { //called to update the gamemode + display (endless or # points)
+        if (gm == GameMode.Endless)
+        {
+            if (gameMode != GameMode.Endless) { gameMode = GameMode.Endless; }//set gamemode
             goalPoints = 0; //set points to 0
-            MenuScreenObjects["GameModeBlock"].transform.GetChild(1).GetComponent<Text>().text ="Endless GameMode"; //display gamemode
+            MenuScreenObjects["GameModeBlock"].transform.GetChild(1).GetComponent<Text>().text = "Endless GameMode"; //display gamemode
             MenuScreenObjects["GameModeBlock"].transform.GetChild(2).gameObject.SetActive(false); //hide the negative button (points are already at 0)
         }
-        else if (gm == GameMode.Points){
-            if (gameMode != GameMode.Points) { gameMode = GameMode.Points;}//set gamemode
+        else if (gm == GameMode.Points)
+        {
+            if (gameMode != GameMode.Points) { gameMode = GameMode.Points; }//set gamemode
             MenuScreenObjects["GameModeBlock"].transform.GetChild(1).GetComponent<Text>().text = goalPoints.ToString() + " points to win"; //display points+message
             MenuScreenObjects["GameModeBlock"].transform.GetChild(2).gameObject.SetActive(true); //show the negative button (points are past 0)
         }
     }
 
-    public void MainMenuRulesetIncreaseBtn(){//btn press the right ruleset btn on main menu
-        if(gameHandlerScript.activeScreen == ActiveScreen.MainMenu){
-            NextPreset();
-            //why reinvent the wheel, calls the next preset button on the advanced options page
-        }
-        else
+    public void MainMenuRulesetIncreaseBtn()
+    {//btn press the right ruleset btn on main menu
+        if (gameHandlerScript.activeScreen != ActiveScreen.MainMenu)
         {
             Debug.Log("trying to press a button thats currently inactive");
+            return;
         }
+        NextPreset();
+        //why reinvent the wheel, calls the next preset button on the advanced options page
+
     }
-    public void MainMenuRulesetDecreaseBtn(){//btn press the left ruleset btn on main menu
-        if(gameHandlerScript.activeScreen == ActiveScreen.MainMenu){
-            PreviousPreset();
-            //why reinvent the wheel, calls the next preset button on the advanced options page
-        }
-        else
+    public void MainMenuRulesetDecreaseBtn()
+    {//btn press the left ruleset btn on main menu
+        if (gameHandlerScript.activeScreen != ActiveScreen.MainMenu)
         {
             Debug.Log("trying to press a button thats currently inactive");
+            return;
         }
+        PreviousPreset();
+        //why reinvent the wheel, calls the next preset button on the advanced options page
+
     }
-    public void MainMenuStartRetroSnakeBtn(){        //unused
-        if(gameHandlerScript.activeScreen == ActiveScreen.MainMenu){
-        
-        }
-        else
+
+    public void MainMenuCustomizeRulesBtn()
+    {
+        if (gameHandlerScript.activeScreen != ActiveScreen.MainMenu)
         {
             Debug.Log("trying to press a button thats currently inactive");
+            return;
         }
+        gameHandlerScript.activeScreen = ActiveScreen.AdvancedOptions;
+        ShowAdvancedOptions();
+
     }
-    public void MainMenuCustomizeRulesBtn(){
-        if(gameHandlerScript.activeScreen == ActiveScreen.MainMenu){
-            gameHandlerScript.activeScreen = ActiveScreen.AdvancedOptions;
-            ShowAdvancedOptions();
-        }
-        else
+    public void MainMenuPlayRandomBtn()
+    {        //unused
+        if (gameHandlerScript.activeScreen != ActiveScreen.MainMenu)
         {
             Debug.Log("trying to press a button thats currently inactive");
-        }
-    }
-    public void MainMenuPlayRandomBtn(){        //unused
-        if(gameHandlerScript.activeScreen == ActiveScreen.MainMenu){
-        
-        }
-        else
-        {
-            Debug.Log("trying to press a button thats currently inactive");
+            return;
         }
 
     }
-    public void MainMenuStartBtn(){
-        if(gameHandlerScript.activeScreen == ActiveScreen.MainMenu){
-            StartGame();
-        }
-        else
+    public void MainMenuStartBtn()
+    {
+        if (gameHandlerScript.activeScreen != ActiveScreen.MainMenu)
         {
             Debug.Log("trying to press a button thats currently inactive");
+            return;
         }
+        StartGame();
+
     }
 
 
     //////////////////////////////////////////////////////// advanced options screen buttons + methods
     public void AdvancedOptionsCloseBtn()
     {
-        if(gameHandlerScript.activeScreen == ActiveScreen.AdvancedOptions){
-            if(selectedPreset == 0){//if using the custom preset, first save the values from the screen
-                SaveAdvancedOptionsFromScreen();   
-            }
-            gameHandlerScript.activeScreen = ActiveScreen.MainMenu;//switch active screen to main menu
-            HideAdvancedOptions();//close advanced options
-        }
-        else
+        if (gameHandlerScript.activeScreen != ActiveScreen.AdvancedOptions)
         {
             Debug.Log("trying to press a button thats currently inactive");
+            return;
         }
+        if (selectedPreset == 0)
+        {//if using the custom preset, first save the values from the screen
+            SaveAdvancedOptionsFromScreen();
+        }
+        gameHandlerScript.activeScreen = ActiveScreen.MainMenu;//switch active screen to main menu
+        HideAdvancedOptions();//close advanced options
+
     }
     public void AdvancedOptionsStartBtn()
     {
-        if(gameHandlerScript.activeScreen == ActiveScreen.AdvancedOptions){
-            if(selectedPreset == 0){//if using the custom preset, first save the values from the screen
-                SaveAdvancedOptionsFromScreen();   
-            }
-            HideAdvancedOptions();
-            StartGame();
-        }
-        else
+        if (gameHandlerScript.activeScreen != ActiveScreen.AdvancedOptions)
         {
             Debug.Log("trying to press a button thats currently inactive");
+            return;
         }
+        if (selectedPreset == 0)
+        {//if using the custom preset, first save the values from the screen
+            SaveAdvancedOptionsFromScreen();
+        }
+        HideAdvancedOptions();
+        StartGame();
+
     }
     public void AdvancedOptionsPresetDecreaseBtn()
     {
-        if(gameHandlerScript.activeScreen == ActiveScreen.AdvancedOptions){
-            PreviousPreset();
-        }
-        else
+        if (gameHandlerScript.activeScreen != ActiveScreen.AdvancedOptions)
         {
             Debug.Log("trying to press a button thats currently inactive");
+            return;
         }
+        PreviousPreset();
+
     }
     public void AdvancedOptionsPresetIncreaseBtn()
     {
-        if(gameHandlerScript.activeScreen == ActiveScreen.AdvancedOptions){
-            NextPreset();
-        }
-        else
+        if (gameHandlerScript.activeScreen != ActiveScreen.AdvancedOptions)
         {
             Debug.Log("trying to press a button thats currently inactive");
+            return;
         }
+        NextPreset();
+
     }
     public void AdvancedOptionsCustomizeBtn()//saves the preset's values to the custom preset, it allows the user to customize an existing preset
     {
-        if(gameHandlerScript.activeScreen == ActiveScreen.AdvancedOptions){
-            //save the selected preset options to override the custom preset
-            presetOptions["Custom"] = presetOptions.ElementAt(selectedPreset).Value;
-            //set the selected preset back to custom
-            selectedPreset = 0;
-            DisplayPreset(selectedPreset);
-            UpdateAdvancedOptionsLock();
-        }
-        else
+        if (gameHandlerScript.activeScreen != ActiveScreen.AdvancedOptions)
         {
             Debug.Log("trying to press a button thats currently inactive");
+            return;
         }
+        //save the selected preset options to override the custom preset
+        presetOptions["Custom"] = presetOptions.ElementAt(selectedPreset).Value;
+        //set the selected preset back to custom
+        selectedPreset = 0;
+        DisplayPreset(selectedPreset);
+        UpdateAdvancedOptionsLock();
+
     }
 
     public void ShowAdvancedOptions()
@@ -559,15 +623,16 @@ public class Menu_Script : MonoBehaviour
     public void NextPreset()//selects next preset and displays it on menus
     {
         // Increase the selected preset index, wrapping around to the first preset if necessary
-        if(selectedPreset == 0){
+        if (selectedPreset == 0)
+        {
             //save the shown advanced options to custom
             SaveAdvancedOptionsFromScreen();
         }
-        selectedPreset ++;
+        selectedPreset++;
 
         if (selectedPreset >= presetOptions.Count)
         {
-            selectedPreset = 0;            
+            selectedPreset = 0;
         }
 
         DisplayPreset(selectedPreset);
@@ -576,7 +641,8 @@ public class Menu_Script : MonoBehaviour
     public void PreviousPreset()//selects previous preset and displays it on menus
     {
         // Decrease the selected preset index, wrapping around to the last preset if necessary
-        if(selectedPreset==0){//if changing from custom options preset, save options first
+        if (selectedPreset == 0)
+        {//if changing from custom options preset, save options first
             SaveAdvancedOptionsFromScreen();
         }
 
@@ -594,10 +660,12 @@ public class Menu_Script : MonoBehaviour
         //when playing the retro snake game
     }
 
-    public void UpdateAdvancedOptionsLock(){
+    public void UpdateAdvancedOptionsLock()
+    {
         //if preset shown is not custom, set menu components to not interactable
         bool b = false;
-        if(selectedPreset == 0){
+        if (selectedPreset == 0)
+        {
             //if not displaying a preset, lock controls
             b = true;
         }
@@ -661,14 +729,14 @@ public class Menu_Script : MonoBehaviour
         //grab all values displayed on advanced options screen
         tempOptions.snakeSpeed = float.Parse(MenuScreenObjects["SnakeSpeed"].GetComponent<InputField>().text);
         tempOptions.startingSize = int.Parse(MenuScreenObjects["StartingSize"].GetComponent<InputField>().text);
-        tempOptions.ghostModeDuration =  float.Parse(MenuScreenObjects["GhostModeDuration"].GetComponent<InputField>().text);
+        tempOptions.ghostModeDuration = float.Parse(MenuScreenObjects["GhostModeDuration"].GetComponent<InputField>().text);
         tempOptions.deathPenaltyDuration = float.Parse(MenuScreenObjects["DeathPenaltyDuration"].GetComponent<InputField>().text);
         tempOptions.normalFoodGrowthAmount = int.Parse(MenuScreenObjects["NormalFoodGrowthAmount"].GetComponent<InputField>().text);
         tempOptions.goldFoodSpawnChance = float.Parse(MenuScreenObjects["GoldFoodSpawnChance"].GetComponent<InputField>().text);
         tempOptions.goldFoodGrowthAmount = int.Parse(MenuScreenObjects["GoldFoodGrowthAmount"].GetComponent<InputField>().text);
         tempOptions.doSnakesTurnToFood = MenuScreenObjects["DoSnakesTurnIntoFood"].GetComponent<Toggle>().isOn;
         //save options to custom preset
-        presetOptions["Custom"]= tempOptions;
+        presetOptions["Custom"] = tempOptions;
     }
 
 }

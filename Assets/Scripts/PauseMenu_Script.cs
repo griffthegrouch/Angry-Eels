@@ -1,22 +1,23 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PauseMenu_Script : MonoBehaviour
 {
     // A reference to the game handler script
-    private GameHandler_Script gameHandlerScript;
-
+    public GameHandler_Script gameHandlerScript;
 
     // The menu screen game object
-    private GameObject pauseScreen;
-    private Animator pauseTextAnimator;
-
+    public GameObject pauseScreen;
+    public Animator pauseTextAnimator;
     // The pause prompt GameObject
-    private GameObject pausePrompt;
+    public GameObject pausePrompt;
+
+    public Text scoreDisplayText;
 
     // Audio source for pause screen
-    private AudioSource pauseScreenAudio;
+    public AudioSource pauseScreenAudio;
 
 
     // Start is called before the first frame update
@@ -24,20 +25,6 @@ public class PauseMenu_Script : MonoBehaviour
     {
         //move screen into position on game load
         transform.localPosition = Vector2.zero;
-
-        // Get a reference to the game handler script
-        gameHandlerScript = GameObject.Find("GameHandler").GetComponent<GameHandler_Script>();
-
-        pauseScreenAudio = GetComponent<AudioSource>();
-
-        //grab the main menu screen
-        pauseScreen = GameObject.Find("PauseScreen");
-
-        //grab the pause title animator
-        pauseTextAnimator = GameObject.Find("PauseText").GetComponent<Animator>();
-
-        //grab the pause button
-        pausePrompt = GameObject.Find("PausePrompt");
 
         //hide the pause screen by default
         Close();
@@ -97,7 +84,7 @@ public class PauseMenu_Script : MonoBehaviour
             Debug.Log("trying to press a button thats currently inactive");
             return;
         }
-        Unpause();
+        Close();
         HidePrompt();
         gameHandlerScript.LeaveGameReturnHome();
 
@@ -109,12 +96,18 @@ public class PauseMenu_Script : MonoBehaviour
             Debug.Log("trying to press a button thats currently inactive");
             return;
         }
-        //gameHandlerScript.
+        Close();
+        HidePrompt();
+        gameHandlerScript.OpenSaveScoreScreen();
     }
 
+    public void DisplayScore(){
+        int leader = gameHandlerScript.currentLeader;
+        int leaderScore = gameHandlerScript.currentHighscore;
 
-
-
+        string scoreText = "Player " + leader + " is in the lead with " + leaderScore + " points!";
+        scoreDisplayText.text = scoreText;
+    }
 
 
 
@@ -124,6 +117,9 @@ public class PauseMenu_Script : MonoBehaviour
         pauseScreenAudio.Play(0);
 
         HidePrompt();
+
+        //display score
+        DisplayScore();
 
         Open();
         gameHandlerScript.Pause();
@@ -149,6 +145,7 @@ public class PauseMenu_Script : MonoBehaviour
 
     public void Close()
     {
+        Time.timeScale = 1;
         pauseTextAnimator.SetBool("screenOpen", false);
         pauseScreen.SetActive(false);
     }

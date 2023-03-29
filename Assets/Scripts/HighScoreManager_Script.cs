@@ -38,6 +38,16 @@ public class HighScoreManager_Script : MonoBehaviour
         Close();
     }
 
+    public void ReturnHomeBtn(){
+        Close();
+        gameHandlerScript.OpenMenuScreen(ActiveScreen.Title);
+    }
+
+    public void ExitGameBtn(){
+        Close();
+        gameHandlerScript.ExitGame();
+    }
+
     public void Open()
     {
         highScoreScreen.SetActive(true);
@@ -48,9 +58,11 @@ public class HighScoreManager_Script : MonoBehaviour
         highScoreScreen.SetActive(false);
     }
 
-    public int IsThisHighscore(RuleSet ruleSet, int score)//call to ask if the score is a highscore for given ruleset, returns the number the new score would achieve
+    //call to ask if the score is a highscore for given ruleset, returns yes or no 
+    public bool IsThisAHighscore(RuleSet ruleSet, int score)
     {
-        return 1;
+        List<KeyValuePair<string, int>> scoresForRuleSet = highScores[ruleSet];
+        return score > scoresForRuleSet.Min(entry => entry.Value);
     }
 
     private void InitializeHighScores()
@@ -109,16 +121,25 @@ public class HighScoreManager_Script : MonoBehaviour
     {
         List<KeyValuePair<string, int>> scoresForRuleSet = highScores[ruleSet];
         scoresForRuleSet.Add(new KeyValuePair<string, int>(name, score));
-        scoresForRuleSet = scoresForRuleSet.OrderByDescending(entry => entry.Value).Take(10).ToList();
+
+        // Sort the list in descending order based on score and keep only the top 10 entries
+        scoresForRuleSet = scoresForRuleSet.OrderByDescending(entry => entry.Value)
+                                           .Take(10)
+                                           .ToList();
         highScores[ruleSet] = scoresForRuleSet;
-        for (int i = 0; i < scoresForRuleSet.Count; i++)
+
+        // Save only the new high score to PlayerPrefs
+        int index = scoresForRuleSet.FindIndex(entry => entry.Key == name && entry.Value == score);
+        if (index >= 0)
         {
-            string key = ruleSet.ToString() + "HighScore" + i.ToString();
-            PlayerPrefs.SetString(key + "Name", scoresForRuleSet[i].Key);
-            PlayerPrefs.SetInt(key + "Score", scoresForRuleSet[i].Value);
+            string key = ruleSet.ToString() + "HighScore" + index.ToString();
+            PlayerPrefs.SetString(key + "Name", name);
+            PlayerPrefs.SetInt(key + "Score", score);
+            PlayerPrefs.Save();
         }
-        PlayerPrefs.Save();
+
         UpdateHighScoreText();
     }
+
 
 }
