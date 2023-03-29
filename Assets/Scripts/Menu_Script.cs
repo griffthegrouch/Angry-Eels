@@ -10,8 +10,7 @@ public enum RuleSet
     Custom,
     Classic,
     Casual,
-    Wild,
-    Impossible
+    Wild
 
 }
 public class Menu_Script : MonoBehaviour
@@ -31,7 +30,7 @@ public class Menu_Script : MonoBehaviour
         { "Custom", new Options() },
         { "Classic", new Options(
             RuleSet.Classic,
-            0.12f, 3, 2f, 0f,
+            0.12f, 3, 1.2f, 0f,
             1, 30, 20, false
         ) },
         { "Casual", new Options(
@@ -41,14 +40,9 @@ public class Menu_Script : MonoBehaviour
         ) },
         { "Wild", new Options(
             RuleSet.Wild,
-            0.05f, 3, 2f, 4f,
+            0.06f, 3, 2f, 4f,
             5, 15, 50, true
-        ) },
-        { "Impossible", new Options(
-            RuleSet.Impossible,
-            0.025f, 10, .5f, 0f,
-            10, 5, 30, false
-        ) }
+        )}
     };
 
 
@@ -68,14 +62,11 @@ public class Menu_Script : MonoBehaviour
         { "Teal", Color.Lerp(Color.green, Color.black, .2f) + Color.blue},
         { "Pink", Color.magenta}
     };
-    private GameHandler_Script gameHandlerScript;// A reference to the game handler script
-    private DemoHandler_Script demoHandlerScript;// A reference to the demo handler script
-    private Transform menuParent;//the parent object to the menus - used to move them all together
-    private GameObject titleScreen;//the title screen object
-    private GameObject mainMenuScreen;// The menu screen object
-    private GameObject advancedOptionsScreen;// The advanced options screen object
-
-    private GameObject[] playerIndicators;// The player indicators game objects
+    public GameHandler_Script gameHandlerScript;// A reference to the game handler script
+    public DemoHandler_Script demoHandlerScript;// A reference to the demo handler script
+    public Transform menuParent;//the parent object to the menus - used to move them all together
+    public GameObject advancedOptionsScreen;// The advanced options screen object
+    public GameObject[] playerIndicators;// The player indicators game objects
 
     private int[] playerColoursInts = new int[] { 0, 1, 2, 3 };   //the default eel colours (defaults to 1,2,3,4)
     //all the gameobjects (buttons and text displays) on the menu screens that have changing displays
@@ -83,25 +74,9 @@ public class Menu_Script : MonoBehaviour
 
     void Start()    // Start is called before the first frame update
     {
-        // Get a reference to the game handler script
-        gameHandlerScript = GameObject.Find("GameHandler").GetComponent<GameHandler_Script>();
-        demoHandlerScript = GameObject.Find("GameHandler").GetComponent<DemoHandler_Script>();
-
-        //grab the menu parent
-        menuParent = GameObject.Find("MenuParent").transform;
-        //grab the title menu screen
-        titleScreen = GameObject.Find("TitleScreen");
-        //grab the main menu screen
-        mainMenuScreen = GameObject.Find("MainMenuScreen");
-        //grab the advanced options menu screen
-        advancedOptionsScreen = GameObject.Find("AdvancedOptionsScreen (1)");
-
+       
         //move screens into position on game load
         menuParent.localPosition = Vector2.zero;
-        titleScreen.transform.localPosition = Vector2.zero;
-        mainMenuScreen.transform.localPosition = new Vector2(0, -500);
-        advancedOptionsScreen.transform.localPosition = new Vector2(0, -500);
-
 
         //grab all the menu screen's changing objects 
         MenuScreenObjects = new Dictionary<string, GameObject>
@@ -399,6 +374,7 @@ public class Menu_Script : MonoBehaviour
             Debug.Log("trying to press a button thats currently inactive");
             return;
         }
+        gameHandlerScript.OpenHighScoreScreen();
     }
     public void TitleAboutBtn()
     {

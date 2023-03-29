@@ -114,14 +114,9 @@
     TODO
 ***********************************************************************************************
 
-    WHATS LEFT  BEFORE PUBLISHING
-
-
-    - add save highscore button
-    
+    WHATS LEFT  BEFORE PUBLISHING    
 
     - add a couple better sounds (death sound from worms, splashing, victory sound / music)
-
 
     movement
 
@@ -145,6 +140,8 @@
 
     make number of lives
 
+    make battle royale mode, where eels dont respawn untill theyre all dead
+
     make random obstacle maker, and preset stages to choose from.
 
     make different levels 
@@ -157,6 +154,8 @@
     make options for food (multiple random spawning, single one that grows you then moves, toggle for dead snakes becoming food )
 
     golden food that moves/bounces around?
+
+    boss eel (2-3x the size of normal eel)
    
 
 

@@ -257,6 +257,7 @@ public class Snake_Script : MonoBehaviour
         {//if snake isnt moving, pressing any button will reset it
             if (Input.GetKeyDown(playerSettings.playerInputs[0]) || Input.GetKeyDown(playerSettings.playerInputs[1]) || Input.GetKeyDown(playerSettings.playerInputs[2]) || Input.GetKeyDown(playerSettings.playerInputs[3]))
             {
+                verticalBufferDirection = 'u';
                 //start game
                 StartGame();
                 return;

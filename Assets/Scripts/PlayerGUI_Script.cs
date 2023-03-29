@@ -12,21 +12,21 @@ It also has indicators to show the player's status (alive, ghosted, golden, or d
 public class PlayerGUI_Script : MonoBehaviour
 {
     // Variables to hold references to the GUI elements
-    private GameObject parent; // The parent to all GUI elements
-    private Text playerNumText; // Text that shows the player's number
-    private Image playerColourSprite; // Image that shows the player's color
-    private Text scoreText; // Text that shows the player's current score
-    private Text highscoreText; // Text that shows the player's highscore
-    private GameObject pressKeyPrompt; // Object that prompts the player to press any key to begin
-    private GameObject timerBar; // Object that shows the timer bar
-    private GameObject chargeBar; // Object that shows how full the timer is
-    private Image chargeBarSprite; // Image component of the charge bar object
-    private GameObject ghostIndicator; // Object that shows the ghost indicator
-    private GameObject goldIndicator; // Object that shows the gold indicator
-    private GameObject deadIndicator; // Object that shows the death penalty indicator
+    public GameObject parent; // The parent to all GUI elements
+    public Text playerNumText; // Text that shows the player's number
+    public Image playerColourSprite; // Image that shows the player's color
+    public Text scoreText; // Text that shows the player's current score
+    public Text highscoreText; // Text that shows the player's highscore
+    public GameObject pressKeyPrompt; // Object that prompts the player to press any key to begin
+    public GameObject timerBar; // Object that shows the timer bar
+    public GameObject chargeBar; // Object that shows how full the timer is
+    public Image chargeBarSprite; // Image component of the charge bar object
+    public GameObject ghostIndicator; // Object that shows the ghost indicator
+    public GameObject goldIndicator; // Object that shows the gold indicator
+    public GameObject deadIndicator; // Object that shows the death penalty indicator
 
     // Variables used by the script
-    private GameHandler_Script gameHandlerScript; // Reference to the GameHandler_Script
+    public GameHandler_Script gameHandlerScript; // Reference to the GameHandler_Script
     private int playerNum; // The player's number
     private Color playerColour; // The player's color
     private float timer; // The timer value
@@ -39,20 +39,6 @@ public class PlayerGUI_Script : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        // Get references to the GUI elements
-        parent = transform.GetChild(0).gameObject;
-        playerColourSprite = parent.transform.GetChild(0).GetChild(0).GetComponent<Image>();
-        playerNumText = parent.transform.GetChild(4).GetChild(0).GetComponent<Text>();
-        pressKeyPrompt = parent.transform.GetChild(2).gameObject;
-        scoreText = parent.transform.GetChild(1).GetChild(1).GetComponent<Text>();
-        highscoreText = parent.transform.GetChild(1).GetChild(3).GetComponent<Text>();
-        timerBar = parent.transform.GetChild(3).GetChild(0).gameObject;
-        chargeBar = timerBar.transform.GetChild(1).gameObject;
-        chargeBarSprite = chargeBar.GetComponent<Image>();
-        ghostIndicator = parent.transform.GetChild(3).GetChild(1).gameObject;
-        goldIndicator = parent.transform.GetChild(3).GetChild(2).gameObject;
-        deadIndicator = parent.transform.GetChild(3).GetChild(3).gameObject;
-
         // Hide all indicators
         HideAllIndicators();
         // Hide GUI elements

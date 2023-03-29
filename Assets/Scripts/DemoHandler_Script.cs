@@ -5,28 +5,28 @@ using UnityEngine.UI;
 
 public class DemoHandler_Script : MonoBehaviour
 {
-    private GameHandler_Script gameHandlerScript;
-    private Menu_Script menuScript;
+    public GameHandler_Script gameHandlerScript;
+    public Menu_Script menuScript;
 
     private GameObject demoSnakePrefab;
     private GameObject demoSnakeSegmentPrefab;
 
-    private PlayerGUI_Script playerGUIScript;
+    public PlayerGUI_Script playerGUIScript;
     private DemoSnake_Script snakeScript { get; set; }
     private Color eelColour = Color.green;
     private Color snakeColour = Color.red;
     private GameObject food;
 
-    private GameObject demoGUI;
-    private GameObject returnHomBtn;
-    
-    private Text tutorialText;
-    private Text tutorialCounterText;
+    public GameObject demoGUI;
+    public GameObject returnHomBtn;
 
-    private GameObject compareDisplay;
+    public Text tutorialText;
+    public Text tutorialCounterText;
 
-    private GameObject eelIndicator;
-    private GameObject snakeIndicator;
+    public GameObject compareDisplay;
+
+    public GameObject eelIndicator;
+    public GameObject snakeIndicator;
 
     private string[] instructions = new string[]{
         "Basics:\n To move in a certain direction, just press the direction you want to go. The Eel will continue to move in the direction its facing.",
@@ -50,24 +50,19 @@ public class DemoHandler_Script : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        gameHandlerScript = GameObject.Find("GameHandler").GetComponent<GameHandler_Script>();
-        menuScript = GameObject.Find("MainMenu").GetComponent<Menu_Script>();
-
         demoSnakePrefab = Resources.Load("Prefabs/DemoSnake") as GameObject;
         demoSnakeSegmentPrefab = Resources.Load("Prefabs/DemoSnakeSegment") as GameObject;
 
-        playerGUIScript = GameObject.FindGameObjectsWithTag("PlayerGUI")[0].GetComponent<PlayerGUI_Script>();
+        HideAllGUI();
+    }
 
-        demoGUI = GameObject.Find("DemoGUI");
-        returnHomBtn = GameObject.Find("ReturnHomeBtn");
-        
-        tutorialText = GameObject.Find("InstructionsText").GetComponent<Text>();
-        tutorialCounterText = GameObject.Find("TutorialCounterText").GetComponent<Text>();
-        
-        compareDisplay = GameObject.Find("CompareDisplay");
-        eelIndicator = GameObject.Find("DemoEelIndicator");
-        snakeIndicator = GameObject.Find("DemoSnakeIndicator");
+    // Update is called once per frame
+    void Update()
+    {
 
+    }
+
+    private void HideAllGUI(){
         tutorialText.enabled = false;
         tutorialCounterText.enabled = false;
 
@@ -78,13 +73,6 @@ public class DemoHandler_Script : MonoBehaviour
         demoGUI.SetActive(false);
         returnHomBtn.SetActive(false);
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-
-    }
-
     public void ShowEel(bool isEel)
     {
         eelIndicator.SetActive(isEel);
@@ -111,16 +99,9 @@ public class DemoHandler_Script : MonoBehaviour
     {
         EndGame();
 
-        tutorialText.enabled = false;
-        tutorialCounterText.enabled = false;
+        HideAllGUI();
 
-        compareDisplay.SetActive(false);
-
-        eelIndicator.SetActive(false);
-        snakeIndicator.SetActive(false);
-        demoGUI.SetActive(false);
-
-        menuScript.Open(ActiveScreen.About);
+        gameHandlerScript.OpenMenuScreen(ActiveScreen.About);
     }
 
     public void EndGame()
@@ -150,12 +131,7 @@ public class DemoHandler_Script : MonoBehaviour
         //set demo mode
         snakeScript.SwitchDemoMode(DemoMode.Tutorial);
 
-        //setup the GUI
-        demoGUI.SetActive(true);
-
         //setup tutorial GUI
-        snakeIndicator.SetActive(true);
-
         tutorialText.enabled = true;
         tutorialCounterText.enabled = true;
 
@@ -164,31 +140,24 @@ public class DemoHandler_Script : MonoBehaviour
     }
 
 
+
     public void StartComparison()
     {
-        
         //start up game
         InitializeGame();
 
         //set demo mode
         snakeScript.SwitchDemoMode(DemoMode.Comparison);
 
-        //setup the GUI
-        demoGUI.SetActive(true);
-
-        //setup tutorial GUI
-        snakeIndicator.SetActive(true);
-
-        compareDisplay.SetActive(false);
-
+        //setup comparison GUI
+        compareDisplay.SetActive(true);
         ShowEel(true);
 
         // Initialize the food
-        SpawnFood(-1, default, EntityType.NormalFood); 
+        SpawnFood(-1, default, EntityType.NormalFood);
 
         //calls Movesnake every user-set time increment to move the snakes
         InvokeRepeating("MoveSnake", 0, options.snakeSpeed);
-
     }
     public void StartRetroSnake()
     {
@@ -198,21 +167,18 @@ public class DemoHandler_Script : MonoBehaviour
         //set demo mode
         snakeScript.SwitchDemoMode(DemoMode.RetroSnake);
 
-        //setup the GUI
-        demoGUI.SetActive(true);
-        
+        //setup the retro snake game GUI
         ShowEel(false);
 
         // Initialize the food
-        SpawnFood(-1, default, EntityType.NormalFood); 
+        SpawnFood(-1, default, EntityType.NormalFood);
 
         //calls Movesnake every user-set time increment to move the snakes
         InvokeRepeating("MoveSnake", 0, options.snakeSpeed);
-
     }
     public void InitializeGame()
     {
-        gameHandlerScript.activeScreen =  ActiveScreen.Demo;
+        gameHandlerScript.activeScreen = ActiveScreen.Demo;
 
         //setup eel gui
         playerGUIScript.demoMode = true;
@@ -224,6 +190,9 @@ public class DemoHandler_Script : MonoBehaviour
 
         // Initialize/spawn player
         InitializeDemoSnake(pos);
+
+        //setup the GUI
+        demoGUI.SetActive(true);
     }
 
     // Initialize a player/snake
@@ -269,7 +238,6 @@ public class DemoHandler_Script : MonoBehaviour
             {
                 return EntityType.Snake;
             }
-
         }
         // check if position contains a wall
         foreach (GameObject wall in gameHandlerScript.wallArr)
@@ -289,7 +257,6 @@ public class DemoHandler_Script : MonoBehaviour
             EntityType entityType;
             if (food.tag == EntityType.NormalFood.ToString())
             {
-                Debug.Log("normal food");
                 entityType = EntityType.NormalFood;
             }
             else if (food.tag == EntityType.DeadSnakeFood.ToString())
@@ -307,12 +274,10 @@ public class DemoHandler_Script : MonoBehaviour
             }
             if (destroyFood)
             {
-                                
                 Destroy(food.gameObject);
                 switch (entityType)
                 {
                     case EntityType.NormalFood:
-                        Debug.Log("eating food");
                         SpawnFood(-1, default, EntityType.NormalFood);
                         break;
                     case EntityType.DeadSnakeFood:
