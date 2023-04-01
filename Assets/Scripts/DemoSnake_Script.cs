@@ -243,7 +243,7 @@ public class DemoSnake_Script : MonoBehaviour
         }
 
         //if you press left control, switch between eel and snake
-        if (Input.GetKeyDown(KeyCode.LeftControl) && (demoMode == DemoMode.Comparison))
+        if (Input.GetKeyDown(KeyCode.Space) && (demoMode == DemoMode.Comparison))
         {
             isEel = !isEel;
             colourHandler.ShowEel(isEel);

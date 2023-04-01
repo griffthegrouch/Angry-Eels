@@ -116,13 +116,14 @@
 
     WHATS LEFT  BEFORE PUBLISHING    
 
-    build errors- something to do with big font generated on tiny area crashes game
-
     - add a couple better sounds (death sound from worms, splashing, victory sound / music)
 
-    movement
+    - add kelp on the win screen
 
     - add a quick play random button
+
+    - make the gold apple spawn a %
+    - make bounds for the advanced options
 
 
 ***********************************************************************************************
@@ -139,6 +140,8 @@
     powerup to eat other snakes that  "cuts" them off where you intersect them, turning them into food
     make bigger fish that can appear that can be eated in piece "leaving bones in the middle"
     "live" food / fish that can move slowly
+
+    pufferfish to avoid
 
     make number of lives
 
@@ -171,14 +174,18 @@
 
 
 ***********************************************************************************************
-    Free Art + Music Assets / Credits
+    Art + Music Assets / Credits
 ***********************************************************************************************
+    *All art and sound assets were taken from free game asset sources*
 
     ghost icon
         https://www.vecteezy.com/vector-art/8358647-ghost-in-cute-kawaii-cartoon-style-vector-flat-design-illustration-simple-modern-shape-for-halloween-asset-or-icon-element-editable
     
     snake + eel icon
         https://www.clipartmax.com/
+
+    fish (food)
+        https://charatoon.com/?dl=1261
 
 
 

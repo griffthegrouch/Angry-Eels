@@ -335,6 +335,8 @@ public class GameHandler_Script : MonoBehaviour
     // Initialize the game called from the menu on game start
     public void InitializeGame(Options _options)
     {
+        currentHighscore = 0;//restart highscore tracker
+
         activeScreen = ActiveScreen.Game;
 
         pauseScreenScript.ShowPrompt();
