@@ -175,7 +175,7 @@ public class GameHandler_Script : MonoBehaviour
     public void Pause()
     {//game paused - called from pause menu
         //play sfx
-        //PlaySFX(pauseSFX);
+        PlaySFX(pauseSFX, 0.5f);
 
         //switch music playing
         gameHandlerAudio.Pause();
@@ -187,7 +187,7 @@ public class GameHandler_Script : MonoBehaviour
     public void UnPause()
     {//game unpaused - called from pause menu
         //play sfx
-        //PlaySFX(unPauseSFX);
+        PlaySFX(unPauseSFX, 0.5f);
 
         //switch music playing
         gameHandlerAudio.Play();
@@ -392,33 +392,48 @@ public class GameHandler_Script : MonoBehaviour
 
     private void MoveSnakes()
     {
-        // Move all non-ghosted snakes one space
+        Dictionary<Vector2, List<Snake_Script>> newPositionCounts = new Dictionary<Vector2, List<Snake_Script>>();
+
+        // Move all non-ghosted snakes one space and store their new positions
         foreach (Snake_Script snakeScript in snakeScripts)
         {
             if (snakeScript.snakeState != SnakeState.Ghosted)
             {
                 Vector2 newPosition = snakeScript.TryMoveSnake();
-                // Check if snake collided with another snake
-                foreach (Snake_Script otherSnake in snakeScripts)
+
+                if (newPositionCounts.ContainsKey(newPosition))
                 {
-                    if (otherSnake.snakeState != SnakeState.Ghosted && snakeScript != otherSnake)
-                    {
-                        if (otherSnake.CheckForSnakeAtPos(newPosition, false))
-                        {
-                            // Both snakes collided, kill them
-                            snakeScript.Die();
-                            otherSnake.Die();
-                            return;
-                        }
-                    }
+                    newPositionCounts[newPosition].Add(snakeScript);
+                }
+                else
+                {
+                    newPositionCounts[newPosition] = new List<Snake_Script> { snakeScript };
                 }
             }
             else
             {
+                // If ghosted, snake doesn't enter collision matrix
                 snakeScript.TryMoveSnake();
             }
         }
+
+        // Check for collisions and kill the collided snakes
+        foreach (List<Snake_Script> collidedSnakes in newPositionCounts.Values)
+        {
+            if (collidedSnakes.Count > 1)
+            {
+                foreach (Snake_Script snakeScript in collidedSnakes)
+                {
+                    if (snakeScript.snakeState != SnakeState.Ghosted)
+                    {
+                        snakeScript.Die();
+                    }
+                }
+            }
+        }
     }
+
+
 
 
     public EntityType CheckPos(int playerNum, Vector3 pos, bool destroyFood)
@@ -537,7 +552,7 @@ public class GameHandler_Script : MonoBehaviour
         {
             case EntityType.NormalFood:
                 // chance to turn into golden food
-                if ((int)Random.Range(1, options.goldFoodSpawnChance) == 1)
+                if ((int)Random.Range(0, 100) < options.goldFoodSpawnChance)
                 {
                     foodType = EntityType.GoldFood;
                     goto case EntityType.GoldFood;

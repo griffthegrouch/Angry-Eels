@@ -116,13 +116,10 @@
 
     WHATS LEFT  BEFORE PUBLISHING    
 
-    - add a couple better sounds (death sound from worms, splashing, victory sound / music)
-
-    - add kelp on the win screen
+    - title them music
 
     - add a quick play random button
 
-    - make the gold apple spawn a %
     - make bounds for the advanced options
 
 

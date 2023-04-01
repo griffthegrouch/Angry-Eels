@@ -44,7 +44,7 @@ public class DemoSnake_Script : MonoBehaviour
     private MoveMentStyle moveMentStyle = MoveMentStyle.None;
 
     //sound effects
-    public AudioSource SFXAudio;
+    public AudioSource sfxPlayer;
 
     public GameObject segmentPrefab;
     public Sprite segmentSpriteStraight;
@@ -56,8 +56,10 @@ public class DemoSnake_Script : MonoBehaviour
     public AudioClip eatDeadSnakeFoodSFX;
 
     public AudioClip crashSnakeSFX;
-    public AudioClip crashWallSFX;
-    public AudioClip growSFX;
+    public AudioClip crashSelfSFX;
+    public AudioClip crashWallSFX1;
+    public AudioClip crashWallSFX2;
+
 
 
 
@@ -90,7 +92,15 @@ public class DemoSnake_Script : MonoBehaviour
         //prepare the snake to starting state
         ResetSnake();
     }
-
+    public void PlaySFX(AudioClip sfx)
+    {
+        float volume = 0.2f;
+        sfxPlayer.PlayOneShot(sfx, volume);
+    }
+    public void PlaySFX(AudioClip sfx, float volume)
+    {
+        sfxPlayer.PlayOneShot(sfx, volume);
+    }
     // Method to start the game for the snake
     private void StartGame()
     {
@@ -678,27 +688,22 @@ public class DemoSnake_Script : MonoBehaviour
         {
             case EntityType.NormalFood://if spot was food then eat the food
                 //play sfx
-                if (playerSettings.normalFoodGrowthAmount >= 3)
-                {
+                PlaySFX(eatNormalFoodSFX, 2f);
 
-                }
-                else
-                {
-
-                }
                 EatFood(playerSettings.normalFoodGrowthAmount);
                 goto case EntityType.Empty;//the act as if the target spot was empty
 
             case EntityType.DeadSnakeFood://if spot was food then eat the food
-                                          //play sfx
-
+                //play sfx
+                PlaySFX(eatDeadSnakeFoodSFX, 0.1f);
 
                 EatFood(playerSettings.deadSnakeFoodGrowthAmount);
                 goto case EntityType.Empty;//the act as if the target spot was empty
 
             case EntityType.GoldFood://if spot was food then eat the food
-                                     //play sfx
-
+                //play sfx
+                PlaySFX(eatGoldFoodSFX1, 2f);
+                PlaySFX(eatGoldFoodSFX2, .5f);
 
                 EatFood(playerSettings.goldFoodGrowthAmount);
 
@@ -712,22 +717,24 @@ public class DemoSnake_Script : MonoBehaviour
                 goto case EntityType.Empty;//the act as if the target spot was empty
 
             case EntityType.Wall://if spot was a wall ---> die
-                                 //play sfx
-
-                //playerSettings.gameHandler_Script.PlaySFX(deathSFX, 10);
+                //play sfx
+                PlaySFX(crashWallSFX1, 2f);
+                PlaySFX(crashWallSFX2, 2f);
                 Die();
                 break;
 
             case EntityType.Self:
                 //play sfx
+                PlaySFX(crashSelfSFX, .5f);
+
                 goto case EntityType.Snake;
 
             case EntityType.Snake://if spot was a snake --->die
                 if (snakeState == SnakeState.Alive)
                 {
                     //play sfx
+                    PlaySFX(crashSnakeSFX, .5f);
 
-                    //playerSettings.gameHandler_Script.PlaySFX(deathSFX, 20);
                     Die();
                 }
                 else

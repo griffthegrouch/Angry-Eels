@@ -143,7 +143,8 @@ MonoBehaviour:
   eatDeadSnakeFoodSFX: {fileID: 8300000, guid: 270750b4387dc2749b0ae3a087a250ef, type: 3}
   crashSnakeSFX: {fileID: 8300000, guid: 38838f240acccb64686a57f897b19f6d, type: 3}
   crashSelfSFX: {fileID: 8300000, guid: 05ecdd2cb484d1b48a1a0c8b6d712488, type: 3}
-  crashWallSFX: {fileID: 8300000, guid: 9726f73da18fb3346ac5bb510644ed6a, type: 3}
+  crashWallSFX1: {fileID: 8300000, guid: 9726f73da18fb3346ac5bb510644ed6a, type: 3}
+  crashWallSFX2: {fileID: 8300000, guid: c67bb4c35c76b0c448cb640580c1df00, type: 3}
 --- !u!114 &-1333631931485550850
 MonoBehaviour:
   m_ObjectHideFlags: 0

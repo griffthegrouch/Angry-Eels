@@ -8,13 +8,13 @@ using System.Linq;
 public class HighScoreManager_Script : MonoBehaviour
 {
 
-    private GameHandler_Script gameHandlerScript;
+    public GameHandler_Script gameHandlerScript;
 
-    private GameObject highScoreScreen;
-    private Text customHighScoreText;
-    private Text classicHighScoreText;
-    private Text casualHighScoreText;
-    private Text wildHighScoreText;
+    public GameObject highScoreScreen;
+    public Text customHighScoreText;
+    public Text classicHighScoreText;
+    public Text casualHighScoreText;
+    public Text wildHighScoreText;
 
     // Dictionary to store the high scores for each rule set
     private Dictionary<RuleSet, List<KeyValuePair<string, int>>> highScores;
