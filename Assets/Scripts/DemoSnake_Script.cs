@@ -25,7 +25,6 @@ public class DemoSnake_Script : MonoBehaviour
 
     private DemoHandler_Script demoHandlerScript;
     private PlayerSettings playerSettings;
-    private PlayerResources playerResources;
     private DemoSnakeColourHandler_Script colourHandler;
     private GameObject snakeHead;
 
@@ -44,14 +43,28 @@ public class DemoSnake_Script : MonoBehaviour
     private char horizontalBufferDirection; // next horizontal (L or R) direction of the snake (as user inputted)
     private MoveMentStyle moveMentStyle = MoveMentStyle.None;
 
+    //sound effects
+    public AudioSource SFXAudio;
+
+    public GameObject segmentPrefab;
+    public Sprite segmentSpriteStraight;
+    public Sprite segmentSpriteCurved;
+    public Sprite segmentSpriteTail;
+    public AudioClip eatNormalFoodSFX;
+    public AudioClip eatGoldFoodSFX1;
+    public AudioClip eatGoldFoodSFX2;
+    public AudioClip eatDeadSnakeFoodSFX;
+
+    public AudioClip crashSnakeSFX;
+    public AudioClip crashWallSFX;
+    public AudioClip growSFX;
 
 
 
-    public void SetupSnake(PlayerSettings _playerSettings, PlayerResources _playerResources, DemoHandler_Script _demoHandlerScript, GameObject _demoSegmentPrefab, Color retroSnakeColour)
+    public void SetupSnake(PlayerSettings _playerSettings, DemoHandler_Script _demoHandlerScript, GameObject _demoSegmentPrefab, Color retroSnakeColour)
     {
 
         playerSettings = _playerSettings;
-        playerResources = _playerResources;
 
         demoHandlerScript = _demoHandlerScript;
 
@@ -667,27 +680,25 @@ public class DemoSnake_Script : MonoBehaviour
                 //play sfx
                 if (playerSettings.normalFoodGrowthAmount >= 3)
                 {
-                    playerSettings.gameHandler_Script.PlaySFX(playerResources.popMultipleSFX);
+
                 }
                 else
                 {
-                    playerSettings.gameHandler_Script.PlaySFX(playerResources.popSFX);
+
                 }
                 EatFood(playerSettings.normalFoodGrowthAmount);
                 goto case EntityType.Empty;//the act as if the target spot was empty
 
             case EntityType.DeadSnakeFood://if spot was food then eat the food
-                //play sfx
-                playerSettings.gameHandler_Script.PlaySFX(playerResources.popSFX);
+                                          //play sfx
+
 
                 EatFood(playerSettings.deadSnakeFoodGrowthAmount);
                 goto case EntityType.Empty;//the act as if the target spot was empty
 
             case EntityType.GoldFood://if spot was food then eat the food
-                //play sfx
-                playerSettings.gameHandler_Script.PlaySFX(playerResources.yummySFX);
-                playerSettings.gameHandler_Script.PlaySFX(playerResources.popMultipleSFX);
-                playerSettings.gameHandler_Script.PlaySFX(playerResources.powerUpSFX);
+                                     //play sfx
+
 
                 EatFood(playerSettings.goldFoodGrowthAmount);
 
@@ -701,8 +712,8 @@ public class DemoSnake_Script : MonoBehaviour
                 goto case EntityType.Empty;//the act as if the target spot was empty
 
             case EntityType.Wall://if spot was a wall ---> die
-                //play sfx
-                playerSettings.gameHandler_Script.PlaySFX(playerResources.crashSFX);
+                                 //play sfx
+
                 //playerSettings.gameHandler_Script.PlaySFX(deathSFX, 10);
                 Die();
                 break;
@@ -715,7 +726,7 @@ public class DemoSnake_Script : MonoBehaviour
                 if (snakeState == SnakeState.Alive)
                 {
                     //play sfx
-                    playerSettings.gameHandler_Script.PlaySFX(playerResources.chompSFX);
+
                     //playerSettings.gameHandler_Script.PlaySFX(deathSFX, 20);
                     Die();
                 }
@@ -794,7 +805,7 @@ public class DemoSnake_Script : MonoBehaviour
         Vector2 previousSegmentDir = Vector2.zero;
         Vector2 nextSegmentDir = Vector2.zero;
         Vector3 newRotation = Vector3.zero;
-        Sprite newSprite = playerResources.segmentSpriteStraight;
+        Sprite newSprite = segmentSpriteStraight;
         GameObject currentSeg;
 
         //cycle through each segment
@@ -826,18 +837,18 @@ public class DemoSnake_Script : MonoBehaviour
                 //determing if its a horizontal straight segment
                 if (previousSegmentDir.y == 0 && nextSegmentDir.y == 0)
                 {
-                    newSprite = playerResources.segmentSpriteStraight;
+                    newSprite = segmentSpriteStraight;
                     newRotation = new Vector3(0, 0, 90);
                 }
                 //determing if its a vertical straight segment
                 else if (previousSegmentDir.x == 0 && nextSegmentDir.x == 0)
                 {
-                    newSprite = playerResources.segmentSpriteStraight;
+                    newSprite = segmentSpriteStraight;
                     newRotation = new Vector3(0, 0, 0);
                 }
                 else
                 {
-                    newSprite = playerResources.segmentSpriteCurved;
+                    newSprite = segmentSpriteCurved;
                     //if its not a straight segment, determine which direction the curve needs to go
 
                     switch (previousSegmentDir + nextSegmentDir)
@@ -863,7 +874,7 @@ public class DemoSnake_Script : MonoBehaviour
             //if its the last segment (tail)
             else
             {
-                newSprite = playerResources.segmentSpriteTail;
+                newSprite = segmentSpriteTail;
 
                 //using the previous segment's relative position to determine which way to angle tail
                 switch (previousSegmentDir)

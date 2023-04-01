@@ -96629,8 +96629,18 @@ MonoBehaviour:
   - {fileID: 232613370}
   - {fileID: 2027802558}
   - {fileID: 749220939}
+  snakePrefab: {fileID: 6095072195779382944, guid: a46b3782f7dc847029ecb9fa1e2349a2,
+    type: 3}
+  foodPrefab: {fileID: 1928718323762490624, guid: e5b52bb0692f04cebaac3ccc659cbbd5,
+    type: 3}
   gameHandlerAudio: {fileID: 1967680427}
-  SFXAudio: {fileID: 1967680429}
+  sfxPlayer: {fileID: 1967680429}
+  gameMusic: {fileID: 8300000, guid: 4082b9dca176c7545997a1f69d224e78, type: 3}
+  pauseScreenMusic: {fileID: 8300000, guid: 97fb21e23b23c054293462d80cd4cfb8, type: 3}
+  buttonClickSFX: {fileID: 8300000, guid: 09b0b61fa0ed5194bacf9bfc88685705, type: 3}
+  gameStartSFX: {fileID: 8300000, guid: 0a8f4d4c22e478a42af48ec8b4f3757c, type: 3}
+  pauseSFX: {fileID: 8300000, guid: 4fbe80d18bc2c6040b48d0922537fc01, type: 3}
+  unPauseSFX: {fileID: 8300000, guid: 9e411aa05c0a20340921445cfe769712, type: 3}
 --- !u!82 &1967680427
 AudioSource:
   m_ObjectHideFlags: 0

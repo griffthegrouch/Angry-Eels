@@ -214,7 +214,7 @@ public class DemoHandler_Script : MonoBehaviour
         );
 
         //passing all the relevant information to the new snake
-        snakeScript.SetupSnake(playerSettings, gameHandlerScript.playerResources, this, demoSnakeSegmentPrefab, snakeColour);
+        snakeScript.SetupSnake(playerSettings, this, demoSnakeSegmentPrefab, snakeColour);
     }
 
     private void MoveSnake()

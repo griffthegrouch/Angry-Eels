@@ -140,67 +140,36 @@ public class GameHandler_Script : MonoBehaviour
     public PlayerGUI_Script[] playerGUIScripts { get; set; }
 
 
-    /////////////////////////// prefabs + resources
+    /////////////////////////// prefabs
 
     // Prefab for the snake
-    public GameObject snakePrefab { get; set; }
+    public GameObject snakePrefab;
     // Prefab for the food
-    public GameObject foodPrefab { get; set; }
-
-    // Player Resources
-    public PlayerResources playerResources { get; set; }
+    public GameObject foodPrefab;
 
     // Audio source for game handler
     public AudioSource gameHandlerAudio;
 
     // Audio source for sound effects
-    public AudioSource SFXAudio;
+    public AudioSource sfxPlayer;
 
     //all music clips
-    private AudioClip gameMusic;
-    private AudioClip pauseScreenMusic;
+    public AudioClip gameMusic;
+    public AudioClip pauseScreenMusic;
 
 
-    //all sound effect clips
-    private AudioClip buttonClickSFX;
-    private AudioClip gameStartSFX;
-    private AudioClip pauseSFX;
-    private AudioClip unPauseSFX;
+    //sound effects menus
+    public AudioClip buttonClickSFX;
+    public AudioClip gameStartSFX;
+    public AudioClip pauseSFX;
+    public AudioClip unPauseSFX;
 
 
     void Start()
     {
-        // grab all resources
-        snakePrefab = Resources.Load("Prefabs/Snake") as GameObject;
-
-        foodPrefab = Resources.Load("Prefabs/Food") as GameObject;
-
         // grab all existing walls
         wallArr = GameObject.FindGameObjectsWithTag("wall");
-
-        //grab sound fx + music
-        gameMusic = Resources.Load("Audio/GameMusic") as AudioClip;
-        pauseScreenMusic = Resources.Load("Audio/PauseScreenMusic") as AudioClip;
-
-        buttonClickSFX = Resources.Load("Audio/ButtonClickSound") as AudioClip;
-        gameStartSFX = Resources.Load("Audio/GameStartSound") as AudioClip;
-        pauseSFX = Resources.Load("Audio/PauseSound") as AudioClip;
-        unPauseSFX = Resources.Load("Audio/UnPauseSound") as AudioClip;
-
-        Sprite[] sprites = Resources.LoadAll<Sprite>("Sprites/snake_game_sprites");
-        playerResources = new PlayerResources(
-            (Resources.Load("Prefabs/SnakeSegment") as GameObject),
-            sprites[6] as Sprite,
-            sprites[0] as Sprite,
-            sprites[10] as Sprite,
-            (Resources.Load("Audio/CharacterChompSound") as AudioClip),
-            (Resources.Load("Audio/CharacterDeathSound") as AudioClip),
-            (Resources.Load("Audio/CharacterYummySound") as AudioClip),
-            (Resources.Load("Audio/CrashSound") as AudioClip),
-            (Resources.Load("Audio/PopSound") as AudioClip),
-            (Resources.Load("Audio/PopSequenceSounds") as AudioClip),
-            (Resources.Load("Audio/PowerUpSound") as AudioClip)
-        );
+        gameHandlerAudio.Pause();
     }
 
     public void Pause()
@@ -221,7 +190,7 @@ public class GameHandler_Script : MonoBehaviour
         //PlaySFX(unPauseSFX);
 
         //switch music playing
-        gameHandlerAudio.Play(0);
+        gameHandlerAudio.Play();
 
         //resume time + snake movement
         CancelInvoke();
@@ -230,14 +199,14 @@ public class GameHandler_Script : MonoBehaviour
     }
 
     //method plays a sound effect from game handler audio, overload is for playing it with a specific volume
-    public void PlaySFX(AudioClip SFX)
+    public void PlaySFX(AudioClip sfx)
     {
         float volume = 0.2f;
-        SFXAudio.PlayOneShot(pauseSFX, volume);
+        sfxPlayer.PlayOneShot(sfx, volume);
     }
-    public void PlaySFX(AudioClip SFX, float volume)
+    public void PlaySFX(AudioClip sfx, float volume)
     {
-        SFXAudio.PlayOneShot(pauseSFX, volume);
+        sfxPlayer.PlayOneShot(sfx, volume);
     }
 
     public void ExitGame()
@@ -415,7 +384,7 @@ public class GameHandler_Script : MonoBehaviour
         );
 
         //passing all the relevant information to the new snake
-        newSnakeScript.SetupSnake(playerSettings, playerResources);
+        newSnakeScript.SetupSnake(playerSettings);
 
         //adding new snake script to local snakescripts arr
         snakeScripts[playerIndex] = newSnakeScript;
@@ -559,7 +528,7 @@ public class GameHandler_Script : MonoBehaviour
         //if attempting to spawn at a specific position
         else if (CheckPos(playerNum, pos, false) != EntityType.Self)
         {
-            Debug.Log("cant spawn food here, pos: " + pos);
+            //Debug.Log("cant spawn food here, pos: " + pos);
             // if trying to spawn food on an existing food, don't
             return;
         }
