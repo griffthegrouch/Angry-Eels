@@ -1,4 +1,4 @@
-# SimpleSnake
+# Angry Eels
  Angry Eels is a modern take on the classic game "Snake" developed in the Unity Game Engine by Griffin Atkinson. With customizable game rules, advanced gameplay features, competetive multiplayer similar to the classic game "Tron" and visually appealing graphics and sounds, Angry Eels takes the classic gameplay to the next level.
 
 ## Original Game
