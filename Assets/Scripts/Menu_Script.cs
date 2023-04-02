@@ -4,6 +4,7 @@ using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
+
 public enum RuleSet
 {
     Demo,
@@ -11,14 +12,68 @@ public enum RuleSet
     Classic,
     Casual,
     Wild
-
 }
+
+// A class for all the options values
+public class Options
+{
+    //the name of the set rules for the game
+    public RuleSet ruleSet { get; set; }
+    public GameMode gameMode { get; set; }
+    public int goalPoints { get; set; }//num of points required to win (if gamemode is a race to points)
+    public bool[] activePlayers { get; set; } = { true, false, false, false }; //which players are in the game - defaults to just player 1
+    public int numPlayers { get; set; }   //num players in the game, set automatically when changing var activePlayers
+    //public PlayerType[] playerTypes{get; set;}
+    public Color[] playerColours { get; set; }
+    public float snakeSpeed { get; set; }
+    public float ghostModeDuration { get; set; }
+    public float deathPenaltyDuration { get; set; }
+    public int startingSize { get; set; }
+    public int normalFoodGrowthAmount { get; set; }
+    public int deadSnakeFoodGrowthAmount { get; set; } = 1;
+    public int goldFoodGrowthAmount { get; set; }
+    public float goldFoodSpawnChance { get; set; }
+    public bool doSnakesTurnToFood { get; set; }
+
+    public Options()
+    {
+
+    }
+    //f snakeSpeed, i startingSize, f ghostModeDuration, f deathPenaltyDuration,
+    //i normalFoodGrowthAmount, f goldFoodSpawnChance,  i goldFoodGrowthAmount, b doSnakesTurnToFood
+    public Options(RuleSet _ruleSet, float _snakeSpeed, int _startingSize, float _ghostModeDuration, float _deathPenaltyDuration,
+    int _normalFoodGrowthAmount, float _goldFoodSpawnChance, int _goldFoodGrowthAmount, bool _doSnakesTurnToFood
+    )
+    {//has a big constructor so i dont have to use a bunch of big object initializers later on
+        ruleSet = _ruleSet;
+        snakeSpeed = _snakeSpeed;
+        ghostModeDuration = _ghostModeDuration;
+        deathPenaltyDuration = _deathPenaltyDuration;
+        startingSize = _startingSize;
+        normalFoodGrowthAmount = _normalFoodGrowthAmount;
+        goldFoodGrowthAmount = _goldFoodGrowthAmount;
+        goldFoodSpawnChance = _goldFoodSpawnChance;
+        doSnakesTurnToFood = _doSnakesTurnToFood;
+    }
+}
+
 public class Menu_Script : MonoBehaviour
 {
     private GameMode gameMode = GameMode.Endless;// The currently selected game mode - defaulted to endless
     private int goalPoints = 0; // The goal points for the "First to" game mode - defaulted to 0
     private int numPlayers = 1; // The number of players in the game - defaulted to 1
     private bool[] activePlayers = { true, false, false, false }; //which players are in the game - defaults to just player 1
+
+    private float minSnakeSpeed = 0.001f; private float maxSnakeSpeed = 100f;
+    private float minGhostModeDuration = 0f; private float maxGhostModeDuration = 100f;
+    private float minDeathPenaltyDuration = 0f; private float maxDeathPenaltyDuration = 100f;
+    private int minStartingSize = 1; private int maxStartingSize = 100;
+    private int minNormalFoodGrowthAmount = 1; private int maxNormalFoodGrowthAmount = 100;
+    private int minGoldFoodGrowthAmount = 1; private int maxGoldFoodGrowthAmount = 100;
+    private float minGoldFoodSpawnChance = 0; private float maxGoldFoodSpawnChance = 100;
+
+
+
     private Options options = new Options();    // The values for all options
 
     // The names and values for the preset options
@@ -74,10 +129,10 @@ public class Menu_Script : MonoBehaviour
 
     void Start()    // Start is called before the first frame update
     {
-       
+
         //move screens into position on game load
         menuParent.localPosition = Vector2.zero;
-        advancedOptionsScreen.transform.localPosition = new Vector3(0,-500, -10);
+        advancedOptionsScreen.transform.localPosition = new Vector3(0, -500, -10);
 
         //grab all the menu screen's changing objects 
         MenuScreenObjects = new Dictionary<string, GameObject>
@@ -520,12 +575,38 @@ public class Menu_Script : MonoBehaviour
 
     }
     public void MainMenuPlayRandomBtn()
-    {        //unused
+    {   //unused
         if (gameHandlerScript.activeScreen != ActiveScreen.MainMenu)
         {
             Debug.Log("trying to press a button thats currently inactive");
             return;
         }
+        //make the custom ruleset completely random (within bounds)
+        Options tempOptions = new Options();//create temp place to store advanced options
+        tempOptions.ruleSet = RuleSet.Custom;
+        //grab all values displayed on advanced options screen
+        tempOptions.snakeSpeed = (float)Random.Range(0.05f, 0.5f);
+        tempOptions.startingSize = (int)Random.Range(1, 20);
+        tempOptions.ghostModeDuration = (float)Random.Range(0, 5f);
+        if (Random.value >= 0.5)
+        {
+            tempOptions.deathPenaltyDuration = (float)Random.Range(0, 5f);
+        }
+        else
+        {
+            tempOptions.deathPenaltyDuration = 0;
+        }
+        tempOptions.normalFoodGrowthAmount = (int)Random.Range(1, 15);
+        tempOptions.goldFoodSpawnChance = (float)Random.Range(0, 100);
+        tempOptions.goldFoodGrowthAmount = (int)Random.Range(1, 50);
+        tempOptions.doSnakesTurnToFood = Random.value >= 0.5;
+
+        //save options to custom preset
+        presetOptions["Custom"] = tempOptions;
+        //set the selected ruleset to be custom
+        selectedPreset = 0;
+        //start game with new ruleset
+        StartGame();
 
     }
     public void MainMenuStartBtn()
@@ -722,21 +803,39 @@ public class Menu_Script : MonoBehaviour
         // Set the value of the toggle for the "do snakes turn to food" option
         MenuScreenObjects["DoSnakesTurnIntoFood"].GetComponent<Toggle>().isOn = tempOptions.doSnakesTurnToFood;
     }
+
     public void SaveAdvancedOptionsFromScreen() //saves the displayed options to "custom" preset
     {
         Options tempOptions = new Options();//create temp place to store advanced options
         tempOptions.ruleSet = RuleSet.Custom;
         //grab all values displayed on advanced options screen
         tempOptions.snakeSpeed = float.Parse(MenuScreenObjects["SnakeSpeed"].GetComponent<InputField>().text);
+        tempOptions.snakeSpeed = Mathf.Clamp(tempOptions.snakeSpeed, minSnakeSpeed, maxSnakeSpeed);
+
         tempOptions.startingSize = int.Parse(MenuScreenObjects["StartingSize"].GetComponent<InputField>().text);
+        tempOptions.startingSize = Mathf.Clamp(tempOptions.startingSize, minStartingSize, maxStartingSize);
+
         tempOptions.ghostModeDuration = float.Parse(MenuScreenObjects["GhostModeDuration"].GetComponent<InputField>().text);
+        tempOptions.ghostModeDuration = Mathf.Clamp(tempOptions.ghostModeDuration, minGhostModeDuration, maxGhostModeDuration);
+
         tempOptions.deathPenaltyDuration = float.Parse(MenuScreenObjects["DeathPenaltyDuration"].GetComponent<InputField>().text);
+        tempOptions.deathPenaltyDuration = Mathf.Clamp(tempOptions.deathPenaltyDuration, minDeathPenaltyDuration, maxDeathPenaltyDuration);
+
         tempOptions.normalFoodGrowthAmount = int.Parse(MenuScreenObjects["NormalFoodGrowthAmount"].GetComponent<InputField>().text);
+        tempOptions.normalFoodGrowthAmount = Mathf.Clamp(tempOptions.normalFoodGrowthAmount, minNormalFoodGrowthAmount, maxNormalFoodGrowthAmount);
+
         tempOptions.goldFoodSpawnChance = float.Parse(MenuScreenObjects["GoldFoodSpawnChance"].GetComponent<InputField>().text);
+        tempOptions.goldFoodSpawnChance = Mathf.Clamp(tempOptions.goldFoodSpawnChance, minGoldFoodSpawnChance, maxGoldFoodSpawnChance);
+
         tempOptions.goldFoodGrowthAmount = int.Parse(MenuScreenObjects["GoldFoodGrowthAmount"].GetComponent<InputField>().text);
+        tempOptions.goldFoodGrowthAmount = Mathf.Clamp(tempOptions.goldFoodGrowthAmount, minGoldFoodGrowthAmount, maxGoldFoodGrowthAmount);
+
         tempOptions.doSnakesTurnToFood = MenuScreenObjects["DoSnakesTurnIntoFood"].GetComponent<Toggle>().isOn;
+
         //save options to custom preset
         presetOptions["Custom"] = tempOptions;
+
+        DisplayPreset(selectedPreset);
     }
 
 }

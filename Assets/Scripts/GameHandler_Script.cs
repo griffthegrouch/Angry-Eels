@@ -17,11 +17,9 @@ public enum ActiveScreen
     PauseMenu,
     WinMenu,
     HighScore,
-
-    //not yet implemented
-    Demo,
-    RetroGame
+    Demo
 }
+
 // Enum for the game mode
 public enum GameMode
 {
@@ -47,48 +45,6 @@ public enum EntityType
     GoldFood
 }
 
-// A class for all the options values
-public class Options
-{
-    //the name of the set rules for the game
-    public RuleSet ruleSet { get; set; }
-    public GameMode gameMode { get; set; }
-    public int goalPoints { get; set; }//num of points required to win (if gamemode is a race to points)
-    public bool[] activePlayers { get; set; } = { true, false, false, false }; //which players are in the game - defaults to just player 1
-    public int numPlayers { get; set; }   //num players in the game, set automatically when changing var activePlayers
-    //public PlayerType[] playerTypes{get; set;}
-    public Color[] playerColours { get; set; }
-    public float snakeSpeed { get; set; }
-    public float ghostModeDuration { get; set; }
-    public float deathPenaltyDuration { get; set; }
-    public int startingSize { get; set; }
-    public int normalFoodGrowthAmount { get; set; }
-    public int deadSnakeFoodGrowthAmount { get; set; } = 1;
-    public int goldFoodGrowthAmount { get; set; }
-    public float goldFoodSpawnChance { get; set; }
-    public bool doSnakesTurnToFood { get; set; }
-
-    public Options()
-    {
-
-    }
-    //f snakeSpeed, i startingSize, f ghostModeDuration, f deathPenaltyDuration,
-    //i normalFoodGrowthAmount, f goldFoodSpawnChance,  i goldFoodGrowthAmount, b doSnakesTurnToFood
-    public Options(RuleSet _ruleSet, float _snakeSpeed, int _startingSize, float _ghostModeDuration, float _deathPenaltyDuration,
-    int _normalFoodGrowthAmount, float _goldFoodSpawnChance, int _goldFoodGrowthAmount, bool _doSnakesTurnToFood
-    )
-    {//has a big constructor so i dont have to use a bunch of big object initializers later on
-        ruleSet = _ruleSet;
-        snakeSpeed = _snakeSpeed;
-        ghostModeDuration = _ghostModeDuration;
-        deathPenaltyDuration = _deathPenaltyDuration;
-        startingSize = _startingSize;
-        normalFoodGrowthAmount = _normalFoodGrowthAmount;
-        goldFoodGrowthAmount = _goldFoodGrowthAmount;
-        goldFoodSpawnChance = _goldFoodSpawnChance;
-        doSnakesTurnToFood = _doSnakesTurnToFood;
-    }
-}
 
 public class GameHandler_Script : MonoBehaviour
 {

@@ -116,12 +116,11 @@
 
     WHATS LEFT  BEFORE PUBLISHING    
 
-    - title them music
+    - title theme music + menus + win screen + high score screen
 
-    - add a quick play random button
+    - make an in-game display showing how much food is worth, and spawn rates
 
-    - make bounds for the advanced options
-
+    - make navigating the save score screen more intuitive
 
 ***********************************************************************************************
     Ideas / Future Plans
