@@ -20,10 +20,8 @@ public class DemoHandler_Script : MonoBehaviour
     public GameObject demoGUI;
     public GameObject returnHomBtn;
 
-    public Text tutorialText;
+    public Text demoText;
     public Text tutorialCounterText;
-
-    public GameObject compareDisplay;
 
     public GameObject eelIndicator;
     public GameObject snakeIndicator;
@@ -37,6 +35,9 @@ public class DemoHandler_Script : MonoBehaviour
         "Great Job!\n Returning home.",
         "Great Job!"
     };
+
+    private string comparisonText = "Press SPACEBAR to switch between the eel and the snake!\nThere is no goal, this mode is just a demo!";
+    private string retroSnakeText = "This demo mode is endless and you cant save your score.\nEat food to grow";
 
     // Ruleset ruleSet 
     // f snakeSpeed, i startingSize, f ghostModeDuration, f deathPenaltyDuration,
@@ -63,10 +64,8 @@ public class DemoHandler_Script : MonoBehaviour
     }
 
     private void HideAllGUI(){
-        tutorialText.enabled = false;
+        demoText.enabled = false;
         tutorialCounterText.enabled = false;
-
-        compareDisplay.SetActive(false);
 
         eelIndicator.SetActive(false);
         snakeIndicator.SetActive(false);
@@ -83,14 +82,14 @@ public class DemoHandler_Script : MonoBehaviour
     {
         if (tutNum == -1)
         {
-            tutorialText.text = "";
+            demoText.text = "";
             tutorialCounterText.text = "";
-            tutorialText.enabled = false;
+            demoText.enabled = false;
             tutorialCounterText.enabled = false;
         }
         else
         {
-            tutorialText.text = instructions[tutNum];
+            demoText.text = instructions[tutNum];
             tutorialCounterText.text = counterText;
         }
     }
@@ -132,7 +131,7 @@ public class DemoHandler_Script : MonoBehaviour
         snakeScript.SwitchDemoMode(DemoMode.Tutorial);
 
         //setup tutorial GUI
-        tutorialText.enabled = true;
+        demoText.enabled = true;
         tutorialCounterText.enabled = true;
 
         //calls Movesnake every user-set time increment to move the snakes
@@ -150,7 +149,8 @@ public class DemoHandler_Script : MonoBehaviour
         snakeScript.SwitchDemoMode(DemoMode.Comparison);
 
         //setup comparison GUI
-        compareDisplay.SetActive(true);
+        demoText.enabled = true;
+        demoText.text = comparisonText;
         ShowEel(true);
 
         // Initialize the food
@@ -168,6 +168,8 @@ public class DemoHandler_Script : MonoBehaviour
         snakeScript.SwitchDemoMode(DemoMode.RetroSnake);
 
         //setup the retro snake game GUI
+        demoText.enabled = true;
+        demoText.text = retroSnakeText;
         ShowEel(false);
 
         // Initialize the food
@@ -212,7 +214,7 @@ public class DemoHandler_Script : MonoBehaviour
         );
 
         //passing all the relevant information to the new snake
-        snakeScript.SetupSnake(playerSettings, gameHandlerScript.playerResources, this, demoSnakeSegmentPrefab, snakeColour);
+        snakeScript.SetupSnake(playerSettings, this, demoSnakeSegmentPrefab, snakeColour);
     }
 
     private void MoveSnake()

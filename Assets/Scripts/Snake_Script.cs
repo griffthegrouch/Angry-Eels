@@ -66,37 +66,8 @@ public class PlayerSettings
     }
 
 }
-public class PlayerResources
-{
-    public GameObject segmentPrefab { get; set; }
-    public Sprite segmentSpriteStraight { get; set; }
-    public Sprite segmentSpriteCurved { get; set; }
-    public Sprite segmentSpriteTail { get; set; }
-    public AudioClip chompSFX { get; set; }
-    public AudioClip deathSFX { get; set; }
-    public AudioClip yummySFX { get; set; }
-    public AudioClip crashSFX { get; set; }
-    public AudioClip popSFX { get; set; }
-    public AudioClip popMultipleSFX { get; set; }
-    public AudioClip powerUpSFX { get; set; }
-    public PlayerResources(
-        GameObject _segmentPrefab, Sprite _segmentSpriteStraight, Sprite _segmentSpriteCurved, Sprite _segmentSpriteTail,
-        AudioClip _chompSFX, AudioClip _deathSFX, AudioClip _yummySFX, AudioClip _crashSFX,
-        AudioClip _popSFX, AudioClip _popMultipleSFX, AudioClip _powerUpSFX)
-    {
-        segmentPrefab = _segmentPrefab;
-        segmentSpriteStraight = _segmentSpriteStraight;
-        segmentSpriteCurved = _segmentSpriteCurved;
-        segmentSpriteTail = _segmentSpriteTail;
-        chompSFX = _chompSFX;
-        deathSFX = _deathSFX;
-        yummySFX = _yummySFX;
-        crashSFX = _crashSFX;
-        popSFX = _popSFX;
-        popMultipleSFX = _popMultipleSFX;
-        powerUpSFX = _powerUpSFX;
-    }
-}
+
+
 
 
 
@@ -104,7 +75,6 @@ public class PlayerResources
 public class Snake_Script : MonoBehaviour
 {
     private PlayerSettings playerSettings;
-    private PlayerResources playerResources;
     private SnakeColourHandler_Script colourHandler;
     private GameObject snakeHead;
 
@@ -123,14 +93,28 @@ public class Snake_Script : MonoBehaviour
     private char horizontalBufferDirection; // next horizontal (L or R) direction of the snake (as user inputted)
     private MoveMentStyle moveMentStyle = MoveMentStyle.None;
 
+    //sound effects
+    public AudioSource sfxPlayer;
+
+    public GameObject segmentPrefab;
+    public Sprite segmentSpriteStraight;
+    public Sprite segmentSpriteCurved;
+    public Sprite segmentSpriteTail;
+    public AudioClip eatNormalFoodSFX;
+    public AudioClip eatGoldFoodSFX1;
+    public AudioClip eatGoldFoodSFX2;
+    public AudioClip eatDeadSnakeFoodSFX;
+
+    public AudioClip crashSnakeSFX;
+    public AudioClip crashSelfSFX;
+    public AudioClip crashWallSFX1;
+    public AudioClip crashWallSFX2;
 
 
-
-    public void SetupSnake(PlayerSettings _playerSettings, PlayerResources _playerResources)
+    public void SetupSnake(PlayerSettings _playerSettings)
     {
 
         playerSettings = _playerSettings;
-        playerResources = _playerResources;
         snakeHead = this.transform.GetChild(0).gameObject;
 
         inputDirections = new Dictionary<KeyCode, Vector2>()
@@ -148,8 +132,21 @@ public class Snake_Script : MonoBehaviour
         colourHandler = GetComponent<SnakeColourHandler_Script>();
         colourHandler.Setup(this, playerSettings.playerColour, snakeHead.GetComponent<SpriteRenderer>());
 
+        //set the snake sounds to high-pitch
+        sfxPlayer.pitch = 1.8f;
+
         //prepare the snake to starting state
         ResetSnake();
+    }
+
+    public void PlaySFX(AudioClip sfx)
+    {
+        float volume = 0.2f;
+        sfxPlayer.PlayOneShot(sfx, volume);
+    }
+    public void PlaySFX(AudioClip sfx, float volume)
+    {
+        sfxPlayer.PlayOneShot(sfx, volume);
     }
 
     // Method to start the game for the snake
@@ -274,7 +271,8 @@ public class Snake_Script : MonoBehaviour
     private void InputLogic()
     {
         // if snake is waiting to do a one-spot movement, stop buffer from overwriting it.
-        if((moveMentStyle == MoveMentStyle.Tap) || (moveMentStyle == MoveMentStyle.OneStep) || (moveMentStyle == MoveMentStyle.UTurn)){
+        if ((moveMentStyle == MoveMentStyle.Tap) || (moveMentStyle == MoveMentStyle.OneStep) || (moveMentStyle == MoveMentStyle.UTurn))
+        {
             return;
         }
         Vector2 directionsTapped = Vector2.zero;
@@ -313,7 +311,7 @@ public class Snake_Script : MonoBehaviour
         // If 1 direction is held
         if ((directionsHeld.x != 0 && directionsHeld.y == 0) || (directionsHeld.y != 0 && directionsHeld.x == 0))
         {
-            
+
             if (directionsHeld != Vector2.zero)
             {
                 // Handle the case when a horizontal direction is held
@@ -360,12 +358,13 @@ public class Snake_Script : MonoBehaviour
                 if (currentDirection != 'd')
                 {
                     //checking if U-turned (holding the opposite direction from current + tapping sideways)
-                    if((directionsHeld.x == 1 && currentDirection == 'l') || 
+                    if ((directionsHeld.x == 1 && currentDirection == 'l') ||
                         (directionsHeld.x == -1 && currentDirection == 'r'))
                     {
                         moveMentStyle = MoveMentStyle.UTurn;
                     }
-                    else{//checking if tapped or one-stepped
+                    else
+                    {//checking if tapped or one-stepped
                         moveMentStyle = moveMentStyle == MoveMentStyle.StairCase ? MoveMentStyle.OneStep : MoveMentStyle.Tap;
                     }
                     verticalBufferDirection = 'u';
@@ -376,12 +375,13 @@ public class Snake_Script : MonoBehaviour
                 if (currentDirection != 'u')
                 {
                     //checking if U-turned (holding the opposite direction from current + tapping sideways)
-                    if((directionsHeld.x == 1 && currentDirection == 'l') || 
+                    if ((directionsHeld.x == 1 && currentDirection == 'l') ||
                         (directionsHeld.x == -1 && currentDirection == 'r'))
                     {
                         moveMentStyle = MoveMentStyle.UTurn;
                     }
-                    else{//checking if tapped or one-stepped
+                    else
+                    {//checking if tapped or one-stepped
                         moveMentStyle = moveMentStyle == MoveMentStyle.StairCase ? MoveMentStyle.OneStep : MoveMentStyle.Tap;
                     }
                     verticalBufferDirection = 'd';
@@ -397,12 +397,13 @@ public class Snake_Script : MonoBehaviour
                 if (currentDirection != 'l')
                 {
                     //checking if U-turned (holding the opposite direction from current + tapping sideways)
-                    if((directionsHeld.y == -1 && currentDirection == 'u') || 
+                    if ((directionsHeld.y == -1 && currentDirection == 'u') ||
                         (directionsHeld.y == 1 && currentDirection == 'd'))
                     {
                         moveMentStyle = MoveMentStyle.UTurn;
                     }
-                    else{//checking if tapped or one-stepped
+                    else
+                    {//checking if tapped or one-stepped
                         moveMentStyle = moveMentStyle == MoveMentStyle.StairCase ? MoveMentStyle.OneStep : MoveMentStyle.Tap;
 
                     }
@@ -414,12 +415,13 @@ public class Snake_Script : MonoBehaviour
                 if (currentDirection != 'r')
                 {
                     //checking if U-turned (holding the opposite direction from current + tapping sideways)
-                    if((directionsHeld.y == -1 && currentDirection == 'u') || 
+                    if ((directionsHeld.y == -1 && currentDirection == 'u') ||
                         (directionsHeld.y == 1 && currentDirection == 'd'))
                     {
                         moveMentStyle = MoveMentStyle.UTurn;
                     }
-                    else{//checking if tapped or one-stepped
+                    else
+                    {//checking if tapped or one-stepped
                         moveMentStyle = moveMentStyle == MoveMentStyle.StairCase ? MoveMentStyle.OneStep : MoveMentStyle.Tap;
 
                     }
@@ -451,12 +453,12 @@ public class Snake_Script : MonoBehaviour
 
     public Vector2 TryMoveSnake()
     {//called by game handler, returns the snake's target position
-        //1 - checks if able to move at all
-        //2 - determine the target spot
-        //3 - checks if anything is occupying target spot
-        //    + switch statement to respond to what is in target spot
+     //1 - checks if able to move at all
+     //2 - determine the target spot
+     //3 - checks if anything is occupying target spot
+     //    + switch statement to respond to what is in target spot
 
-        
+
 
         //1
         if (snakeState == SnakeState.Dead)//if snake is dead, it cant move, exit method
@@ -509,29 +511,22 @@ public class Snake_Script : MonoBehaviour
         {
             case EntityType.NormalFood://if spot was food then eat the food
                 //play sfx
-                if (playerSettings.normalFoodGrowthAmount >= 3)
-                {
-                    playerSettings.gameHandler_Script.PlaySFX(playerResources.popMultipleSFX);
-                }
-                else
-                {
-                    playerSettings.gameHandler_Script.PlaySFX(playerResources.popSFX);
-                }
+                PlaySFX(eatNormalFoodSFX, 2f);
+
                 EatFood(playerSettings.normalFoodGrowthAmount);
                 goto case EntityType.Empty;//the act as if the target spot was empty
 
             case EntityType.DeadSnakeFood://if spot was food then eat the food
                 //play sfx
-                playerSettings.gameHandler_Script.PlaySFX(playerResources.popSFX);
+                PlaySFX(eatDeadSnakeFoodSFX, 0.1f);
 
                 EatFood(playerSettings.deadSnakeFoodGrowthAmount);
                 goto case EntityType.Empty;//the act as if the target spot was empty
 
             case EntityType.GoldFood://if spot was food then eat the food
                 //play sfx
-                playerSettings.gameHandler_Script.PlaySFX(playerResources.yummySFX);
-                playerSettings.gameHandler_Script.PlaySFX(playerResources.popMultipleSFX);
-                playerSettings.gameHandler_Script.PlaySFX(playerResources.powerUpSFX);
+                PlaySFX(eatGoldFoodSFX1, 2f);
+                PlaySFX(eatGoldFoodSFX2, .5f);
 
                 EatFood(playerSettings.goldFoodGrowthAmount);
 
@@ -546,21 +541,32 @@ public class Snake_Script : MonoBehaviour
 
             case EntityType.Wall://if spot was a wall ---> die
                 //play sfx
-                playerSettings.gameHandler_Script.PlaySFX(playerResources.crashSFX);
-                //playerSettings.gameHandler_Script.PlaySFX(deathSFX, 10);
+                PlaySFX(crashWallSFX1, 2f);
+                PlaySFX(crashWallSFX2, 2f);
+
                 Die();
                 break;
 
             case EntityType.Self:
-                //play sfx
-                goto case EntityType.Snake;
+                if (snakeState == SnakeState.Alive)
+                {
+                    //play sfx
+                    PlaySFX(crashSelfSFX, .5f);
+
+                    Die();
+                }
+                else
+                {
+                    goto case EntityType.Empty;
+                }
+                break;
 
             case EntityType.Snake://if spot was a snake --->die
                 if (snakeState == SnakeState.Alive)
                 {
                     //play sfx
-                    playerSettings.gameHandler_Script.PlaySFX(playerResources.chompSFX);
-                    //playerSettings.gameHandler_Script.PlaySFX(deathSFX, 20);
+                    PlaySFX(crashSnakeSFX, .5f);
+
                     Die();
                 }
                 else
@@ -590,7 +596,7 @@ public class Snake_Script : MonoBehaviour
 
             storedSegments -= 1;
             // Instantiate a new segment prefab 
-            GameObject newSegment = Instantiate(playerResources.segmentPrefab, snakeHead.transform.position, Quaternion.identity, transform);
+            GameObject newSegment = Instantiate(segmentPrefab, snakeHead.transform.position, Quaternion.identity, transform);
 
             //set the colour of it
             colourHandler.AddRenderer(newSegment.transform.GetChild(0).GetComponent<SpriteRenderer>());
@@ -638,7 +644,7 @@ public class Snake_Script : MonoBehaviour
         Vector2 previousSegmentDir = Vector2.zero;
         Vector2 nextSegmentDir = Vector2.zero;
         Vector3 newRotation = Vector3.zero;
-        Sprite newSprite = playerResources.segmentSpriteStraight;
+        Sprite newSprite = segmentSpriteStraight;
         GameObject currentSeg;
 
         //cycle through each segment
@@ -670,18 +676,18 @@ public class Snake_Script : MonoBehaviour
                 //determing if its a horizontal straight segment
                 if (previousSegmentDir.y == 0 && nextSegmentDir.y == 0)
                 {
-                    newSprite = playerResources.segmentSpriteStraight;
+                    newSprite = segmentSpriteStraight;
                     newRotation = new Vector3(0, 0, 90);
                 }
                 //determing if its a vertical straight segment
                 else if (previousSegmentDir.x == 0 && nextSegmentDir.x == 0)
                 {
-                    newSprite = playerResources.segmentSpriteStraight;
+                    newSprite = segmentSpriteStraight;
                     newRotation = new Vector3(0, 0, 0);
                 }
                 else
                 {
-                    newSprite = playerResources.segmentSpriteCurved;
+                    newSprite = segmentSpriteCurved;
                     //if its not a straight segment, determine which direction the curve needs to go
 
                     switch (previousSegmentDir + nextSegmentDir)
@@ -707,7 +713,7 @@ public class Snake_Script : MonoBehaviour
             //if its the last segment (tail)
             else
             {
-                newSprite = playerResources.segmentSpriteTail;
+                newSprite = segmentSpriteTail;
 
                 //using the previous segment's relative position to determine which way to angle tail
                 switch (previousSegmentDir)
@@ -770,7 +776,8 @@ public class Snake_Script : MonoBehaviour
         foreach (GameObject seg in segments)
         {
             //if not checking last segment
-            if((segments.IndexOf(seg) == segments.Count-1) && !includeLastSeg){
+            if ((segments.IndexOf(seg) == segments.Count - 1) && !includeLastSeg)
+            {
                 return false;
             }
             if (pos == seg.transform.position)
