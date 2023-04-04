@@ -132,6 +132,9 @@ public class Snake_Script : MonoBehaviour
         colourHandler = GetComponent<SnakeColourHandler_Script>();
         colourHandler.Setup(this, playerSettings.playerColour, snakeHead.GetComponent<SpriteRenderer>());
 
+        //set the snake sounds to high-pitch
+        sfxPlayer.pitch = 1.8f;
+
         //prepare the snake to starting state
         ResetSnake();
     }

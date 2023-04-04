@@ -114,17 +114,17 @@
     TODO
 ***********************************************************************************************
 
-    WHATS LEFT  BEFORE PUBLISHING    
-
-    - title theme music + menus + win screen + high score screen
-
-    - make an in-game display showing how much food is worth, and spawn rates
-
-    - make navigating the save score screen more intuitive
+    
 
 ***********************************************************************************************
     Ideas / Future Plans
 ***********************************************************************************************
+
+    make an in-game display showing how much food is worth, and spawn rates
+
+    add more variations of the eel to choose from
+
+    add challenge mode, where the player has to try and get through an obstacle course
 
     add computer players
 
@@ -141,7 +141,7 @@
 
     make number of lives
 
-    make battle royale mode, where eels dont respawn untill theyre all dead
+    make battle royale mode, where eels dont respawn until theyre all dead
 
     make random obstacle maker, and preset stages to choose from.
 
@@ -150,7 +150,7 @@
         - obstacles,
         - warp pipes to other side of level
 
-    add powerups (speed, grow a lot, untargettable)
+    add powerups (speed, grow a lot, untargettable, drop bomb, )
 
     make options for food (multiple random spawning, single one that grows you then moves, toggle for dead snakes becoming food )
 
@@ -172,7 +172,10 @@
 ***********************************************************************************************
     Art + Music Assets / Credits
 ***********************************************************************************************
-    *All art and sound assets were taken from free game asset sources*
+    *All art and sound assets were taken from free game asset sources, royalty free*
+
+    All UI images
+    https://craftpix.net/freebies/island-game-gui/
 
     ghost icon
         https://www.vecteezy.com/vector-art/8358647-ghost-in-cute-kawaii-cartoon-style-vector-flat-design-illustration-simple-modern-shape-for-halloween-asset-or-icon-element-editable
@@ -182,9 +185,20 @@
 
     fish (food)
         https://charatoon.com/?dl=1261
+    
+    title music
+        https://www.chosic.com/download-audio/27131/
+    
+    pause screen music
+    https://www.zapsplat.com/music/easy-cheesy-fun-up-tempo-funky-retro-action-arcade-game-music-great-for-menu-or-pause-sections/
 
+    game music
+    https://www.zapsplat.com/music/aiming-high-an-electronic-based-energetic-piece-with-80s-elements-and-warm-arpeggios/
 
+    splash sound effect
+    https://pixabay.com/sound-effects/splash-6213/
 
+    all other sound effects from Zapsplat.com royalty free
 
 
 

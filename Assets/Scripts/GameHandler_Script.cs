@@ -112,11 +112,15 @@ public class GameHandler_Script : MonoBehaviour
     //all music clips
     public AudioClip gameMusic;
     public AudioClip pauseScreenMusic;
+    public AudioClip titleScreenMusic;
+
 
 
     //sound effects menus
     public AudioClip buttonClickSFX;
     public AudioClip gameStartSFX;
+    public AudioClip splashSFX;
+    public AudioClip grrSFX;
     public AudioClip pauseSFX;
     public AudioClip unPauseSFX;
 
@@ -125,7 +129,12 @@ public class GameHandler_Script : MonoBehaviour
     {
         // grab all existing walls
         wallArr = GameObject.FindGameObjectsWithTag("wall");
-        gameHandlerAudio.Pause();
+        //gameHandlerAudio.Pause();
+        gameHandlerAudio.clip = titleScreenMusic;
+        gameHandlerAudio.Play();
+        sfxPlayer.pitch = 1.8f;
+        sfxPlayer.PlayOneShot(grrSFX);
+  
     }
 
     public void Pause()
@@ -218,6 +227,8 @@ public class GameHandler_Script : MonoBehaviour
 
     public void EndGame()
     {
+        gameHandlerAudio.clip = titleScreenMusic;
+        gameHandlerAudio.Play();
         pauseScreenScript.Reset();
         foreach (var script in playerGUIScripts)
         {
@@ -260,13 +271,21 @@ public class GameHandler_Script : MonoBehaviour
     // Initialize the game called from the menu on game start
     public void InitializeGame(Options _options)
     {
+
         currentHighscore = 0;//restart highscore tracker
 
         activeScreen = ActiveScreen.Game;
 
         pauseScreenScript.ShowPrompt();
+
         //play sfx
-        PlaySFX(gameStartSFX);
+        sfxPlayer.Stop();
+        sfxPlayer.pitch = 1f;
+        PlaySFX(splashSFX, 2f);
+
+        //play music
+        gameHandlerAudio.clip = gameMusic;
+        gameHandlerAudio.Play();
 
         // Set options
         options = _options;
