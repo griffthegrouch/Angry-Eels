@@ -120,8 +120,22 @@
     Ideas / Future Plans
 ***********************************************************************************************
 
+    
+
+    ************************************
+        Quality of life
+    ************************************
     make an in-game display showing how much food is worth, and spawn rates
 
+    remove death penalties entirely for single player
+
+    make time-trial (goal points but for speed record)
+
+    make "caves"-indicators for where snakes will spawn from
+
+    ************************************
+        New Features
+    ************************************
     add more variations of the eel to choose from
 
     add challenge mode, where the player has to try and get through an obstacle course

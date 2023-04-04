@@ -86,7 +86,7 @@ public class Menu_Script : MonoBehaviour
         { "Classic", new Options(
             RuleSet.Classic,
             0.12f, 3, 1.2f, 0f,
-            1, 30, 20, false
+            1, 5, 20, false
         ) },
         { "Casual", new Options(
             RuleSet.Casual,
