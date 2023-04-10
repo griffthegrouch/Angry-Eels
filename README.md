@@ -51,10 +51,69 @@ Creating Angry Eels was a fun and challenging experience. While making it into a
 
 ## Credits
 All the code was written by Griffin Atkinson
-All the game art, music, and sound effects were sourced from free game assets websites and free Unity asset content packs
+All the game art, music, and sound effects were sourced from free game assets websites and free Unity asset content packs, royalty free*
 ### Links
+All UI images
+https://craftpix.net/freebies/island-game-gui/
+
+ghost icon
+   https://www.vecteezy.com/vector-art/8358647-ghost-in-cute-kawaii-cartoon-style-vector-flat-design-illustration-simple-modern-shape-for-halloween-asset-or-icon-    element-editable
+    
+snake + eel icon
+   https://www.clipartmax.com/
+
+fish (food)
+    https://charatoon.com/?dl=1261
+    
+title music
+    https://www.chosic.com/download-audio/27131/
+    
+pause screen music
+    https://www.zapsplat.com/music/easy-cheesy-fun-up-tempo-funky-retro-action-arcade-game-music-great-for-menu-or-pause-sections/
+
+game music
+    https://www.zapsplat.com/music/aiming-high-an-electronic-based-energetic-piece-with-80s-elements-and-warm-arpeggios/
+
+splash sound effect
+    https://pixabay.com/sound-effects/splash-6213/
+
+*all other sound effects from Zapsplat.com, not requesting credit*
 
 
-## Future Plans
+## Future Plans + Ideas
+### Quality of life
+-make an in-game display showing how much food is worth, and spawn rates
+-add controller support
+-add ability to save and name custom gamemodes
+-remove death penalties entirely for single player
+-make time-trial (goal points but for speed record)
+-make "caves"-indicators for where snakes will spawn from
+
+### New Features
+
+-add computer players
+-add online multiplayer
+-add more visual variations of the eel to choose from
+-add challenge mode, where the player has to try and get through an obstacle course
+-add animation for eels to open their mouths when they get close to food and eat when they get food
+-add a big update to the types of food
+    powerup to eat other snakes that  "cuts" them off where you intersect them, turning them into food
+    make bigger fish that can appear that can be eated in piece "leaving bones in the middle"
+    "live" food / fish that can move slowly
+-pufferfish/bomb to avoid
+-make number of lives
+-make battle royale mode, where eels dont respawn until theyre all dead
+-make random obstacle maker, and preset stages to choose from.
+-make different levels 
+   - different level sizes
+   - obstacles,
+   - warp pipes to other side of level
+   - level randomizer
+   - level editor
+-add powerups (speed, grow a lot, untargettable, drop bomb, )
+-make options for food (multiple random spawning, single one that grows you then moves, toggle for dead snakes becoming food )
+-golden food that moves/bounces around?
+-boss eel (2-3x the size of normal eel)
+   
 
 
