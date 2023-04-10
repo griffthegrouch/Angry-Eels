@@ -75,13 +75,19 @@ All the game art, music, and sound effects were sourced from free game assets we
 
 ### Links
 All UI images: https://craftpix.net/freebies/island-game-gui/
+
 Ghost icon: https://www.vecteezy.com/vector-art/8358647-ghost-in-cute-kawaii-cartoon-style-vector-flat-design-illustration-simple-modern-shape-for-halloween-asset-or-icon-element-editable
+
 Snake + Eel icon: https://www.clipartmax.com/
-Fish (food): https://charatoon.com/?dl=1261
+
 Title music: https://www.chosic.com/download-audio/27131/
+
 Pause screen music: https://www.zapsplat.com/music/easy-cheesy-fun-up-tempo-funky-retro-action-arcade-game-music-great-for-menu-or-pause-sections/
+
 Game music: https://www.zapsplat.com/music/aiming-high-an-electronic-based-energetic-piece-with-80s-elements-and-warm-arpeggios/
+
 Splash sound effect: https://pixabay.com/sound-effects/splash-6213/
+
 All other sound effects from Zapsplat.com, not requesting credit.
 
 ## Future Plans and Ideas
