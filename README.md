@@ -35,15 +35,11 @@ Local multiplayer mode for up to 4 players on the same or different keyboards, w
 - Death penalty timer 
 - and many more
 
-### High score tracking and top 10 leaderboard for each Rule-Set
-
-### Visually appealing menus with user-friendly navigation and simple controls for customization
-
-### Pause game function, restart
-
-### In-game GUI for each player that shows their score, status, and remaining status duration
-
-### Visually appealing graphics and animations for the eels and special effects for their statuses
+-High score tracking and top 10 leaderboard for each Rule-Set
+-Visually appealing menus with user-friendly navigation and simple controls for customization
+-Pause game function, restart
+-In-game GUI for each player that shows their score, status, and remaining status duration
+-Visually appealing graphics and animations for the eels and special effects for their statuses
 
 
 ## Development
